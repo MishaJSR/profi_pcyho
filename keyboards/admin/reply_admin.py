@@ -1,14 +1,13 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from keyboards.user.reply_user import main_but, modules
 
+command_admin_list = ['Отправить рассылку']
+
 
 def start_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Добавить задание')
-    test_kb.button(text='Удалить задание')
-    test_kb.button(text='Make backup')
-    test_kb.button(text='Update tables')
-    test_kb.button(text='Отправить рассылку')
+    for el in command_admin_list:
+        test_kb.button(text=el)
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
@@ -85,5 +84,12 @@ def back_kb(data=None):
 def reset_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Отмена')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def send_spam(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Подтвердить')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
