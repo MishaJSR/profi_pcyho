@@ -70,7 +70,7 @@ async def get_photo(message: types.Message, state: FSMContext):
 @admin_spammer_router.message(AdminStateSender.name_block, F.text)
 async def get_photo(message: types.Message, state: FSMContext):
     await message.answer('Блок загружен', reply_markup=reset_kb())
-    await state.set_state(AdminStateSender.sta)
+    # await state.set_state(AdminStateSender.sta)
 
 
 # @admin_spammer_router.message(AdminStateSender.confirm_state)
