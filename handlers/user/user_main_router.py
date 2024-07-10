@@ -33,7 +33,7 @@ class UserState(StatesGroup):
 @user_private_router.message(StateFilter('*'), CommandStart())
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        userid, username = message.from_user.id, message.from_user.username
+        userid, username = message.from_user.id, message.from_user.full_name
         res = await check_new_user(session, userid)
         if len(res) == 0:
             await add_user(session, userid, username)

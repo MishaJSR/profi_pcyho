@@ -1,6 +1,6 @@
 from aiogram.fsm.state import StatesGroup, State
 from keyboards.admin.reply_admin import start_kb, back_kb, exam_kb, chapter_kb, answers_kb, answers_kb_end, about_kb, \
-    answer_kb, restart_answer_kb, reset_kb
+    answer_kb, restart_answer_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb
 
 
 class Admin_state(StatesGroup):
@@ -45,17 +45,21 @@ class Admin_state(StatesGroup):
 
 
 class AdminStateSender(StatesGroup):
+    start = State()
+    choose_block_actions = State()
     text_state = State()
     media_state = State()
+    prepare_to_load = State()
     confirm_state = State()
     name_block = State()
     texts = {
-        'AdminStateSender:text_state': 'Выбор текста',
-        'AdminStateSender:image_state': 'Выбор изображения',
-        'AdminStateSender:image_state_repeat': 'Выбор изображения',
-        'AdminStateSender:video_state': 'Выбор видео',
-        'AdminStateSender:video_state_repeat': 'Выбор видео',
-        'AdminStateSender:confirm_state': 'Подтверждение',
+        'AdminStateSender:start': ['Начало работы', start_kb],
+        'AdminStateSender:choose_block_actions': ['Выбор действий', block_actions],
+        'AdminStateSender:text_state': ['Напишите текст рассылки', reset_kb],
+        'AdminStateSender:media_state': ['Отправьте медиафайл', send_media_kb],
+        'AdminStateSender:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
+        'AdminStateSender:confirm_state': ['Выберите действие', send_media_kb],
+        'AdminStateSender:name_block': ['Укажите краткое название блока', reset_kb],
     }
     text = ''
     photo = None

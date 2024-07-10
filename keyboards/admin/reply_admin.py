@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from keyboards.user.reply_user import main_but, modules
 
-command_admin_list = ['Отправить рассылку']
+command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
 
 
 def start_kb(data=None):
@@ -84,7 +84,7 @@ def send_img_repeat_kb(data=None):
 
 def send_media_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Оставить пустым')
     test_kb.button(text='Подготовить сообщение к рассылке')
     test_kb.adjust(1, 1)
@@ -92,21 +92,21 @@ def send_media_kb(data=None):
 
 def send_media_check_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Подготовить сообщение к рассылке')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
 def send_video_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Оставить пустым')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
 def send_video_repeat_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Добавить ещё одно видео')
     test_kb.button(text='Подготовить сообщение к рассылке')
     test_kb.adjust(1, 1)
@@ -118,16 +118,24 @@ def back_kb(data=None):
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
+def block_actions(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Назад')
+    test_kb.button(text='Добавить блок')
+    test_kb.button(text='Удалить блок')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
 
 def reset_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
 def send_spam(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Подтвердить')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
@@ -135,7 +143,7 @@ def send_spam(data=None):
 
 def prepare_to_spam(data=None):
     test_kb = ReplyKeyboardBuilder()
-    test_kb.button(text='Отмена')
+    test_kb.button(text='Назад')
     test_kb.button(text='Подтвердить')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
