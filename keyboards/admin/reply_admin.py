@@ -73,6 +73,44 @@ def send_img_kb(data=None):
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
+def send_img_repeat_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Добавить ещё одно изображение')
+    test_kb.button(text='Подготовить сообщение к рассылке')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+
+def send_media_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Оставить пустым')
+    test_kb.button(text='Подготовить сообщение к рассылке')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def send_media_check_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Подготовить сообщение к рассылке')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def send_video_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Оставить пустым')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def send_video_repeat_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Добавить ещё одно видео')
+    test_kb.button(text='Подготовить сообщение к рассылке')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
 
 def back_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
@@ -88,6 +126,14 @@ def reset_kb(data=None):
     return test_kb.as_markup(resize_keyboard=True)
 
 def send_spam(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Отмена')
+    test_kb.button(text='Подтвердить')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+
+def prepare_to_spam(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Отмена')
     test_kb.button(text='Подтвердить')

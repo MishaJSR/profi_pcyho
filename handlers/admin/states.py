@@ -46,15 +46,24 @@ class Admin_state(StatesGroup):
 
 class AdminStateSender(StatesGroup):
     text_state = State()
-    image_state = State()
+    media_state = State()
     confirm_state = State()
+    name_block = State()
     texts = {
         'AdminStateSender:text_state': 'Выбор текста',
         'AdminStateSender:image_state': 'Выбор изображения',
+        'AdminStateSender:image_state_repeat': 'Выбор изображения',
+        'AdminStateSender:video_state': 'Выбор видео',
+        'AdminStateSender:video_state_repeat': 'Выбор видео',
         'AdminStateSender:confirm_state': 'Подтверждение',
     }
     text = ''
     photo = None
+    photo_arr = []
+    video_arr = []
+    media = []
+    video_id_list = []
+    photo_counter = 0
 
 
 class AdminStateDelete(StatesGroup):
