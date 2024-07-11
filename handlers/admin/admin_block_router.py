@@ -3,13 +3,17 @@ from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 
 from aiogram.types import InputMediaPhoto
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from database.orm_query_block import add_block
+from database.orm_query_media import add_media
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
     block_actions
 from handlers.admin.states import Admin_state, AdminStateSender
 import logging
 import uuid
+import datetime
 
 admin_block_router = Router()
 
@@ -126,14 +130,23 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminStateSender.confirm_state)
 async def get_photo(message: types.Message, state: FSMContext):
-    await message.answer('Укажите краткое название блока', reply_markup=reset_kb())
+    AdminStateSender.date_to_posting = None
+    await message.answer('Укажите дату постинга в формате 11.02.2025.10.00', reply_markup=reset_kb())
+    await state.set_state(AdminStateSender.date_posting)
+
+
+@admin_block_router.message(AdminStateSender.date_posting)
+async def get_photo(message: types.Message, state: FSMContext):
+    AdminStateSender.date_to_posting = message.text
+    await message.answer('Укажите уникальное название блока', reply_markup=reset_kb())
     await state.set_state(AdminStateSender.name_block)
 
 
 @admin_block_router.message(AdminStateSender.name_block, F.text)
-async def get_photo(message: types.Message, state: FSMContext):
+async def get_photo(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer('Загрузка блока', reply_markup=reset_kb())
     block = message.text
+    has_media = False
     print(block)
     text = AdminStateSender.text
     print(text)
@@ -141,11 +154,33 @@ async def get_photo(message: types.Message, state: FSMContext):
         print(photo.media)
     for video_id in AdminStateSender.video_id_list:
         print(video_id)
+    if AdminStateSender.media or AdminStateSender.video_id_list:
+        has_media = True
     callback = AdminStateSender.callback_for_task
-    print(callback)
+    d, m, y, h, minute = AdminStateSender.date_to_posting.split('.')
+    date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
+    try:
+        block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
+                                   date_to_post=date_to_post, progress_block=None)
 
-    await message.answer(f'Блок {block} загружен', reply_markup=start_kb())
+        for photo in AdminStateSender.media:
+            await add_photo_pool(session, block_id, photo.media, callback)
+        for video_id in AdminStateSender.video_id_list:
+            await add_video_pool(session, block_id, video_id, callback)
+        await message.answer(f'Блок {block} загружен', reply_markup=start_kb())
+    except Exception as e:
+        logging.info(e)
+        await message.answer('Ошибка загрузки', reply_markup=start_kb())
+        return
     # await state.set_state(AdminStateSender.sta)
+
+
+async def add_photo_pool(session, block_id, file_id, callback):
+    await add_media(session, block_id=block_id, photo_id=file_id, callback_button_id=callback)
+
+
+async def add_video_pool(session, block_id, file_id, callback):
+    await add_media(session, block_id=block_id, video_id=file_id, callback_button_id=callback)
 
 
 '''Add block'''

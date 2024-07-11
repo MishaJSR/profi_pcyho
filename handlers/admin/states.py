@@ -18,9 +18,9 @@ class Admin_state(StatesGroup):
     save_in_db = State()
     texts = {
         'Admin_state:start': ['Начало работы', start_kb],
-        'Admin_state:exam': ['Выбор части', exam_kb],
-        'Admin_state:chapter': ['Выбор модуля', chapter_kb],
-        'Admin_state:under_chapter': ['Введите подмодуль', back_kb],
+        'Admin_state:exam': ['Выбор типа задания', exam_kb],
+        'Admin_state:chapter': ['Описание задания', chapter_kb],
+        'Admin_state:under_chapter': ['Заполните форму', back_kb],
         'Admin_state:description': ['Введите условие задания', back_kb],
         'Admin_state:answers': ['Введите ответы', restart_answer_kb],
         'Admin_state:answers_swap': ['Введите вариант ответа', answers_kb_end],
@@ -51,7 +51,9 @@ class AdminStateSender(StatesGroup):
     media_state = State()
     prepare_to_load = State()
     confirm_state = State()
+    date_posting = State()
     name_block = State()
+
     texts = {
         'AdminStateSender:start': ['Начало работы', start_kb],
         'AdminStateSender:choose_block_actions': ['Выбор действий', block_actions],
@@ -60,6 +62,7 @@ class AdminStateSender(StatesGroup):
         'AdminStateSender:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
         'AdminStateSender:confirm_state': ['Выберите действие', send_media_kb],
         'AdminStateSender:name_block': ['Укажите краткое название блока', reset_kb],
+        'AdminStateSender:date_posting': ['Укажите дату постинга', reset_kb],
     }
     text = ''
     photo = None
@@ -69,6 +72,7 @@ class AdminStateSender(StatesGroup):
     video_id_list = []
     photo_counter = 0
     callback_for_task = None
+    date_to_posting = None
 
 
 class AdminStateDelete(StatesGroup):
