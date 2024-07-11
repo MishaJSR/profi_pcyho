@@ -40,6 +40,7 @@ class Admin_state(StatesGroup):
     description_test_to_load = None
     answers_test_to_load = None
     answer_test_to_load = None
+    task_list = None
 
 
 class AdminStateSender(StatesGroup):

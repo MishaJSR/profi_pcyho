@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_query import orm_add_task, orm_transport_base
 from database.orm_query_block import get_block_for_add_task
 from database.orm_query_media_task import add_media_task
-from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete
+from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete, delete_task
 from keyboards.admin.reply_admin import start_kb, answers_kb_end, about_kb, answers_kb, \
     answer_kb, back_kb, chapter_kb, type_task_kb, block_pool_kb, send_spam, test_actions, list_task_to_delete
 from handlers.admin.states import Admin_state
@@ -185,17 +185,26 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer(f'Такой блок не найден', reply_markup=start_kb())
     try:
         res = await get_task_for_delete(session, task_id=Admin_state.block_id)
-        task_list = {}
+        Admin_state.task_list = {}
         for task in res:
-            task_list[task._data[0].description] = task._data[0].id
-        await message.answer(f'Выберите задание для удаления', reply_markup=list_task_to_delete(list(task_list.keys())))
+            Admin_state.task_list[task._data[0].description] = task._data[0].id
+        await message.answer(f'Выберите задание для удаления',
+                             reply_markup=list_task_to_delete(list(Admin_state.task_list.keys())))
         await state.set_state(Admin_state.block_delete)
     except Exception as e:
         await message.answer('Такой блок не найден', reply_markup=start_kb())
 
-@admin_add_task_router.message(Admin_state.block_delete)
+@admin_add_task_router.message(Admin_state.block_delete, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    Admin_state.block_id = Admin_state.block_dict_id.get(message.text)
-    if not Admin_state.block_id:
+    id_task_to_delete = Admin_state.task_list.get(message.text)
+    try:
+        res = await delete_task(session, task_id=id_task_to_delete)
+        await message.answer("Задание успешно удалено", reply_markup=start_kb())
+    except Exception as e:
+        print(e)
+        await message.answer("Ошибка удаления", reply_markup=start_kb())
+    finally:
+        await state.set_state(Admin_state.start)
+
 
 '''Delete task'''

@@ -42,5 +42,5 @@ async def add_task_test(session: AsyncSession, **kwargs):
 
 async def delete_task(session: AsyncSession, **kwargs):
     query = update(Task).where((Task.is_visible == True) & (Task.id == kwargs.get("task_id"))).values(is_visible=False)
-    result = await session.execute(query)
-    return result.fetchall()
+    await session.execute(query)
+    await session.commit()
