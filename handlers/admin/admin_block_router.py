@@ -9,6 +9,7 @@ from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb
     block_actions
 from handlers.admin.states import Admin_state, AdminStateSender
 import logging
+import uuid
 
 admin_block_router = Router()
 
@@ -44,11 +45,12 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminStateSender.choose_block_actions)
 
 
-# @admin_block_router.callback_query(F.data == "ss")
+# @admin_block_router.callback_query()
 # async def check_button(call: types.CallbackQuery):
 #     print("call")
 #     await call.message.answer("Hi! This is the first inline keyboard button.")
 #     await call.answer('Вы выбрали каталог')
+#     #9fa7e998-1700-46c9-8c8f-a82bd2fa4568
 
 
 @admin_block_router.message(AdminStateSender.choose_block_actions, F.text == 'Добавить блок')
@@ -68,11 +70,19 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminStateSender.media = []
     AdminStateSender.video_id_list = []
     AdminStateSender.photo_counter = 0
+    AdminStateSender.callback_for_task = None
     await state.set_state(AdminStateSender.media_state)
 
 
 @admin_block_router.message(AdminStateSender.media_state)
 async def fill_admin_state(message: types.Message, state: FSMContext):
+    if message.text == 'Оставить пустым':
+        await message.answer("Вы оставили поле пустым", reply_markup=send_media_check_kb())
+        await state.set_state(AdminStateSender.prepare_to_load)
+        return
+    if not (message.video or message.photo):
+        await message.answer("Ошбика ввода, необходимо отправить медиафайл")
+        return
     try:
         if message.photo:
             if AdminStateSender.photo_counter == 0:
@@ -81,11 +91,12 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
             else:
                 AdminStateSender.media.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id))
             AdminStateSender.photo_counter += 1
+            await message.answer("Медиафайл получен", reply_markup=send_media_check_kb())
         if message.video:
             video = message.video
             file_id = video.file_id
             AdminStateSender.video_id_list.append(file_id)
-        await message.answer("Медиафайл получен", reply_markup=send_media_check_kb())
+            await message.answer("Медиафайл получен", reply_markup=send_media_check_kb())
         await state.set_state(AdminStateSender.prepare_to_load)
     except Exception as e:
         await message.answer("Ошибка при получении медиафайла")
@@ -97,19 +108,20 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f"{AdminStateSender.text}")
     else:
         if not AdminStateSender.video_id_list:
-            await message.answer_media_group(media=AdminStateSender.media, reply_markup=get_inline())
+            AdminStateSender.callback_for_task = str(uuid.uuid4())
+            await message.answer_media_group(media=AdminStateSender.media,
+                                             reply_markup=get_inline(AdminStateSender.callback_for_task))
         else:
             await message.answer_media_group(media=AdminStateSender.media)
     for index, file_id in enumerate(AdminStateSender.video_id_list):
         if index == len(AdminStateSender.video_id_list) - 1:
-            await message.bot.send_video(548349299, video=file_id, reply_markup=get_inline())
+            AdminStateSender.callback_for_task = str(uuid.uuid4())
+            await message.bot.send_video(548349299, video=file_id,
+                                         reply_markup=get_inline(AdminStateSender.callback_for_task))
         else:
             await message.bot.send_video(548349299, video=file_id)
     await message.answer(text='Все верно?', reply_markup=prepare_to_spam())
     await state.set_state(AdminStateSender.confirm_state)
-
-
-
 
 
 @admin_block_router.message(AdminStateSender.confirm_state)
@@ -122,6 +134,16 @@ async def get_photo(message: types.Message, state: FSMContext):
 async def get_photo(message: types.Message, state: FSMContext):
     await message.answer('Загрузка блока', reply_markup=reset_kb())
     block = message.text
+    print(block)
+    text = AdminStateSender.text
+    print(text)
+    for photo in AdminStateSender.media:
+        print(photo.media)
+    for video_id in AdminStateSender.video_id_list:
+        print(video_id)
+    callback = AdminStateSender.callback_for_task
+    print(callback)
+
     await message.answer(f'Блок {block} загружен', reply_markup=start_kb())
     # await state.set_state(AdminStateSender.sta)
 

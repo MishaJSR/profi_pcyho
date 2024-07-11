@@ -68,6 +68,7 @@ class AdminStateSender(StatesGroup):
     media = []
     video_id_list = []
     photo_counter = 0
+    callback_for_task = None
 
 
 class AdminStateDelete(StatesGroup):
