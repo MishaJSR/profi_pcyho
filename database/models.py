@@ -9,14 +9,15 @@ class Base(DeclarativeBase):
 class Task(Base):
     __tablename__ = 'task'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    block: Mapped[str] = mapped_column(String(40), nullable=False)
+    block_id: Mapped[int] = mapped_column(Integer, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
-    answer_mode: Mapped[str] = mapped_column(String(10), nullable=False)
-    answers: Mapped[str] = mapped_column(Text, nullable=False)
+    answer_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    answers: Mapped[str] = mapped_column(Text, nullable=True)
     answer: Mapped[str] = mapped_column(Text, nullable=False)
     about: Mapped[str] = mapped_column(Text, nullable=True)
     addition: Mapped[str] = mapped_column(Text, nullable=True)
-    points_for_task: Mapped[int] = mapped_column(Integer, nullable=False)
+    points_for_task: Mapped[int] = mapped_column(Integer, nullable=False, default=10)
+    is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
 class Block(Base):
@@ -27,17 +28,24 @@ class Block(Base):
     has_media: Mapped[bool] = mapped_column(Boolean, nullable=False)
     date_to_post: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     progress_block: Mapped[int] = mapped_column(Integer, default=0)
+    callback_button_id: Mapped[str] = mapped_column(Text, nullable=True)
     is_vebinar: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
-class Media(Base):
-    __tablename__ = 'media'
+class MediaVideo(Base):
+    __tablename__ = 'media_block'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     block_id: Mapped[int] = mapped_column(Integer, nullable=False)
     photo_id: Mapped[str] = mapped_column(Text, nullable=True)
     video_id: Mapped[str] = mapped_column(Text, nullable=True)
-    callback_button_id: Mapped[str] = mapped_column(Text, nullable=True)
+
+
+class MediaTask(Base):
+    __tablename__ = 'media_task'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    task_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    photo_id: Mapped[str] = mapped_column(Text, nullable=False)
 
 
 class Users(Base):

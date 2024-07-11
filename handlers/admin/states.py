@@ -10,12 +10,11 @@ class Admin_state(StatesGroup):
     description = State()
     image_task_photo = State()
     answers_checker_keys = State()
-    answers = State()
-    answers_swap = State()
-    answer = State()
-    about = State()
-    check_info = State()
-    save_in_db = State()
+
+    load_task = State()
+    description_test = State()
+    confirm_test = State()
+
     texts = {
         'Admin_state:start': ['Начало работы', start_kb],
         'Admin_state:block_choose': ['Выбор блока для задания', chapter_kb],
@@ -23,16 +22,20 @@ class Admin_state(StatesGroup):
         'Admin_state:description': ['Заполните форму', back_kb],
         'Admin_state:image_task_photo': ['Введите условие задания', back_kb],
         'Admin_state:answers_checker_keys': ['Введите ответы', restart_answer_kb],
-        'Admin_state:answers_swap': ['Введите вариант ответа', answers_kb_end],
-        'Admin_state:answer': ['Введите ответ на задание', answer_kb],
-        'Admin_state:about': ['Введите пояснение', about_kb],
-        'Admin_state:check_info': ['Проверка', answers_kb_end],
-        'Admin_state:save_in_db': ['Начало работы', start_kb],
+
     }
     id_task = None
+    block_dict_id = {}
+    block_id = None
+    task_type = None
     photo_list = []
     photo_counter = 0
     caption = None
+    answers_keys = []
+    answers_to_load = None
+    description_test_to_load = None
+    answers_test_to_load = None
+    answer_test_to_load = None
 
 
 class AdminStateSender(StatesGroup):

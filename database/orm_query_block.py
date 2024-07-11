@@ -17,6 +17,7 @@ async def add_block(session: AsyncSession, **kwargs):
         has_media=kwargs.get("has_media"),
         date_to_post=kwargs.get("date_to_post"),
         progress_block=kwargs.get("progress_block"),
+        callback_button_id=kwargs.get("callback_button_id"),
     )
     session.add(obj)
     await session.commit()

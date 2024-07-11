@@ -6,7 +6,7 @@ from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import add_block
-from database.orm_query_media import add_media
+from database.orm_query_media_block import add_media
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
     block_actions
@@ -161,12 +161,12 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
     date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
     try:
         block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
-                                   date_to_post=date_to_post, progress_block=None)
+                                   date_to_post=date_to_post, progress_block=None, callback_button_id=callback)
 
         for photo in AdminStateSender.media:
-            await add_photo_pool(session, block_id, photo.media, callback)
+            await add_photo_pool(session, block_id, photo.media)
         for video_id in AdminStateSender.video_id_list:
-            await add_video_pool(session, block_id, video_id, callback)
+            await add_video_pool(session, block_id, video_id)
         await message.answer(f'Блок {block} загружен', reply_markup=start_kb())
     except Exception as e:
         logging.info(e)
@@ -175,12 +175,12 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
     await state.set_state(AdminStateSender.start)
 
 
-async def add_photo_pool(session, block_id, file_id, callback):
-    await add_media(session, block_id=block_id, photo_id=file_id, callback_button_id=callback)
+async def add_photo_pool(session, block_id, file_id):
+    await add_media(session, block_id=block_id, photo_id=file_id)
 
 
-async def add_video_pool(session, block_id, file_id, callback):
-    await add_media(session, block_id=block_id, video_id=file_id, callback_button_id=callback)
+async def add_video_pool(session, block_id, file_id):
+    await add_media(session, block_id=block_id, video_id=file_id)
 
 
 '''Add block'''
