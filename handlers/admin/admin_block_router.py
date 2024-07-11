@@ -4,6 +4,7 @@ from aiogram.fsm.context import FSMContext
 
 from aiogram.types import InputMediaPhoto
 
+from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
     block_actions
 from handlers.admin.states import Admin_state, AdminStateSender
@@ -11,7 +12,8 @@ import logging
 
 admin_block_router = Router()
 
-@admin_block_router.message(F.text.casefold() == "назад")
+
+@admin_block_router.message(StateFilter(AdminStateSender), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
 
@@ -42,6 +44,11 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminStateSender.choose_block_actions)
 
 
+# @admin_block_router.callback_query(F.data == "ss")
+# async def check_button(call: types.CallbackQuery):
+#     print("call")
+#     await call.message.answer("Hi! This is the first inline keyboard button.")
+#     await call.answer('Вы выбрали каталог')
 
 
 @admin_block_router.message(AdminStateSender.choose_block_actions, F.text == 'Добавить блок')
@@ -51,7 +58,9 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminStateSender.text_state)
 
 
-#Add block
+'''Add block'''
+
+
 @admin_block_router.message(AdminStateSender.text_state)
 async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminStateSender.text = message.text
@@ -87,11 +96,20 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     if not AdminStateSender.media:
         await message.answer(f"{AdminStateSender.text}")
     else:
-        await message.answer_media_group(media=AdminStateSender.media)
-    for file_id in AdminStateSender.video_id_list:
-        await message.bot.send_video(548349299, video=file_id)
+        if not AdminStateSender.video_id_list:
+            await message.answer_media_group(media=AdminStateSender.media, reply_markup=get_inline())
+        else:
+            await message.answer_media_group(media=AdminStateSender.media)
+    for index, file_id in enumerate(AdminStateSender.video_id_list):
+        if index == len(AdminStateSender.video_id_list) - 1:
+            await message.bot.send_video(548349299, video=file_id, reply_markup=get_inline())
+        else:
+            await message.bot.send_video(548349299, video=file_id)
     await message.answer(text='Все верно?', reply_markup=prepare_to_spam())
     await state.set_state(AdminStateSender.confirm_state)
+
+
+
 
 
 @admin_block_router.message(AdminStateSender.confirm_state)
@@ -107,17 +125,19 @@ async def get_photo(message: types.Message, state: FSMContext):
     await message.answer(f'Блок {block} загружен', reply_markup=start_kb())
     # await state.set_state(AdminStateSender.sta)
 
-#Add block
 
+'''Add block'''
 
-#delete block
+'''delete block'''
+
 
 @admin_block_router.message(AdminStateSender.choose_block_actions, F.text == 'Удалить блок')
 async def fill_admin_state(message: types.Message, state: FSMContext):
     await message.answer(text='Выберите какой из блоков вы хотите удалить', reply_markup=reset_kb())
     await state.set_state(AdminStateSender.choose_block_actions)
 
-#delete block
+
+'''delete block'''
 
 
 # @admin_block_router.message(AdminStateSender.confirm_state)
@@ -143,6 +163,7 @@ async def spammer(message, user, state):
     #     await message.bot.send_message(chat_id=user._mapping['user_id'], text=state.text)
     # else:
     #     await message.bot.send_photo(chat_id=user._mapping['user_id'], photo=state.photo, caption=state.text)
+
 
 async def get_generator(arr: list):
     for item in arr:
