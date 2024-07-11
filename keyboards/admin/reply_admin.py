@@ -2,6 +2,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 from keyboards.user.reply_user import main_but, modules
 
 command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
+type_task = ['Описание изображения', 'Тест']
 
 
 def start_kb(data=None):
@@ -12,12 +13,21 @@ def start_kb(data=None):
     return test_kb.as_markup(resize_keyboard=True)
 
 
-def exam_kb(data=main_but):
+def block_pool_kb(data):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')
     for el in data:
         test_kb.button(text=el)
     test_kb.adjust(1, 2)
+    return test_kb.as_markup(resize_keyboard=True)
+
+
+def type_task_kb():
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Назад')
+    for el in type_task:
+        test_kb.button(text=el)
+    test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
 

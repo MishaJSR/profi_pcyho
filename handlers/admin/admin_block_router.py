@@ -138,7 +138,7 @@ async def get_photo(message: types.Message, state: FSMContext):
 @admin_block_router.message(AdminStateSender.date_posting)
 async def get_photo(message: types.Message, state: FSMContext):
     AdminStateSender.date_to_posting = message.text
-    await message.answer('Укажите уникальное название блока', reply_markup=reset_kb())
+    await message.answer('Укажите уникальное название блока. Это название будет видно только вам', reply_markup=reset_kb())
     await state.set_state(AdminStateSender.name_block)
 
 
@@ -172,7 +172,7 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
         logging.info(e)
         await message.answer('Ошибка загрузки', reply_markup=start_kb())
         return
-    # await state.set_state(AdminStateSender.sta)
+    await state.set_state(AdminStateSender.start)
 
 
 async def add_photo_pool(session, block_id, file_id, callback):

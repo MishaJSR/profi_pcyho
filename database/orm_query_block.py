@@ -22,3 +22,9 @@ async def add_block(session: AsyncSession, **kwargs):
     await session.commit()
     await session.refresh(obj)
     return obj.id
+
+
+async def get_block_for_add_task(session: AsyncSession, **kwargs):
+    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False))
+    result = await session.execute(query)
+    return result.fetchall()

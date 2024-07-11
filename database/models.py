@@ -27,6 +27,7 @@ class Block(Base):
     has_media: Mapped[bool] = mapped_column(Boolean, nullable=False)
     date_to_post: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     progress_block: Mapped[int] = mapped_column(Integer, default=0)
+    is_vebinar: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
