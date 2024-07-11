@@ -6,15 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_query import orm_add_task, orm_transport_base
 from database.orm_query_block import get_block_for_add_task
 from database.orm_query_media_task import add_media_task
-from database.orm_query_task import add_task_image, add_task_test
+from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete
 from keyboards.admin.reply_admin import start_kb, answers_kb_end, about_kb, answers_kb, \
-    answer_kb, back_kb, chapter_kb, type_task_kb, block_pool_kb, send_spam
+    answer_kb, back_kb, chapter_kb, type_task_kb, block_pool_kb, send_spam, test_actions, list_task_to_delete
 from handlers.admin.states import Admin_state
 
 admin_add_task_router = Router()
 
 
 @admin_add_task_router.message(F.text == 'Управление заданиями')
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    await message.answer("Выберите действие", reply_markup=test_actions())
+    await state.set_state(Admin_state.choose_actions)
+
+
+@admin_add_task_router.message(Admin_state.choose_actions, F.text == 'Добавить задание')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
         res = await get_block_for_add_task(session)
@@ -38,6 +44,9 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f'Такой блок не найден', reply_markup=start_kb())
     await message.answer(f'Выберите тип задания для блока {message.text}', reply_markup=type_task_kb())
     await state.set_state(Admin_state.type_task_choose)
+
+
+"""Image"""
 
 
 @admin_add_task_router.message(Admin_state.type_task_choose, F.text == "Описание изображения")
@@ -103,6 +112,8 @@ async def add_photo_pool_task(session, task_id, file_id):
     await add_media_task(session, task_id=task_id, photo_id=file_id)
 
 
+"""Image"""
+
 '''Test'''
 
 
@@ -148,3 +159,43 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 
 '''Test'''
+
+'''Delete task'''
+
+
+@admin_add_task_router.message(Admin_state.choose_actions, F.text == 'Удалить задание')
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        res = await get_block_for_add_task(session)
+    except Exception as e:
+        await message.answer('Ошибка подключения к базе данных блоков. Возможно у вас отсутствуют блоки')
+        return
+    block_list = []
+    for block in res:
+        block_list.append(block._data[0].block_name)
+        Admin_state.block_dict_id[block._data[0].block_name] = block._data[0].id
+    await message.answer('Выберите блок для удаления задания', reply_markup=block_pool_kb(block_list))
+    await state.set_state(Admin_state.block_delete_choose)
+
+
+@admin_add_task_router.message(Admin_state.block_delete_choose)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    Admin_state.block_id = Admin_state.block_dict_id.get(message.text)
+    if not Admin_state.block_id:
+        await message.answer(f'Такой блок не найден', reply_markup=start_kb())
+    try:
+        res = await get_task_for_delete(session, task_id=Admin_state.block_id)
+        task_list = {}
+        for task in res:
+            task_list[task._data[0].description] = task._data[0].id
+        await message.answer(f'Выберите задание для удаления', reply_markup=list_task_to_delete(list(task_list.keys())))
+        await state.set_state(Admin_state.block_delete)
+    except Exception as e:
+        await message.answer('Такой блок не найден', reply_markup=start_kb())
+
+@admin_add_task_router.message(Admin_state.block_delete)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    Admin_state.block_id = Admin_state.block_dict_id.get(message.text)
+    if not Admin_state.block_id:
+
+'''Delete task'''

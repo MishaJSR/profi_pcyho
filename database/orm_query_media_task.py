@@ -17,3 +17,5 @@ async def add_media_task(session: AsyncSession, **kwargs):
     )
     session.add(obj)
     await session.commit()
+
+

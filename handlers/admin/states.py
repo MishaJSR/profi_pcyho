@@ -5,6 +5,7 @@ from keyboards.admin.reply_admin import start_kb, back_kb, chapter_kb, answers_k
 
 class Admin_state(StatesGroup):
     start = State()
+    choose_actions = State()
     block_choose = State()
     type_task_choose = State()
     description = State()
@@ -14,6 +15,9 @@ class Admin_state(StatesGroup):
     load_task = State()
     description_test = State()
     confirm_test = State()
+
+    block_delete_choose = State()
+    block_delete = State()
 
     texts = {
         'Admin_state:start': ['Начало работы', start_kb],
