@@ -30,9 +30,8 @@ class AdminManageTaskState(StatesGroup):
         'AdminManageTaskState:answers_checker_keys': ['Введите ключи к изображению по принципу\nНегатив Гнев Страх',
                                                       back_kb],
 
-        'AdminManageTaskState:description_test': [f'Напишите тест в формате\nОписание:\nОписание задания\n'
-                                                      f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
-                                                      f'Ответ:\nОтвет', back_kb],
+        'AdminManageTaskState:block_delete_choose': [f'Выберите блок для удаления задания', block_pool_kb],
+
 
     }
     id_task = None

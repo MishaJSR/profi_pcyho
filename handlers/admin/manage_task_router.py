@@ -20,6 +20,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     AdminManageTaskState.block_list = None
     await message.answer("Выберите действие", reply_markup=test_actions())
     await state.set_state(AdminManageTaskState.choose_actions)
+    current_state = await state.get_state()
+    print(current_state)
 
 
 @admin_add_task_router.message(StateFilter(AdminManageTaskState), F.text.casefold() == "назад")
@@ -42,6 +44,18 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await message.answer(text='Выберите тип задания',
                              reply_markup=type_task_kb())
         await state.set_state(AdminManageTaskState.type_task_choose)
+        return
+
+    if current_state == AdminManageTaskState.block_delete_choose:
+        await message.answer(text='Выберите действие',
+                             reply_markup=test_actions())
+        await state.set_state(AdminManageTaskState.choose_actions)
+        return
+
+    if current_state == AdminManageTaskState.block_delete:
+        await message.answer(text='Выберите блок для удаления задания',
+                             reply_markup=block_pool_kb(AdminManageTaskState.block_list))
+        await state.set_state(AdminManageTaskState.block_delete_choose)
         return
 
     previous = None
@@ -137,6 +151,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         for photo in AdminManageTaskState.photo_list:
             await add_photo_pool_task(session, AdminManageTaskState.block_id, photo.media)
         await message.answer('Задание загружено', reply_markup=start_kb())
+        await state.set_state(AdminManageTaskState.start)
     except Exception as e:
         print(e)
         await message.answer('Ошибка загрузки', reply_markup=start_kb())
@@ -194,6 +209,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     except Exception as e:
         print(e)
         await message.answer('Ошибка загрузки', reply_markup=start_kb())
+    finally:
+        await state.set_state(AdminManageTaskState.start)
+
 
 
 '''Test'''
@@ -208,11 +226,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     except Exception as e:
         await message.answer('Ошибка подключения к базе данных блоков. Возможно у вас отсутствуют блоки')
         return
-    block_list = []
+    AdminManageTaskState.block_list = []
     for block in res:
-        block_list.append(block._data[0].block_name)
+        AdminManageTaskState.block_list.append(block._data[0].block_name)
         AdminManageTaskState.block_dict_id[block._data[0].block_name] = block._data[0].id
-    await message.answer('Выберите блок для удаления задания', reply_markup=block_pool_kb(block_list))
+    await message.answer('Выберите блок для удаления задания', reply_markup=block_pool_kb(AdminManageTaskState.block_list))
     await state.set_state(AdminManageTaskState.block_delete_choose)
 
 
