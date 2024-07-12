@@ -39,7 +39,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 @spam_sender_router.message(AdminStateSpammer.spam_actions, F.text == 'Тестовая рассылка')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        block = await get_block_by_id(session, block_id=6)
+        block = await get_block_by_id(session, block_id=10)
         rus_date = block._data[0].date_to_post.strftime("%d.%m.%Y %H:%M")
         await message.answer(f"{block._data[0].block_name}\n"
                              f"Выслано {block._data[0].count_send} раз\n"
@@ -48,18 +48,32 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         callback = block._data[0].callback_button_id
         block_id = block._data[0].id
 
-        video_content = await get_videos_id_from_block(session, block_id=block_id)
-        photo_content = await get_photos_id_from_block(session, block_id=block_id)
-        video_content = [video._data[0] for video in video_content]
-        photo_content = [photo._data[0] for photo in photo_content]
-        media_group = []
-        for index, photo_id in enumerate(photo_content):
-            if index == 0:
-                media_group.append(InputMediaPhoto(type='photo', media=photo_id, caption=content))
+        if block._data[0].has_media:
+            video_content = await get_videos_id_from_block(session, block_id=block_id)
+            photo_content = await get_photos_id_from_block(session, block_id=block_id)
+            video_content = [video._data[0] for video in video_content]
+            photo_content = [photo._data[0] for photo in photo_content]
+            media_group = []
+            for index, photo_id in enumerate(photo_content):
+                if index == 0:
+                    media_group.append(InputMediaPhoto(type='photo', media=photo_id, caption=content))
+                else:
+                    media_group.append(InputMediaPhoto(type='photo', media=photo_id))
+
+            if video_content:
+                await message.answer_media_group(media=media_group)
+                for index, video_id in enumerate(video_content):
+                    if index == len(video_content) - 1:
+                        await message.answer_video(video=video_id, reply_markup=get_inline(callback_data=callback))
+                    else:
+                        await message.answer_video(video=video_id)
             else:
-                media_group.append(InputMediaPhoto(type='photo', media=photo_id))
-        await message.answer_media_group(media=media_group)
-        await message.answer_video(video=video_content[0], reply_markup=get_inline(callback_data=callback))
+                await message.answer_media_group(media=media_group)
+                await message.answer("Пройти тест по блоку", reply_markup=get_inline(callback_data=callback))
+        else:
+            await message.answer(content, reply_markup=get_inline(callback_data=callback))
+
+
 
 
     except Exception as e:

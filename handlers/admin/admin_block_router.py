@@ -132,11 +132,11 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
             await message.answer_media_group(media=AdminManageBlockState.media)
     for index, file_id in enumerate(AdminManageBlockState.video_id_list):
         if index == len(AdminManageBlockState.video_id_list) - 1:
-            AdminManageBlockState.callback_for_task = str(uuid.uuid4())
             await message.answer_video(video=file_id,
                                        reply_markup=get_inline(AdminManageBlockState.callback_for_task))
         else:
             await message.answer_video(video=file_id)
+    AdminManageBlockState.callback_for_task = str(uuid.uuid4())
     await message.answer(text='Все верно?', reply_markup=prepare_to_spam())
     await state.set_state(AdminManageBlockState.confirm_state)
 
