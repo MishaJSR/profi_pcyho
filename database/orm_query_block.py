@@ -31,3 +31,8 @@ async def get_block_for_add_task(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
+async def delete_block(session: AsyncSession, **kwargs):
+    query = update(Block).where((Block.is_visible == True) & (Block.id == kwargs.get("block_id"))).values(
+        is_visible=False)
+    await session.execute(query)
+    await session.commit()

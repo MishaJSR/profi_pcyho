@@ -239,6 +239,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     AdminManageTaskState.block_id = AdminManageTaskState.block_dict_id.get(message.text)
     if not AdminManageTaskState.block_id:
         await message.answer(f'Такой блок не найден', reply_markup=start_kb())
+        return
     try:
         res = await get_task_for_delete(session, task_id=AdminManageTaskState.block_id)
         AdminManageTaskState.task_list = {}

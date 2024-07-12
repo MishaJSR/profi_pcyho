@@ -5,11 +5,11 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import add_block
+from database.orm_query_block import add_block, get_block_for_add_task, delete_block
 from database.orm_query_media_block import add_media
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
-    block_actions
+    block_actions, block_pool_kb
 from handlers.admin.states import AdminManageTaskState, AdminStateSender
 import logging
 import uuid
@@ -21,17 +21,30 @@ admin_block_router = Router()
 @admin_block_router.message(StateFilter(AdminStateSender), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
+    print(current_state)
 
     if current_state == AdminStateSender.start:
         await message.answer('Предыдущего шага нет')
         return
 
-    if current_state == AdminStateSender.confirm_state:
+    if current_state == AdminStateSender.confirm_state or current_state == AdminStateSender.date_posting:
         await message.answer(text='Отправьте медиафайл', reply_markup=send_media_kb())
         AdminStateSender.media = []
         AdminStateSender.video_id_list = []
         await state.set_state(AdminStateSender.media_state)
         return
+
+    if current_state == AdminStateSender.choose_block_actions:
+        await message.answer(text='Выберите необходимое действие', reply_markup=start_kb())
+        await state.set_state(AdminStateSender.start)
+        return
+
+    if current_state == AdminStateSender.choose_block_to_delete:
+        await message.answer(text='Выберите необходимое действие', reply_markup=block_actions())
+        await state.set_state(AdminStateSender.choose_block_actions)
+        return
+
+
 
     previous = None
     for step in AdminStateSender.__all_states__:
@@ -138,7 +151,8 @@ async def get_photo(message: types.Message, state: FSMContext):
 @admin_block_router.message(AdminStateSender.date_posting)
 async def get_photo(message: types.Message, state: FSMContext):
     AdminStateSender.date_to_posting = message.text
-    await message.answer('Укажите уникальное название блока. Это название будет видно только вам', reply_markup=reset_kb())
+    await message.answer('Укажите уникальное название блока. Это название будет видно только вам',
+                         reply_markup=reset_kb())
     await state.set_state(AdminStateSender.name_block)
 
 
@@ -189,9 +203,33 @@ async def add_video_pool(session, block_id, file_id):
 
 
 @admin_block_router.message(AdminStateSender.choose_block_actions, F.text == 'Удалить блок')
-async def fill_admin_state(message: types.Message, state: FSMContext):
-    await message.answer(text='Выберите какой из блоков вы хотите удалить', reply_markup=reset_kb())
-    await state.set_state(AdminStateSender.choose_block_actions)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        res = await get_block_for_add_task(session)
+    except Exception as e:
+        await message.answer('Ошибка подключения к базе данных блоков. Возможно у вас отсутствуют блоки')
+        return
+    AdminStateSender.block_list = []
+    for block in res:
+        AdminStateSender.block_list.append(block._data[0].block_name)
+        AdminStateSender.block_dict_id[block._data[0].block_name] = block._data[0].id
+    await message.answer(text='Выберите какой из блоков вы хотите удалить', reply_markup=block_pool_kb(AdminStateSender.block_list))
+    await state.set_state(AdminStateSender.choose_block_to_delete)
+
+
+@admin_block_router.message(AdminStateSender.choose_block_to_delete, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    AdminStateSender.block_id = AdminStateSender.block_dict_id.get(message.text)
+    if not AdminStateSender.block_id:
+        await message.answer(f'Такой блок не найден', reply_markup=start_kb())
+        return
+    try:
+        res = await delete_block(session, block_id=AdminStateSender.block_id)
+        await message.answer("Блок удален", reply_markup=start_kb())
+    except Exception as e:
+        await message.answer('Такой блок не найден', reply_markup=start_kb())
+    finally:
+        await state.set_state(AdminStateSender.start)
 
 
 '''delete block'''

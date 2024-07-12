@@ -60,13 +60,15 @@ class AdminStateSender(StatesGroup):
     date_posting = State()
     name_block = State()
 
+    choose_block_to_delete = State()
+
     texts = {
         'AdminStateSender:start': ['Начало работы', start_kb],
         'AdminStateSender:choose_block_actions': ['Выбор действий', block_actions],
         'AdminStateSender:text_state': ['Напишите текст рассылки', reset_kb],
         'AdminStateSender:media_state': ['Отправьте медиафайл', send_media_kb],
         'AdminStateSender:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
-        'AdminStateSender:confirm_state': ['Выберите действие', send_media_kb],
+        'AdminStateSender:confirm_state': ['', send_media_kb],
         'AdminStateSender:name_block': ['Укажите краткое название блока', reset_kb],
         'AdminStateSender:date_posting': ['Укажите дату постинга', reset_kb],
     }
@@ -79,6 +81,9 @@ class AdminStateSender(StatesGroup):
     photo_counter = 0
     callback_for_task = None
     date_to_posting = None
+
+    block_list = []
+    block_dict_id = {}
 
 
 class AdminStateDelete(StatesGroup):
