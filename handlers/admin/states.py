@@ -1,6 +1,5 @@
 from aiogram.fsm.state import StatesGroup, State
-from keyboards.admin.reply_admin import start_kb, back_kb, chapter_kb, answers_kb, answers_kb_end, about_kb, \
-    answer_kb, restart_answer_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, block_pool_kb, \
+from keyboards.admin.reply_admin import start_kb, back_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, block_pool_kb, \
     test_actions, type_task_kb
 
 
@@ -50,7 +49,7 @@ class AdminManageTaskState(StatesGroup):
     task_list = None
 
 
-class AdminStateSender(StatesGroup):
+class AdminManageBlockState(StatesGroup):
     start = State()
     choose_block_actions = State()
     text_state = State()
@@ -63,14 +62,14 @@ class AdminStateSender(StatesGroup):
     choose_block_to_delete = State()
 
     texts = {
-        'AdminStateSender:start': ['Начало работы', start_kb],
-        'AdminStateSender:choose_block_actions': ['Выбор действий', block_actions],
-        'AdminStateSender:text_state': ['Напишите текст рассылки', reset_kb],
-        'AdminStateSender:media_state': ['Отправьте медиафайл', send_media_kb],
-        'AdminStateSender:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
-        'AdminStateSender:confirm_state': ['', send_media_kb],
-        'AdminStateSender:name_block': ['Укажите краткое название блока', reset_kb],
-        'AdminStateSender:date_posting': ['Укажите дату постинга', reset_kb],
+        'AdminManageBlockState:start': ['Начало работы', start_kb],
+        'AdminManageBlockState:choose_block_actions': ['Выбор действий', block_actions],
+        'AdminManageBlockState:text_state': ['Напишите текст рассылки', reset_kb],
+        'AdminManageBlockState:media_state': ['Отправьте медиафайл', send_media_kb],
+        'AdminManageBlockState:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
+        'AdminManageBlockState:confirm_state': ['', send_media_kb],
+        'AdminManageBlockState:name_block': ['Укажите краткое название блока', reset_kb],
+        'AdminManageBlockState:date_posting': ['Укажите дату постинга', reset_kb],
     }
     text = ''
     photo = None
@@ -88,6 +87,18 @@ class AdminStateSender(StatesGroup):
 
 class AdminStateDelete(StatesGroup):
     find_key = State()
+    choose_task = State()
+    confirm_delete = State()
+    texts = {
+        'AdminStateDelete:find_key': 'Ввод описания',
+        'AdminStateDelete:choose_task': 'Выбор задания для удаления',
+        'AdminStateDelete:confirm_delete': 'Подтверждение',
+    }
+    data = []
+
+
+class AdminStateSpammer(StatesGroup):
+    spam_actions = State()
     choose_task = State()
     confirm_delete = State()
     texts = {

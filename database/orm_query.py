@@ -91,7 +91,7 @@ async def get_all_users(session: AsyncSession):
     return result.all()
 
 
-async def find_task(session: AsyncSession, text: int):
+async def find_task(session: AsyncSession, text: str):
     query = select(Task).where(Task.description.like(f'%{text}%'))
     result = await session.execute(query)
     return result.all()

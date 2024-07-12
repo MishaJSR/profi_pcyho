@@ -8,8 +8,8 @@ from database.orm_query import orm_add_task, orm_transport_base
 from database.orm_query_block import get_block_for_add_task
 from database.orm_query_media_task import add_media_task
 from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete, delete_task
-from keyboards.admin.reply_admin import start_kb, answers_kb_end, about_kb, answers_kb, \
-    answer_kb, back_kb, chapter_kb, type_task_kb, block_pool_kb, send_spam, test_actions, list_task_to_delete
+from keyboards.admin.reply_admin import start_kb, back_kb, type_task_kb, block_pool_kb, send_spam, test_actions, \
+    list_task_to_delete
 from handlers.admin.states import AdminManageTaskState
 
 admin_add_task_router = Router()

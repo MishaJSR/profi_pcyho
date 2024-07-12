@@ -26,9 +26,10 @@ class Block(Base):
     block_name: Mapped[str] = mapped_column(String(50), nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     has_media: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    date_to_post: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
+    date_to_post: Mapped[DateTime] = mapped_column(DateTime, nullable=False)
     progress_block: Mapped[int] = mapped_column(Integer, default=0)
     callback_button_id: Mapped[str] = mapped_column(Text, nullable=True)
+    count_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_vebinar: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
