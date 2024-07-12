@@ -121,11 +121,11 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminManageBlockState.prepare_to_load, F.text == 'Подготовить сообщение к рассылке')
 async def fill_admin_state(message: types.Message, state: FSMContext):
+    AdminManageBlockState.callback_for_task = str(uuid.uuid4())
     if not AdminManageBlockState.media:
         await message.answer(f"{AdminManageBlockState.text}")
     else:
         if not AdminManageBlockState.video_id_list:
-            AdminManageBlockState.callback_for_task = str(uuid.uuid4())
             await message.answer_media_group(media=AdminManageBlockState.media,
                                              reply_markup=get_inline(AdminManageBlockState.callback_for_task))
         else:
