@@ -34,7 +34,7 @@ class Block(Base):
     is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
-class MediaVideo(Base):
+class MediaBlock(Base):
     __tablename__ = 'media_block'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     block_id: Mapped[int] = mapped_column(Integer, nullable=False)
