@@ -90,6 +90,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminManageTaskState.task_type = None
     if not AdminManageTaskState.block_id:
         await message.answer(f'Такой блок не найден', reply_markup=start_kb())
+        return
     await message.answer(f'Выберите тип задания для блока {message.text}', reply_markup=type_task_kb())
     await state.set_state(AdminManageTaskState.type_task_choose)
 
