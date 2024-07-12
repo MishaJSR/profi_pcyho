@@ -26,9 +26,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     print(current_state)
-    if current_state == AdminManageTaskState.start:
-        await message.answer('Предыдущего шага нет')
-        return
 
     if current_state == AdminManageTaskState.type_task_choose:
         await message.answer(text='Выберите блок для добавления задания',
@@ -40,6 +37,12 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         AdminManageTaskState.photo_list = []
         AdminManageTaskState.photo_counter = 0
         AdminManageTaskState.answers_to_load = None
+
+    if current_state == AdminManageTaskState.description_test:
+        await message.answer(text='Выберите тип задания',
+                             reply_markup=type_task_kb())
+        await state.set_state(AdminManageTaskState.type_task_choose)
+        return
 
     previous = None
     for step in AdminManageTaskState.__all_states__:
@@ -62,7 +65,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     for block in res:
         AdminManageTaskState.block_list.append(block._data[0].block_name)
         AdminManageTaskState.block_dict_id[block._data[0].block_name] = block._data[0].id
-    await message.answer('Выберите блок для добавления задания', reply_markup=block_pool_kb(AdminManageTaskState.block_list))
+    await message.answer('Выберите блок для добавления задания',
+                         reply_markup=block_pool_kb(AdminManageTaskState.block_list))
     await state.set_state(AdminManageTaskState.block_choose)
 
 
@@ -163,7 +167,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 async def fill_admin_state(message: types.Message, state: FSMContext):
     try:
         AdminManageTaskState.answers_test_to_load = '`'.join(message.text[message.text.find("Варианты ответа:") + 17:
-                                                                 message.text.find("Ответ:")].split("\n")[:-1])
+                                                                          message.text.find("Ответ:")].split("\n")[:-1])
         AdminManageTaskState.description_test_to_load = message.text.split('\n')[1]
         AdminManageTaskState.answer_test_to_load = message.text.replace('\n', "").split('Ответ:')[1]
         await message.answer(f'Описание:\n{AdminManageTaskState.description_test_to_load}\n'
@@ -172,15 +176,19 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f'Все верно?', reply_markup=send_spam())
         await state.set_state(AdminManageTaskState.confirm_test)
     except Exception as e:
-        await message.answer(f'Ошибка прочтения', reply_markup=start_kb())
-        await state.set_state(AdminManageTaskState.start)
+        await message.answer(f'Ошибка прочтения\n')
+        await message.answer(f'Напишите тест в формате\nОписание:\nОписание задания\n'
+                             f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
+                             f'Ответ:\nОтвет', reply_markup=back_kb())
 
 
 @admin_add_task_router.message(AdminManageTaskState.confirm_test, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        await add_task_test(session, block_id=AdminManageTaskState.block_id, description=AdminManageTaskState.description_test_to_load,
-                            answer_mode=AdminManageTaskState.task_type, answers=AdminManageTaskState.answers_test_to_load,
+        await add_task_test(session, block_id=AdminManageTaskState.block_id,
+                            description=AdminManageTaskState.description_test_to_load,
+                            answer_mode=AdminManageTaskState.task_type,
+                            answers=AdminManageTaskState.answers_test_to_load,
                             answer=AdminManageTaskState.answer_test_to_load)
         await message.answer('Успешная загрузка', reply_markup=start_kb())
     except Exception as e:

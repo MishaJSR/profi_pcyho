@@ -27,7 +27,13 @@ class AdminManageTaskState(StatesGroup):
         'AdminManageTaskState:type_task_choose': ['Выберите тип задания', type_task_kb],
         'AdminManageTaskState:description': ['Впишите описание задания', back_kb],
         'AdminManageTaskState:image_task_photo': ['Отправьте изображения к заданию', back_kb],
-        'AdminManageTaskState:answers_checker_keys': ['Введите ключи к изображению по принципу\nНегатив Гнев Страх', back_kb],
+        'AdminManageTaskState:answers_checker_keys': ['Введите ключи к изображению по принципу\nНегатив Гнев Страх',
+                                                      back_kb],
+
+        'AdminManageTaskState:description_test': [f'Напишите тест в формате\nОписание:\nОписание задания\n'
+                                                      f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
+                                                      f'Ответ:\nОтвет', back_kb],
+
     }
     id_task = None
     block_dict_id = {}
@@ -78,7 +84,7 @@ class AdminStateSender(StatesGroup):
 
 class AdminStateDelete(StatesGroup):
     find_key = State()
-    choose_task= State()
+    choose_task = State()
     confirm_delete = State()
     texts = {
         'AdminStateDelete:find_key': 'Ввод описания',
@@ -86,4 +92,3 @@ class AdminStateDelete(StatesGroup):
         'AdminStateDelete:confirm_delete': 'Подтверждение',
     }
     data = []
-
