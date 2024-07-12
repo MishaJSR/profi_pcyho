@@ -54,15 +54,8 @@ async def start_subj_choose(message: types.Message, state: FSMContext):
         await message.answer(f'Ошибка ввода')
         return
     if message.text == 'Начать подготовку':
-        try:
-            res = await message.bot.get_chat_member(chat_id='@humanitiessociety', user_id=message.from_user.id)
-            if res.status.value not in ['member', 'creator']:
-                raise Exception()
-            await message.answer(f'В данный момент в бот добавлена только подготовка к основной части \nНо мы работаем над добавлением дополнительных модулей 😊', reply_markup=subj_kb())
-            await state.set_state(UserTaskState.subj_choose)
-        except:
-            await message.answer('Вы не подписаны на канал', reply_markup=get_inline())
-            return
+        await message.answer(f'В данный момент в бот добавлена только подготовка к основной части \nНо мы работаем над добавлением дополнительных модулей 😊', reply_markup=subj_kb())
+        await state.set_state(UserTaskState.subj_choose)
     if message.text == 'Проверить подписку':
         await message.answer(f'Проверяем ...')
         try:

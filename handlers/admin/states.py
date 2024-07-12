@@ -1,9 +1,10 @@
 from aiogram.fsm.state import StatesGroup, State
 from keyboards.admin.reply_admin import start_kb, back_kb, chapter_kb, answers_kb, answers_kb_end, about_kb, \
-    answer_kb, restart_answer_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb
+    answer_kb, restart_answer_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, block_pool_kb, \
+    test_actions, type_task_kb
 
 
-class Admin_state(StatesGroup):
+class AdminManageTaskState(StatesGroup):
     start = State()
     choose_actions = State()
     block_choose = State()
@@ -20,17 +21,18 @@ class Admin_state(StatesGroup):
     block_delete = State()
 
     texts = {
-        'Admin_state:start': ['Начало работы', start_kb],
-        'Admin_state:block_choose': ['Выбор блока для задания', chapter_kb],
-        'Admin_state:type_task_choose': ['Описание задания', type_task_choose],
-        'Admin_state:description': ['Заполните форму', back_kb],
-        'Admin_state:image_task_photo': ['Введите условие задания', back_kb],
-        'Admin_state:answers_checker_keys': ['Введите ответы', restart_answer_kb],
-
+        'AdminManageTaskState:start': ['Выберите действие', start_kb],
+        'AdminManageTaskState:choose_actions': ['Выберите действие', test_actions],
+        'AdminManageTaskState:block_choose': ['Выберите блок', block_pool_kb],
+        'AdminManageTaskState:type_task_choose': ['Выберите тип задания', type_task_kb],
+        'AdminManageTaskState:description': ['Впишите описание задания', back_kb],
+        'AdminManageTaskState:image_task_photo': ['Отправьте изображения к заданию', back_kb],
+        'AdminManageTaskState:answers_checker_keys': ['Введите ключи к изображению по принципу\nНегатив Гнев Страх', back_kb],
     }
     id_task = None
     block_dict_id = {}
     block_id = None
+    block_list = None
     task_type = None
     photo_list = []
     photo_counter = 0
