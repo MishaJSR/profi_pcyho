@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Block
 from database.orm_query import find_task, delete_task
-from database.orm_query_block import get_block_active, get_block_by_id
+from database.orm_query_block import get_block_active, get_block_by_id, get_order_block, set_progres_block
 from database.orm_query_media_block import get_videos_id_from_block, get_photos_id_from_block
 from keyboards.admin.inline_admin import get_inline
 from keyboards.user.reply_user import start_kb
@@ -75,9 +75,18 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 
 
-
-
     except Exception as e:
         await message.answer(f'Ошибка при попытке подключения к базе данных {e}', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
+
+
+@spam_sender_router.message(AdminStateSpammer.spam_actions, F.text == 'Выставить прогресс блоков')
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        res = await get_order_block(session)
+        for index, el in enumerate(res):
+            if el._data[0].progress_block != index + 1:
+                await set_progres_block(session, block_id=el._data[0].id, progress=index + 1)
+    except Exception as e:
+        print(e)

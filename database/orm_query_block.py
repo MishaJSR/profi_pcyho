@@ -5,7 +5,7 @@ import sqlite3
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Task, Users, Block
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, func
 import pandas as pd
 import re
 
@@ -41,6 +41,18 @@ async def get_block_by_id(session: AsyncSession, **kwargs):
     query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
     result = await session.execute(query)
     return result.fetchone()
+
+async def get_order_block(session: AsyncSession, **kwargs):
+    query = select(Block).where(Block.is_visible == True).order_by(Block.date_to_post)
+    result = await session.execute(query)
+    return result.fetchall()
+
+
+async def set_progres_block(session: AsyncSession, **kwargs):
+    query = update(Block).where((Block.is_visible == True) & (Block.id == kwargs.get("block_id"))).values(
+        progress_block=kwargs.get("progress"))
+    await session.execute(query)
+    await session.commit()
 
 
 async def delete_block(session: AsyncSession, **kwargs):
