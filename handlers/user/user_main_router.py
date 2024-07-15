@@ -58,8 +58,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         res = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res2 = await get_time_next_block(session, progress_block=res[0])
         if res2[0] < datetime.datetime.now():
-            await message.answer(f"Следующий блок уже вышел, для доступа пройдите задание\n"
-                                 f"Если вы уже прошли все задания, то бот в ближайшее время вышлет Вам новый блок",
+            await message.answer(f"Следующий блок уже вышел\n"
+                                 f"Если вы уже прошли все задания, бот в ближайшее время вышлет Вам новый блок",
                                  reply_markup=ReplyKeyboardRemove())
         else:
             rus_date = res2[0].strftime("%d.%m.%Y %H:%M")

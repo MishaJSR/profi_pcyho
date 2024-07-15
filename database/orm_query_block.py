@@ -73,6 +73,15 @@ async def set_progres_block(session: AsyncSession, **kwargs):
     await session.commit()
 
 
+async def update_count_send_block_session_pool(session_pool, **kwargs):
+    query = update(Block).where((Block.is_visible == True) & (Block.id == kwargs.get("block_id"))).values(
+        count_send=Block.count_send + 1
+    )
+    async with session_pool.begin().async_session as session:
+        await session.execute(query)
+        await session.commit()
+
+
 async def get_time_next_block(session: AsyncSession, **kwargs):
     query = select(Block.date_to_post).where(Block.progress_block == kwargs.get("progress_block"))
     result = await session.execute(query)
