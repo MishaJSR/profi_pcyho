@@ -2,6 +2,7 @@ from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
 from database.models import Block
 from database.orm_query import find_task, delete_task
@@ -81,12 +82,13 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-@spam_sender_router.message(AdminStateSpammer.spam_actions, F.text == 'Выставить прогресс блоков')
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    try:
-        res = await get_order_block(session)
-        for index, el in enumerate(res):
-            if el._data[0].progress_block != index + 1:
-                await set_progres_block(session, block_id=el._data[0].id, progress=index + 1)
-    except Exception as e:
-        print(e)
+# @spam_sender_router.message(AdminStateSpammer.spam_actions, F.text == 'Выставить прогресс блоков')
+# async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+#     try:
+#         res = await get_order_block(session)
+#         for index, el in enumerate(res):
+#             if el._data[0].progress_block != index + 1:
+#                 await set_progres_block(session, block_id=el._data[0].id, progress=index + 1)
+#     except Exception as e:
+#         print(e)
+
