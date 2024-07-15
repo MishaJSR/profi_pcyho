@@ -13,7 +13,7 @@ from database.config import load_config
 from database.orm_query_block import get_block_by_id, get_block_all_session_pool, get_block_session_pool_by_id
 from database.orm_query_media_block import get_videos_id_from_block, get_photos_id_from_block, \
     get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
-from database.orm_query_user import get_all_users
+from database.orm_query_user import get_all_users, update_last_send_block_session_pool
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import start_kb
 
@@ -102,13 +102,15 @@ async def my_task(bot, session_pool):
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
                     return
-                await send_spam(bot, session_pool, user[0], block_id_to_send)
+                if block_id_to_send != user[2] or user[2] == 0:
+                    await send_spam(bot, session_pool, user[0], block_id_to_send)
+                    await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
 
 
         except Exception as e:
             print('error', e)
         # await send_spam(bot, session_pool)
-        await asyncio.sleep(100)  # 300 seconds = 5 minutes
+        await asyncio.sleep(20)  # 300 seconds = 5 minutes
 
 
 async def send_spam(bot, session_pool, user_id, block_id):

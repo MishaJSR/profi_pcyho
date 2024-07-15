@@ -41,5 +41,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer('Ошибка регистрации', reply_markup=start_kb())
     text = f'Привет {message.from_user.full_name}'
     await message.answer(text, reply_markup=start_kb())
+    await message.answer('Готовим блок для тебя ...')
     await state.set_state(UserState.start_user)
 

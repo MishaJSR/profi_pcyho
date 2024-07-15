@@ -220,6 +220,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
     try:
         res = await delete_block(session, block_id=AdminManageBlockState.block_id)
+        await update_progress(message, session)
         await message.answer("Блок удален", reply_markup=start_kb())
     except Exception as e:
         await message.answer('Такой блок не найден', reply_markup=start_kb())
