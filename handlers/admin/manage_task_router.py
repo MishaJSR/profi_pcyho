@@ -175,7 +175,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminManageTaskState.description_test_to_load = None
     await message.answer(f'Напишите тест в формате\nОписание:\nОписание задания\n'
                          f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
-                         f'Ответ:\nОтвет', reply_markup=back_kb())
+                         f'Ответ:\n1', reply_markup=back_kb())
     await state.set_state(AdminManageTaskState.description_test)
 
 
@@ -195,7 +195,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f'Ошибка прочтения\n')
         await message.answer(f'Напишите тест в формате\nОписание:\nОписание задания\n'
                              f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
-                             f'Ответ:\nОтвет', reply_markup=back_kb())
+                             f'Ответ:\n1', reply_markup=back_kb())
 
 
 @admin_add_task_router.message(AdminManageTaskState.confirm_test, F.text == "Подтвердить")

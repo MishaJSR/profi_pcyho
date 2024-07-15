@@ -17,5 +17,13 @@ def empty_kb(data=None):
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
+def answer_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    for el in range(data):
+        text = str(el + 1)
+        test_kb.button(text=text)
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
 
 
