@@ -8,7 +8,7 @@ from database.orm_query import find_task, delete_task
 from database.orm_query_block import get_block_by_id, get_block_id_by_callback
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
-from database.orm_query_user import update_user_progress
+from database.orm_query_user import update_user_progress, update_user_points
 from database.orm_query_user_task_progress import set_user_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb
 from handlers.admin.states import AdminManageTaskState, AdminStateDelete
@@ -69,10 +69,14 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 @user_callback_router.message(UserCallbackState.image_callback, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    is_pass = is_part_in_list(message.text, UserCallbackState.now_task.answer.split(" "))
+    if is_pass:
+        await message.answer(f"Поздравляем !!!\nВы получили {UserCallbackState.now_task.points_for_task} очков")
+        await update_user_points(session, user_id=message.from_user.id, points=UserCallbackState.now_task.points_for_task)
     await set_user_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
                             username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
                             answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
-                            is_pass=True)
+                            is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
@@ -93,4 +97,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
             return
 
 
-
+def is_part_in_list(str_, words):
+    for word in words:
+        if word.lower() in str_.lower():
+            return True
+    return False

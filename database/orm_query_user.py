@@ -30,6 +30,18 @@ async def update_user_progress(session, **kwargs):
     await session.commit()
 
 
+async def update_user_points(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        points=Users.points + kwargs.get("points"))
+    await session.execute(query)
+    await session.commit()
+
+async def get_user_points(session, **kwargs):
+    query = select(Users.points).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
 async def update_last_send_block_session_pool(session_pool, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         id_last_block_send=kwargs.get("block_id"))

@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query import check_new_user, add_user
 from database.orm_query_block import get_time_next_block
-from database.orm_query_user import get_progress_by_user_id
+from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from keyboards.user.inline_user import get_inline
 from keyboards.user.reply_user import start_kb, empty_kb
@@ -47,6 +47,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         logging.info(e)
         await message.answer('Ошибка регистрации')
     await state.set_state(UserState.start_user)
+
+
+@user_private_router.message(StateFilter('*'), Command("points"))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    points = await get_user_points(session, user_id=message.from_user.id)
+    await message.answer(f'У Вас на счету: {points[0]} очков')
 
 
 @user_private_router.message(StateFilter('*'), F.text == 'Когда будет следующий блок?')
