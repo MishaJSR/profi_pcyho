@@ -10,8 +10,6 @@ import pandas as pd
 import re
 
 
-
-
 async def get_task_by_block_id(session: AsyncSession, **kwargs):
     pass
     query = select(Task).where((Task.is_visible == True) & (Task.block_id == kwargs.get('block_id')))
@@ -34,6 +32,7 @@ async def add_task_image(session: AsyncSession, **kwargs):
     )
     session.add(obj)
     await session.commit()
+    return obj.id
 
 
 async def add_task_test(session: AsyncSession, **kwargs):

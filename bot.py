@@ -107,13 +107,12 @@ async def my_task(bot, session_pool):
         except Exception as e:
             print('error', e)
         # await send_spam(bot, session_pool)
-        await asyncio.sleep(5)  # 300 seconds = 5 minutes
+        await asyncio.sleep(1000)  # 300 seconds = 5 minutes
 
 
 async def send_spam(bot, session_pool, user_id, block_id):
     try:
         block = await get_block_session_pool_by_id(session_pool, block_id=block_id)
-        rus_date = block._data[0].date_to_post.strftime("%d.%m.%Y %H:%M")
         content = block._data[0].content
         callback = block._data[0].callback_button_id
         block_id = block._data[0].id

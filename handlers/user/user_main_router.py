@@ -8,11 +8,12 @@ from aiogram.fsm.state import StatesGroup, State
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query import check_new_user, add_user
+from handlers.user.user_callback_router import user_callback_router
 from keyboards.user.inline_user import get_inline
-from keyboards.user.reply_user import start_kb, start_but, subj_kb
+from keyboards.user.reply_user import start_kb
 
 user_private_router = Router()
-#user_private_router.include_routers()
+user_private_router.include_routers(user_callback_router)
 
 
 class UserState(StatesGroup):

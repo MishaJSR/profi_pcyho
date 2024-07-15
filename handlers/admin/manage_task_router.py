@@ -147,10 +147,10 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 @admin_add_task_router.message(AdminManageTaskState.load_task, F.text == 'Подтвердить')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        await add_task_image(session, block_id=AdminManageTaskState.block_id, description=AdminManageTaskState.caption,
+        task_id = await add_task_image(session, block_id=AdminManageTaskState.block_id, description=AdminManageTaskState.caption,
                              answer_mode=AdminManageTaskState.task_type, answer=AdminManageTaskState.answers_to_load)
         for photo in AdminManageTaskState.photo_list:
-            await add_photo_pool_task(session, AdminManageTaskState.block_id, photo.media)
+            await add_photo_pool_task(session, task_id, photo.media)
         await message.answer('Задание загружено', reply_markup=start_kb())
         await state.set_state(AdminManageTaskState.start)
     except Exception as e:

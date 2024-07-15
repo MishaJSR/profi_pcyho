@@ -62,12 +62,6 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminManageBlockState.choose_block_actions)
 
 
-# @admin_block_router.callback_query()
-# async def check_button(call: types.CallbackQuery):
-#     print("call")
-#     await call.message.answer("Hi! This is the first inline keyboard button.")
-#     await call.answer('Вы выбрали каталог')
-#     #9fa7e998-1700-46c9-8c8f-a82bd2fa4568
 
 
 @admin_block_router.message(AdminManageBlockState.choose_block_actions, F.text == 'Добавить блок')

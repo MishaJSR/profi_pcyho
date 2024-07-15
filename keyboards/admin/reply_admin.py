@@ -1,5 +1,4 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
-from keyboards.user.reply_user import main_but, modules
 
 command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
 type_task_actions = ['Добавить задание', 'Удалить задание']
