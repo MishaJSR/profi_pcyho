@@ -1,7 +1,7 @@
 import datetime
 import logging
 
-from aiogram.filters import Command, or_f, StateFilter, CommandStart
+from aiogram.filters import Command, StateFilter, CommandStart
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
