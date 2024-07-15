@@ -138,7 +138,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 @admin_block_router.message(AdminManageBlockState.confirm_state)
 async def get_photo(message: types.Message, state: FSMContext):
     AdminManageBlockState.date_to_posting = None
-    await message.answer('Укажите дату постинга в формате 11.02.2025.10.00', reply_markup=reset_kb())
+    await message.answer('Укажите дату постинга в формате 11.02.2025', reply_markup=reset_kb())
     await state.set_state(AdminManageBlockState.date_posting)
 
 
@@ -155,9 +155,7 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
     await message.answer('Загрузка блока', reply_markup=reset_kb())
     block = message.text
     has_media = False
-    print(block)
     text = AdminManageBlockState.text
-    print(text)
     for photo in AdminManageBlockState.media:
         print(photo.media)
     for video_id in AdminManageBlockState.video_id_list:
@@ -165,9 +163,10 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
     if AdminManageBlockState.media or AdminManageBlockState.video_id_list:
         has_media = True
     callback = AdminManageBlockState.callback_for_task
-    d, m, y, h, minute = AdminManageBlockState.date_to_posting.split('.')
-    date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
     try:
+        d, m, y = AdminManageBlockState.date_to_posting.split('.')
+        h, minute = 10, 00
+        date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
         block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
                                    date_to_post=date_to_post, progress_block=None, callback_button_id=callback)
 

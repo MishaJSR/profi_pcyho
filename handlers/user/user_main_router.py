@@ -39,15 +39,13 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         userid, username = message.from_user.id, message.from_user.full_name
         res = await check_new_user(session, userid)
         text = f'Привет {message.from_user.full_name}'
+        await message.answer(text)
         if len(res) == 0:
             await add_user(session, userid, username)
             await message.answer('Готовим блок для тебя ...')
     except Exception as e:
         logging.info(e)
         await message.answer('Ошибка регистрации')
-
-    await message.answer(text)
-
     await state.set_state(UserState.start_user)
 
 
@@ -57,7 +55,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         res = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res2 = await get_time_next_block(session, progress_block=res[0])
         if res2[0] < datetime.datetime.now():
-            await message.answer(f"Следующий блок уже вышел, подождите немного\n", reply_markup=ReplyKeyboardRemove())
+            await message.answer(f"Следующий блок уже вышел, для доступа пройдите задание\n", reply_markup=ReplyKeyboardRemove())
         else:
             rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
             await message.answer(f"Следующий блок выйдет {rus_date}")

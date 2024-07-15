@@ -103,7 +103,7 @@ async def my_task(bot, session_pool):
             for user in users:
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
-                    return
+                    continue
                 if block_id_to_send != user[2] or user[2] == 0:
                     await send_spam(bot, session_pool, user[0], block_id_to_send)
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)

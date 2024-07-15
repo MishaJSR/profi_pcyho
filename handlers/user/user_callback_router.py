@@ -37,7 +37,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
                                                      block_id=UserCallbackState.block_id[0])
     if len(ready_tasks) >= len(tasks):
-        await call.message.answer("Задания уже были пройдены")
+        await call.message.answer("Задания уже были пройдены", reply_markup=start_kb())
         await call.answer('Вы выбрали задание')
         return
     for task in tasks:
@@ -78,14 +78,14 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await update_user_progress(session, user_id=message.from_user.id)
         return
     else:
-        now_task = UserCallbackState.tasks[0]
+        UserCallbackState.now_task = UserCallbackState.tasks[0]
         UserCallbackState.tasks = UserCallbackState.tasks[1:]
-        if now_task.answer_mode == 'Описание изображения':
+        if UserCallbackState.now_task.answer_mode == 'Описание изображения':
             media_group = []
-            photos = await get_media_task_by_task_id(session, task_id=now_task.id)
+            photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
             for index, photo in enumerate(photos):
                 if index == 0:
-                    media_group.append(InputMediaPhoto(type='photo', media=photo[0], caption=now_task.description))
+                    media_group.append(InputMediaPhoto(type='photo', media=photo[0], caption=UserCallbackState.now_task.description))
                 else:
                     media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
             await message.answer_media_group(media=media_group)
