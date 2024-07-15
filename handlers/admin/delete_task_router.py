@@ -33,7 +33,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
     await message.answer('Введите номер задания который вы хотите удалить', reply_markup=reset_kb())
     await state.set_state(AdminStateDelete.confirm_delete)
-
+#
 
 @admin_delete_task_router.message(AdminStateDelete.confirm_delete)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
