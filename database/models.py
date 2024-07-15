@@ -54,7 +54,7 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     username: Mapped[str] = mapped_column(String(30), nullable=False)
-    progress: Mapped[int] = mapped_column(Integer, default=0)
+    progress: Mapped[int] = mapped_column(Integer, default=1)
     is_subscribe: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     day_start_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     day_end_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
