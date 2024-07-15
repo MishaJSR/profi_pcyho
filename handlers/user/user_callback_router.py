@@ -11,7 +11,6 @@ from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress
 from database.orm_query_user_task_progress import set_user_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb
-from keyboards.admin.reply_admin import start_kb, reset_kb
 from handlers.admin.states import AdminManageTaskState, AdminStateDelete
 
 user_callback_router = Router()
@@ -21,6 +20,7 @@ class UserCallbackState(StatesGroup):
     image_callback = State()
     test_callback = State()
     tasks = []
+    count_tasks = None
     block_id = None
     now_task = None
 
@@ -30,6 +30,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     UserCallbackState.tasks = []
     UserCallbackState.block_id = None
     UserCallbackState.now_task = None
+    UserCallbackState.count_tasks = None
     callback_data = call.data
     UserCallbackState.block_id = await get_block_id_by_callback(session, callback_button_id=callback_data)
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])
@@ -41,6 +42,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         return
     for task in tasks:
         UserCallbackState.tasks.append(task._data[0])
+    UserCallbackState.count_tasks = len(tasks)
     if not UserCallbackState.tasks:
         await call.message.answer("Задания отсутствуют")
         await call.answer('Вы выбрали задание')
@@ -72,7 +74,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
                             answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
                             is_pass=True)
     if len(UserCallbackState.tasks) == 0:
-        await message.answer("Все задания пройдены")
+        await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
         return
     else:
