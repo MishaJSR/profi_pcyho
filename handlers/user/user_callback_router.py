@@ -9,11 +9,12 @@ from database.orm_query_block import get_block_by_id, get_block_id_by_callback
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points
-from database.orm_query_user_task_progress import set_user_progress, get_task_progress_by_user_id
+from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb, answer_kb
 from handlers.admin.states import AdminManageTaskState, AdminStateDelete
 
 user_callback_router = Router()
+
 
 class UserCallbackState(StatesGroup):
     start_callback = State()
@@ -55,26 +56,11 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
     if UserCallbackState.now_task.answer_mode == 'Описание изображения':
-        media_group = []
-        photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
-        for index, photo in enumerate(photos):
-            media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
-        await call.message.answer_media_group(media=media_group)
-        await call.message.answer(f"{UserCallbackState.now_task.description}", reply_markup=ReplyKeyboardRemove())
-        await state.set_state(UserCallbackState.image_callback)
+        await prepare_image_task(call.message, state, session)
         await call.answer('Вы выбрали задание')
-        return
     else:
-        res_message = f"{UserCallbackState.now_task.description}\n"
-        UserCallbackState.list_of_answers = []
-        UserCallbackState.list_of_answers = UserCallbackState.now_task.answers.split('`')
-        for index, answer in enumerate(UserCallbackState.list_of_answers):
-            res_message += f"{index+1}. {answer}\n"
-        await call.message.answer(res_message, reply_markup=answer_kb(data=len(UserCallbackState.list_of_answers)))
+        await prepare_test_tasks(call.message, state)
         await call.answer('Вы выбрали задание')
-
-        await state.set_state(UserCallbackState.test_callback)
-
 
 
 @user_callback_router.message(UserCallbackState.image_callback, F.text)
@@ -82,11 +68,12 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     is_pass = is_part_in_list(message.text, UserCallbackState.now_task.answer.split(" "))
     if is_pass:
         await message.answer(f"Поздравляем !!!\nВы получили {UserCallbackState.now_task.points_for_task} очков")
-        await update_user_points(session, user_id=message.from_user.id, points=UserCallbackState.now_task.points_for_task)
-    await set_user_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
-                            username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
-                            answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
-                            is_pass=is_pass)
+        await update_user_points(session, user_id=message.from_user.id,
+                                 points=UserCallbackState.now_task.points_for_task)
+    await set_user_task_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
+                                 username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
+                                 answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
+                                 is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
@@ -95,22 +82,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         UserCallbackState.now_task = UserCallbackState.tasks[0]
         UserCallbackState.tasks = UserCallbackState.tasks[1:]
         if UserCallbackState.now_task.answer_mode == 'Описание изображения':
-            media_group = []
-            photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
-            for index, photo in enumerate(photos):
-                media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
-            await message.answer_media_group(media=media_group)
-            await message.answer(f"{UserCallbackState.now_task.description}", reply_markup=ReplyKeyboardRemove())
-            await state.set_state(UserCallbackState.image_callback)
-            return
+            await prepare_image_task(message, state, session)
         else:
-            res_message = f"{UserCallbackState.now_task.description}\n"
-            UserCallbackState.list_of_answers = []
-            UserCallbackState.list_of_answers = UserCallbackState.now_task.answers.split('`')
-            for index, answer in enumerate(UserCallbackState.list_of_answers):
-                res_message += f"{index + 1}. {answer}\n"
-            await message.answer(res_message, reply_markup=answer_kb(data=len(UserCallbackState.list_of_answers)))
-            await state.set_state(UserCallbackState.test_callback)
+            await prepare_test_tasks(message, state)
 
 
 @user_callback_router.message(UserCallbackState.test_callback, F.text)
@@ -119,10 +93,16 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer("Ошибка ввода, повторите снова")
         return
     answer = int(message.text)
+    is_pass = False
     if int(UserCallbackState.now_task.answer) == answer:
+        is_pass = True
         await message.answer(f"Поздравляю Вы заработали {UserCallbackState.now_task.points_for_task} очков")
         await update_user_points(session, user_id=message.from_user.id,
                                  points=UserCallbackState.now_task.points_for_task)
+    await set_user_task_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
+                                 username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
+                                 answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
+                                 is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
@@ -130,30 +110,29 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
     if UserCallbackState.now_task.answer_mode == 'Описание изображения':
-        media_group = []
-        photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
-        for index, photo in enumerate(photos):
-            if index == 0:
-                media_group.append(
-                    InputMediaPhoto(type='photo', media=photo[0]))
-            else:
-                media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
-        await message.answer_media_group(media=media_group)
-        await message.answer(f"{UserCallbackState.now_task.description}", reply_markup=ReplyKeyboardRemove())
-        await state.set_state(UserCallbackState.image_callback)
-        return
+        await prepare_image_task(message, state, session)
     else:
-        res_message = f"{UserCallbackState.now_task.description}\n"
-        UserCallbackState.list_of_answers = []
-        UserCallbackState.list_of_answers = UserCallbackState.now_task.answers.split('`')
-        for index, answer in enumerate(UserCallbackState.list_of_answers):
-            res_message += f"{index + 1}. {answer}\n"
-        await message.answer(res_message, reply_markup=answer_kb(data=len(UserCallbackState.list_of_answers)))
-        await state.set_state(UserCallbackState.test_callback)
+        await prepare_test_tasks(message, state)
 
 
+async def prepare_test_tasks(message, state):
+    res_message = f"{UserCallbackState.now_task.description}\n"
+    UserCallbackState.list_of_answers = []
+    UserCallbackState.list_of_answers = UserCallbackState.now_task.answers.split('`')
+    for index, answer in enumerate(UserCallbackState.list_of_answers):
+        res_message += f"{index + 1}. {answer}\n"
+    await message.answer(res_message, reply_markup=answer_kb(data=len(UserCallbackState.list_of_answers)))
+    await state.set_state(UserCallbackState.test_callback)
 
 
+async def prepare_image_task(message, state, session):
+    media_group = []
+    photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
+    for index, photo in enumerate(photos):
+        media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
+    await message.answer_media_group(media=media_group)
+    await message.answer(f"{UserCallbackState.now_task.description}", reply_markup=ReplyKeyboardRemove())
+    await state.set_state(UserCallbackState.image_callback)
 
 
 def is_part_in_list(str_, words):

@@ -9,7 +9,7 @@ from sqlalchemy import select, delete, update
 import pandas as pd
 import re
 
-async def set_user_progress(session, **kwargs):
+async def set_user_task_progress(session, **kwargs):
     obj = UsersTaskProgress(
         user_id=kwargs.get("user_id"),
         username=kwargs.get("username"),
