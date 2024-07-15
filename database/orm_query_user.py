@@ -14,3 +14,5 @@ async def get_all_users(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
+
+

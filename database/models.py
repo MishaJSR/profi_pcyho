@@ -59,3 +59,15 @@ class Users(Base):
     day_start_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     day_end_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     points: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+
+
+class UsersTaskProgress(Base):
+    __tablename__ = 'users_task_progress'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    username: Mapped[str] = mapped_column(String(30), nullable=False)
+    block_id: Mapped[int] = mapped_column(Integer,  nullable=False)
+    task_id: Mapped[int] = mapped_column(Integer,  nullable=False)
+    answer_mode: Mapped[str] = mapped_column(String(20), nullable=False)
+    result: Mapped[str] = mapped_column(Text, nullable=False)
+    is_pass: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

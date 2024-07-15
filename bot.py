@@ -96,13 +96,14 @@ async def my_task(bot, session_pool):
             users = await get_all_users(session_pool)
             active_blocks = await get_block_all_session_pool(session_pool)
             for block in active_blocks:
-                if block._data[0].count_send == 0 and block._data[0].date_to_post <= now_time:
+                if block._data[0].date_to_post <= now_time:
                     block_to_send[block._data[0].progress_block] = block._data[0].id
             for user in users:
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
                     return
                 await send_spam(bot, session_pool, user[0], block_id_to_send)
+
 
         except Exception as e:
             print('error', e)
