@@ -31,27 +31,33 @@ async def get_block_active(session: AsyncSession, **kwargs):
 
 
 async def get_block_by_id(session: AsyncSession, **kwargs):
-    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
+    query = select(Block).where(
+        (Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
     result = await session.execute(query)
     return result.fetchone()
 
+
 async def get_block_id_by_callback(session: AsyncSession, **kwargs):
-    query = select(Block.id).where((Block.is_visible == True) & (Block.is_vebinar == False) & (Block.callback_button_id == kwargs.get("callback_button_id")))
+    query = select(Block.id).where((Block.is_visible == True) & (Block.is_vebinar == False) & (
+                Block.callback_button_id == kwargs.get("callback_button_id")))
     result = await session.execute(query)
     return result.fetchone()
 
 
 async def get_block_session_pool_by_id(session_pool, **kwargs):
-    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
+    query = select(Block).where(
+        (Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchone()
+
 
 async def get_block_all_session_pool(session_pool, **kwargs):
     query = select(Block).where(Block.is_visible == True)
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
+
 
 async def get_order_block(session: AsyncSession, **kwargs):
     query = select(Block).where(Block.is_visible == True).order_by(Block.date_to_post)
@@ -79,9 +85,6 @@ async def get_time_next_block(session: AsyncSession, **kwargs):
     query = select(Block.date_to_post).where(Block.progress_block == kwargs.get("progress_block"))
     result = await session.execute(query)
     return result.fetchone()
-
-
-
 
 
 async def delete_block(session: AsyncSession, **kwargs):
