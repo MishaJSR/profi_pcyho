@@ -16,3 +16,12 @@ async def get_all_users(session_pool, **kwargs):
     return result.fetchall()
 
 
+
+async def update_user_progress(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        progress=Users.progress + 1)
+    await session.execute(query)
+    await session.commit()
+
+
+

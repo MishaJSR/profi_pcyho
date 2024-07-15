@@ -108,7 +108,7 @@ async def my_task(bot, session_pool):
         except Exception as e:
             print('error', e)
         # await send_spam(bot, session_pool)
-        await asyncio.sleep(1000)  # 300 seconds = 5 minutes
+        await asyncio.sleep(100)  # 300 seconds = 5 minutes
 
 
 async def send_spam(bot, session_pool, user_id, block_id):

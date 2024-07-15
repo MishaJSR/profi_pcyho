@@ -8,7 +8,8 @@ from database.orm_query import find_task, delete_task
 from database.orm_query_block import get_block_by_id, get_block_id_by_callback
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
-from database.orm_query_user_task_progress import set_user_progress
+from database.orm_query_user import update_user_progress
+from database.orm_query_user_task_progress import set_user_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb
 from keyboards.admin.reply_admin import start_kb, reset_kb
 from handlers.admin.states import AdminManageTaskState, AdminStateDelete
@@ -28,10 +29,16 @@ class UserCallbackState(StatesGroup):
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     UserCallbackState.tasks = []
     UserCallbackState.block_id = None
-    now_task = None
+    UserCallbackState.now_task = None
     callback_data = call.data
     UserCallbackState.block_id = await get_block_id_by_callback(session, callback_button_id=callback_data)
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])
+    ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
+                                                     block_id=UserCallbackState.block_id[0])
+    if len(ready_tasks) >= len(tasks):
+        await call.message.answer("Задания уже были пройдены")
+        await call.answer('Вы выбрали задание')
+        return
     for task in tasks:
         UserCallbackState.tasks.append(task._data[0])
     if not UserCallbackState.tasks:
@@ -66,6 +73,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
                             is_pass=True)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены")
+        await update_user_progress(session, user_id=message.from_user.id)
         return
     else:
         now_task = UserCallbackState.tasks[0]

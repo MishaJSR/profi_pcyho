@@ -25,3 +25,10 @@ async def set_user_progress(session, **kwargs):
     return obj.id
 
 
+async def get_task_progress_by_user_id(session: AsyncSession, **kwargs):
+    query = select(UsersTaskProgress).where((UsersTaskProgress.user_id == kwargs.get('user_id')) &
+                                            (UsersTaskProgress.block_id == kwargs.get('block_id')))
+    result = await session.execute(query)
+    return result.fetchall()
+
+
