@@ -10,6 +10,12 @@ import pandas as pd
 import re
 
 
+async def get_task_by_block_id(session: AsyncSession, **kwargs):
+    pass
+    query = select(Task).where((Task.is_visible == True) & (Task.block_id == kwargs.get('block_id')))
+    result = await session.execute(query)
+    return result.fetchall()
+
 async def get_task_for_delete(session: AsyncSession, **kwargs):
     pass
     query = select(Task).where((Task.is_visible == True) & (Task.block_id == kwargs.get('task_id')))

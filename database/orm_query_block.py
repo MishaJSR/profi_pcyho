@@ -42,6 +42,11 @@ async def get_block_by_id(session: AsyncSession, **kwargs):
     result = await session.execute(query)
     return result.fetchone()
 
+async def get_block_by_id_session_pool(session_pool, **kwargs):
+    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
+    result = await session_pool.begin().async_session.execute(query)
+    return result.fetchone()
+
 async def get_order_block(session: AsyncSession, **kwargs):
     query = select(Block).where(Block.is_visible == True).order_by(Block.date_to_post)
     result = await session.execute(query)
