@@ -2,17 +2,14 @@ from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
-from database.models import Block
-from database.orm_query import find_task, delete_task
-from database.orm_query_block import get_block_active, get_block_by_id, get_order_block, set_progres_block
+from database.orm_query_block import get_block_active, get_block_by_id
 from database.orm_query_media_block import get_videos_id_from_block, get_photos_id_from_block
 from database.orm_query_task import get_task_by_block_id
 from keyboards.admin.inline_admin import get_inline
 from keyboards.user.reply_user import start_kb
-from keyboards.admin.reply_admin import start_kb, reset_kb, spam_actions_kb
-from handlers.admin.states import AdminManageTaskState, AdminStateDelete, AdminStateSpammer
+from keyboards.admin.reply_admin import start_kb, spam_actions_kb
+from handlers.admin.states import AdminStateSpammer
 
 spam_sender_router = Router()
 

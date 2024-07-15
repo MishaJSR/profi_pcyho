@@ -1,13 +1,6 @@
-import calendar
-import datetime
-import logging
-import sqlite3
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import Task, Users, MediaBlock, UsersTaskProgress
-from sqlalchemy import select, delete, update
-import pandas as pd
-import re
+from database.models import UsersTaskProgress
+from sqlalchemy import select
 
 async def set_user_task_progress(session, **kwargs):
     obj = UsersTaskProgress(

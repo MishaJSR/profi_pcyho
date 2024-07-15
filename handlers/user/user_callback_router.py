@@ -4,14 +4,12 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query import find_task, delete_task
-from database.orm_query_block import get_block_by_id, get_block_id_by_callback
+from database.orm_query_block import get_block_id_by_callback
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb, answer_kb
-from handlers.admin.states import AdminManageTaskState, AdminStateDelete
 
 user_callback_router = Router()
 

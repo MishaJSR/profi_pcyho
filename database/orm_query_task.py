@@ -22,6 +22,11 @@ async def get_task_for_delete(session: AsyncSession, **kwargs):
     result = await session.execute(query)
     return result.fetchall()
 
+async def find_task(session: AsyncSession, text: str):
+    query = select(Task).where(Task.description.like(f'%{text}%'))
+    result = await session.execute(query)
+    return result.all()
+
 
 async def add_task_image(session: AsyncSession, **kwargs):
     obj = Task(
@@ -51,3 +56,6 @@ async def delete_task(session: AsyncSession, **kwargs):
     query = update(Task).where((Task.is_visible == True) & (Task.id == kwargs.get("task_id"))).values(is_visible=False)
     await session.execute(query)
     await session.commit()
+
+
+

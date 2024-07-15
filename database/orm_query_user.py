@@ -1,14 +1,27 @@
-import calendar
-import datetime
-import logging
-import sqlite3
+from database.models import Users
+from sqlalchemy import select, update
 
-from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import Task, Users, MediaBlock
-from sqlalchemy import select, delete, update
-import pandas as pd
-import re
+async def check_new_user(session, user_id: int):
+    query = select(Users.user_id).where(Users.user_id == user_id)
+    result = await session.execute(query)
+    return result.all()
 
+
+async def add_user(session, user_id: int, username: str):
+    if not username:
+        username = ')'
+    obj = Users(
+        user_id=user_id,
+        username=username
+    )
+    session.add(obj)
+    await session.commit()
+
+
+async def check_sub_orm(session, user_id: int):
+    query = select(Users).where(Users.user_id == user_id)
+    result = await session.execute(query)
+    return result.all()
 
 async def get_all_users(session_pool, **kwargs):
     query = select(Users.user_id, Users.progress, Users.id_last_block_send)

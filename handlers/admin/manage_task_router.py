@@ -4,7 +4,6 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query import orm_add_task, orm_transport_base
 from database.orm_query_block import get_block_for_add_task
 from database.orm_query_media_task import add_media_task
 from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete, delete_task

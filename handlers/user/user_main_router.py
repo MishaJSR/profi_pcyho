@@ -1,7 +1,6 @@
 import datetime
 import logging
 
-import emoji
 from aiogram.filters import Command, or_f, StateFilter, CommandStart
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
@@ -9,12 +8,10 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query import check_new_user, add_user
+from database.orm_query_user import check_new_user, add_user
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
-from keyboards.user.inline_user import get_inline
-from keyboards.user.reply_user import start_kb, empty_kb
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
