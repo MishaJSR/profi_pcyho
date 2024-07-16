@@ -147,6 +147,9 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
     )
     calendar.set_dates_range(datetime.datetime(2022, 1, 1), datetime.datetime(2025, 12, 31))
     selected, date = await calendar.process_selection(callback_query, callback_data)
+    if 'DAY' not in callback_query.data:
+        await callback_query.answer("...")
+        return
     if not date:
         date = datetime.datetime.now()
         selected = True

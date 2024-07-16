@@ -37,6 +37,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
                                                      block_id=UserCallbackState.block_id[0])
     if not tasks:
+
         await call.message.answer("Заданий по этому блоку нет", reply_markup=start_kb())
         await call.answer('Вы выбрали задание')
         return
