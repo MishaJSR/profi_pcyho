@@ -98,10 +98,12 @@ class AdminStateDelete(StatesGroup):
 
 
 class AdminStateSpammer(StatesGroup):
+    start = State()
     spam_actions = State()
     choose_block = State()
     confirm_date = State()
     texts = {
+        'AdminStateDelete:start': 'Выберите действия',
         'AdminStateDelete:spam_actions': 'Выберите действия',
         'AdminStateDelete:choose_block': 'Выберите блок',
         'AdminStateDelete:confirm_date': 'Подтверждение',
