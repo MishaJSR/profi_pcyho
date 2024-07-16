@@ -1,5 +1,5 @@
 from aiogram.types import ReplyKeyboardRemove
-from aiogram.utils.keyboard import ReplyKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 import emoji
 
 start_but = ['Когда будет следующий блок?']
@@ -25,5 +25,10 @@ def answer_kb(data=None):
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
+def get_inline_veb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Пройти задание по курсу', callback_data='asdsaafafadasdasdafaac',
+                   url='https://t.me/humanitiessociety')
+    return builder.as_markup()
 
 
