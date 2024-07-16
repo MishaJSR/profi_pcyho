@@ -9,11 +9,9 @@ from keyboards.admin.reply_admin import start_kb
 from handlers.admin.states import AdminManageTaskState
 from handlers.admin.admin_block_router import admin_block_router
 from handlers.admin.manage_task_router import admin_add_task_router
-from handlers.admin.delete_task_router import admin_delete_task_router
 
 admin_private_router = Router()
-admin_private_router.include_routers(admin_block_router, admin_add_task_router, admin_delete_task_router,
-                                     admin_manage_sender_router)
+admin_private_router.include_routers(admin_block_router, admin_add_task_router, admin_manage_sender_router)
 admin_private_router.message.filter(AdminFilter())
 load_dotenv(find_dotenv())
 

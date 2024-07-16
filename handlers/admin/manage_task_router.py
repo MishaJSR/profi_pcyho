@@ -244,9 +244,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         res = await get_task_for_delete(session, task_id=AdminManageTaskState.block_id)
         AdminManageTaskState.task_list = {}
         for task in res:
-            AdminManageTaskState.task_list[task._data[0].description] = task._data[0].id
+            AdminManageTaskState.task_list[task._data[0].id] = task._data[0].description
         await message.answer(f'Выберите задание для удаления',
-                             reply_markup=list_task_to_delete(list(AdminManageTaskState.task_list.keys())))
+                             reply_markup=list_task_to_delete(list(AdminManageTaskState.task_list.values())))
         await state.set_state(AdminManageTaskState.block_delete)
     except Exception as e:
         await message.answer('Такой блок не найден', reply_markup=start_kb())
@@ -254,7 +254,10 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 @admin_add_task_router.message(AdminManageTaskState.block_delete, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    id_task_to_delete = AdminManageTaskState.task_list.get(message.text)
+    id_task_to_delete = get_key_by_value(AdminManageTaskState.task_list, message.text)
+    if not id_task_to_delete:
+        await message.answer("Ошибка ввода", reply_markup=start_kb())
+        await state.set_state(AdminManageTaskState.start)
     try:
         res = await delete_task(session, task_id=id_task_to_delete)
         await message.answer("Задание успешно удалено", reply_markup=start_kb())
@@ -264,5 +267,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     finally:
         await state.set_state(AdminManageTaskState.start)
 
-
+def get_key_by_value(dictionary, value):
+    for key, val in dictionary.items():
+        if val == value:
+            return key
+    return None
 '''Delete task'''
