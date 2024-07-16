@@ -99,11 +99,13 @@ class AdminStateDelete(StatesGroup):
 
 class AdminStateSpammer(StatesGroup):
     spam_actions = State()
-    choose_task = State()
-    confirm_delete = State()
+    choose_block = State()
+    confirm_date = State()
     texts = {
-        'AdminStateDelete:find_key': 'Ввод описания',
-        'AdminStateDelete:choose_task': 'Выбор задания для удаления',
-        'AdminStateDelete:confirm_delete': 'Подтверждение',
+        'AdminStateDelete:spam_actions': 'Выберите действия',
+        'AdminStateDelete:choose_block': 'Выберите блок',
+        'AdminStateDelete:confirm_date': 'Подтверждение',
     }
     data = []
+    blocks_name = []
+    name_of_block = None

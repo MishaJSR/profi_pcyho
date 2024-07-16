@@ -39,7 +39,7 @@ async def get_block_by_id(session: AsyncSession, **kwargs):
 
 async def get_block_id_by_callback(session: AsyncSession, **kwargs):
     query = select(Block.id).where((Block.is_visible == True) & (Block.is_vebinar == False) & (
-                Block.callback_button_id == kwargs.get("callback_button_id")))
+            Block.callback_button_id == kwargs.get("callback_button_id")))
     result = await session.execute(query)
     return result.fetchone()
 
@@ -57,6 +57,13 @@ async def get_block_all_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
+
+
+async def get_block_names_all(session: AsyncSession, **kwargs):
+    query = select(Block.block_name).where(Block.is_visible == True).order_by(Block.date_to_post)
+    result = await session.execute(query)
+    return result.fetchall()
+
 
 
 async def get_order_block(session: AsyncSession, **kwargs):
@@ -85,6 +92,17 @@ async def get_time_next_block(session: AsyncSession, **kwargs):
     query = select(Block.date_to_post).where(Block.progress_block == kwargs.get("progress_block"))
     result = await session.execute(query)
     return result.fetchone()
+
+async def get_date_post_block_by_name(session: AsyncSession, **kwargs):
+    query = select(Block.date_to_post).where(Block.block_name == kwargs.get("block_name"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+async def set_date_post_block_by_name(session: AsyncSession, **kwargs):
+    query = update(Block).where((Block.is_visible == True) & (Block.block_name == kwargs.get("block_name"))).values(
+        date_to_post=kwargs.get("date_to_post"))
+    await session.execute(query)
+    await session.commit()
 
 
 async def delete_block(session: AsyncSession, **kwargs):

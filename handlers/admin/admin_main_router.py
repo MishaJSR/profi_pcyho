@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from dotenv import find_dotenv, load_dotenv
 
 from filters.admin_filter import AdminFilter
-from handlers.admin.spam_sender_router import spam_sender_router
+from handlers.admin.admin_manage_sender_router import admin_manage_sender_router
 from keyboards.admin.reply_admin import start_kb
 from handlers.admin.states import AdminManageTaskState
 from handlers.admin.admin_block_router import admin_block_router
@@ -13,7 +13,7 @@ from handlers.admin.delete_task_router import admin_delete_task_router
 
 admin_private_router = Router()
 admin_private_router.include_routers(admin_block_router, admin_add_task_router, admin_delete_task_router,
-                                     spam_sender_router)
+                                     admin_manage_sender_router)
 admin_private_router.message.filter(AdminFilter())
 load_dotenv(find_dotenv())
 

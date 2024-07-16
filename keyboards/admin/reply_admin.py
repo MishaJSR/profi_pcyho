@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
 type_task_actions = ['Добавить задание', 'Удалить задание']
 type_task = ['Описание изображения', 'Тест']
-spam_actions = ['Отобразить статус блоков', 'Изменить дату рассылки', 'Тестовая рассылка', 'Выставить прогресс блоков']
+spam_actions = ['Отобразить статус блоков', 'Изменить дату рассылки']
 
 
 def start_kb(data=None):
