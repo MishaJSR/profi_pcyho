@@ -2,8 +2,11 @@ import datetime
 
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
-from aiogram.types import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove, CallbackQuery
+from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback, DialogCalendarCallback, \
+    DialogCalendar
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import get_block_active, get_block_names_all, get_date_post_block_by_name, \
@@ -20,7 +23,15 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
     print(current_state)
 
-    if current_state == AdminStateSpammer.choose_block or current_state == AdminStateSpammer.start:
+    if current_state == AdminStateSpammer.start:
+        AdminStateSpammer.blocks_name = []
+        AdminStateSpammer.name_of_block = None
+        await message.answer(text='Выберите действие',
+                             reply_markup=start_kb())
+        await state.set_state(AdminStateSpammer.start)
+        return
+
+    if current_state == AdminStateSpammer.choose_block:
         AdminStateSpammer.blocks_name = []
         AdminStateSpammer.name_of_block = None
         await message.answer(text='Выберите действие',
@@ -37,6 +48,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         return
 
     if current_state == AdminStateSpammer.confirm_date:
+        AdminStateSpammer.name_of_block = None
         await message.answer(text='Выберите блок',
                              reply_markup=block_pool_kb(AdminStateSpammer.blocks_name))
         await state.set_state(AdminStateSpammer.choose_block)
@@ -110,10 +122,12 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     try:
         AdminStateSpammer.name_of_block = message.text
         date_post = await get_date_post_block_by_name(session, block_name=AdminStateSpammer.name_of_block)
-        date_post = date_post[0].strftime("%d.%m.%Y %H:%M")
-        await message.answer(f'Прошлая дата публикации блока {AdminStateSpammer.name_of_block[:-6]}\n'
-                             f'{date_post[:-6]}\nВведите новую дату в формате 10.02.2024',
-                             reply_markup=back_kb())
+        date_post = date_post[0].strftime("%d.%m.%Y")
+        await message.answer(
+            "Пожалуйста выберите дату: ",
+            reply_markup=await SimpleCalendar(locale=await get_user_locale(message.from_user)).start_calendar()
+        )
+        await message.answer(f'Прошлая дата публикации блока {date_post}', reply_markup=back_kb())
         await state.set_state(AdminStateSpammer.confirm_date)
 
     except Exception as e:
@@ -122,18 +136,54 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-@admin_manage_sender_router.message(AdminStateSpammer.confirm_date, F.text)
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+# @admin_manage_sender_router.message(AdminStateSpammer.confirm_date, F.text)
+# async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+#     try:
+#         d, m, y = message.text.split('.')
+#         h, minute = 10, 00
+#         date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
+#         await set_date_post_block_by_name(session, block_name=AdminStateSpammer.name_of_block,
+#                                           date_to_post=date_to_post)
+#         await message.answer('Изменение успешно применено', reply_markup=start_kb())
+#         await state.set_state(AdminStateSpammer.spam_actions)
+#
+#     except Exception as e:
+#         await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+#         await state.set_state(AdminStateSpammer.spam_actions)
+#         return
+
+
+
+
+@admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter())
+async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
+                                  session: AsyncSession, state: FSMContext):
+    if not AdminStateSpammer.name_of_block:
+        await callback_query.message.answer("Клавиатура неактивна")
+        await callback_query.answer("Клавиатура неактивна")
+        return
+    calendar = SimpleCalendar(
+        locale=await get_user_locale(callback_query.from_user), show_alerts=True
+    )
+    calendar.set_dates_range(datetime.datetime(2022, 1, 1), datetime.datetime(2025, 12, 31))
+    selected, date = await calendar.process_selection(callback_query, callback_data)
+    if not date:
+        date = datetime.datetime.now()
+        selected = True
+    date = date.replace(hour=10, minute=0)
+    if selected:
+        await callback_query.message.answer(
+            f'Вы выбрали {date.strftime("%d.%m.%Y")}',
+            reply_markup=start_kb()
+        )
     try:
-        d, m, y = message.text.split('.')
-        h, minute = 10, 00
-        date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
         await set_date_post_block_by_name(session, block_name=AdminStateSpammer.name_of_block,
-                                          date_to_post=date_to_post)
-        await message.answer('Изменение успешно применено', reply_markup=start_kb())
+                                          date_to_post=date)
+        await callback_query.message.answer('Изменение успешно применено', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
 
     except Exception as e:
-        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await callback_query.message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
+
