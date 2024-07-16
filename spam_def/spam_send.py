@@ -39,6 +39,9 @@ async def spam_task(bot, session_pool):
 async def send_spam(bot, session_pool, user_id, block_id):
     try:
         block = await get_block_session_pool_by_id(session_pool, block_id=block_id)
+        if not block:
+            await send_vebinar()
+            return
         content = block._data[0].content
         callback = block._data[0].callback_button_id
         block_id = block._data[0].id
@@ -73,3 +76,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
     except Exception as e:
         await bot.send_message(chat_id=548349299, text=f'Ошибка при попытке подключения к базе данных {e}', reply_markup=start_kb())
         return
+
+
+async def send_vebinar():
+    pass
