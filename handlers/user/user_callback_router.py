@@ -36,7 +36,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])
     ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
                                                      block_id=UserCallbackState.block_id[0])
-    if len(tasks) == 0:
+    if not tasks:
         await call.message.answer("Заданий по этому блоку нет", reply_markup=start_kb())
         await call.answer('Вы выбрали задание')
         return
@@ -44,6 +44,8 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.message.answer("Задания уже были пройдены", reply_markup=start_kb())
         await call.answer('Вы выбрали задание')
         return
+    if ready_tasks:
+        tasks = tasks[len(ready_tasks):]
     for task in tasks:
         UserCallbackState.tasks.append(task._data[0])
     UserCallbackState.count_tasks = len(tasks)
