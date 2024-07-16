@@ -11,6 +11,7 @@ async def add_block(session: AsyncSession, **kwargs):
         date_to_post=kwargs.get("date_to_post"),
         progress_block=kwargs.get("progress_block"),
         callback_button_id=kwargs.get("callback_button_id"),
+        is_vebinar=kwargs.get("is_vebinar")
     )
     session.add(obj)
     await session.commit()
@@ -24,8 +25,14 @@ async def get_block_for_add_task(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
+async def get_block_for_delete(session: AsyncSession, **kwargs):
+    query = select(Block).where((Block.is_visible == True))
+    result = await session.execute(query)
+    return result.fetchall()
+
+
 async def get_block_active(session: AsyncSession, **kwargs):
-    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False)).order_by(Block.date_to_post)
+    query = select(Block).where(Block.is_visible == True).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
 

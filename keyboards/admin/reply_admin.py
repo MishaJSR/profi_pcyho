@@ -4,6 +4,7 @@ command_admin_list = ['Управление блоками', "Управлени
 type_task_actions = ['Добавить задание', 'Удалить задание']
 type_task = ['Описание изображения', 'Тест']
 spam_actions = ['Отобразить статус блоков', 'Изменить дату рассылки']
+veb_actions = ['Обычный блок', 'Вебинар']
 
 
 def start_kb(data=None):
@@ -86,6 +87,14 @@ def block_actions(data=None):
 def reset_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def vebinar_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Назад')
+    for el in veb_actions:
+        test_kb.button(text=el)
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 

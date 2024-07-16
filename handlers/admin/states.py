@@ -57,7 +57,9 @@ class AdminManageBlockState(StatesGroup):
     prepare_to_load = State()
     confirm_state = State()
     date_posting = State()
+    vebinar = State()
     name_block = State()
+
 
     choose_block_to_delete = State()
 
@@ -68,8 +70,9 @@ class AdminManageBlockState(StatesGroup):
         'AdminManageBlockState:media_state': ['Отправьте медиафайл', send_media_kb],
         'AdminManageBlockState:prepare_to_load': ['Если вы ошиблись с медиафайлом нажмите Назад', send_media_check_kb],
         'AdminManageBlockState:confirm_state': ['', send_media_kb],
-        'AdminManageBlockState:name_block': ['Укажите краткое название блока', reset_kb],
         'AdminManageBlockState:date_posting': ['Укажите дату постинга', reset_kb],
+        'AdminManageBlockState:name_block': ['Укажите краткое название блока', reset_kb],
+        'AdminManageBlockState:vebinar': ['Это вебинар?', reset_kb],
     }
     text = ''
     photo = None
@@ -83,6 +86,7 @@ class AdminManageBlockState(StatesGroup):
 
     block_list = []
     block_dict_id = {}
+    is_vebinar = None
 
 
 class AdminStateDelete(StatesGroup):

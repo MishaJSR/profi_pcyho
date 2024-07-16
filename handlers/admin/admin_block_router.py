@@ -5,11 +5,12 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import add_block, get_block_for_add_task, delete_block, get_order_block, set_progres_block
+from database.orm_query_block import add_block, get_block_for_add_task, delete_block, get_order_block, \
+    set_progres_block, get_block_for_delete
 from database.orm_query_media_block import add_media
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
-    block_actions, block_pool_kb
+    block_actions, block_pool_kb, vebinar_kb, veb_actions
 from handlers.admin.states import AdminManageBlockState
 import logging
 import uuid
@@ -145,9 +146,25 @@ async def get_photo(message: types.Message, state: FSMContext):
 @admin_block_router.message(AdminManageBlockState.date_posting, F.text)
 async def get_photo(message: types.Message, state: FSMContext):
     AdminManageBlockState.date_to_posting = message.text
+    AdminManageBlockState.is_vebinar = None
+    await message.answer('Если это вебинар, укажите это',
+                         reply_markup=vebinar_kb())
+    await state.set_state(AdminManageBlockState.vebinar)
+
+@admin_block_router.message(AdminManageBlockState.vebinar, F.text)
+async def get_photo(message: types.Message, state: FSMContext):
+    if message.text not in veb_actions:
+        await message.answer("Ошибка ввода, повторите попытку")
+        return
+    if message.text == veb_actions[0]:
+        AdminManageBlockState.is_vebinar = False
+    else:
+        AdminManageBlockState.is_vebinar = True
     await message.answer('Укажите уникальное название блока. Это название будет видно только вам',
                          reply_markup=reset_kb())
     await state.set_state(AdminManageBlockState.name_block)
+
+
 
 
 @admin_block_router.message(AdminManageBlockState.name_block, F.text)
@@ -168,7 +185,8 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
         h, minute = 10, 00
         date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
         block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
-                                   date_to_post=date_to_post, progress_block=None, callback_button_id=callback)
+                                   date_to_post=date_to_post, progress_block=None, callback_button_id=callback,
+                                   is_vebinar=AdminManageBlockState.is_vebinar)
 
         for photo in AdminManageBlockState.media:
             await add_photo_pool(session, block_id, photo.media)
@@ -199,7 +217,7 @@ async def add_video_pool(session, block_id, file_id):
 @admin_block_router.message(AdminManageBlockState.choose_block_actions, F.text == 'Удалить блок')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        res = await get_block_for_add_task(session)
+        res = await get_block_for_delete(session)
     except Exception as e:
         await message.answer('Ошибка подключения к базе данных блоков. Возможно у вас отсутствуют блоки')
         return
@@ -229,30 +247,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 '''delete block'''
 
-
-# @admin_block_router.message(AdminStateSender.confirm_state)
-# async def process_photo(message: types.Message, session: AsyncSession, state: FSMContext):
-#     try:
-#         res = await get_all_users(session)
-#         await message.answer(text="Начало рассылки")
-#         for user in res:
-#             await spammer(message, user, AdminStateSender)
-#             # await message.bot.send_photo(chat_id=user._mapping['user_id'], photo=AdminStateSender.photo,
-#             #                              caption=AdminStateSender.text)
-#         await message.answer(text="Рассылка завершена", reply_markup=start_kb())
-#     except:
-#         await message.answer(text="Ошибка рассылки", reply_markup=start_kb())
-#     await state.set_state(Admin_state.start)
-
-
-async def spammer(message, user, state):
-    pass
-    # await message.bot.copy_message(548349299, 548349299, message.message_id)
-    # if state.photo is None:
-    #     await message.forward(user._mapping['user_id'])
-    #     await message.bot.send_message(chat_id=user._mapping['user_id'], text=state.text)
-    # else:
-    #     await message.bot.send_photo(chat_id=user._mapping['user_id'], photo=state.photo, caption=state.text)
 
 
 async def update_progress(message, session):

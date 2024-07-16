@@ -61,24 +61,6 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminStateSpammer.spam_actions)
 
 
-@admin_manage_sender_router.message(AdminStateSpammer.spam_actions, F.text == 'Отобразить статус блоков')
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    try:
-        res = await get_block_active(session)
-
-        for row in res:
-            rus_date = row._data[0].date_to_post.strftime("%d.%m.%Y %H:%M")
-            tasks = await get_task_by_block_id(session, block_id=row._data[0].id)
-            await message.answer(f"{row._data[0].block_name}\n"
-                                 f"Выслано {row._data[0].count_send} раз\n"
-                                 f"Дата постинга: {rus_date}\n"
-                                 f"Заданий добавлено: {len(tasks)}\n")
-    except Exception as e:
-        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
-        await state.set_state(AdminStateSpammer.start)
-        return
-
-
 @admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Отобразить статус блоков')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
@@ -153,8 +135,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 #         return
 
 
-
-
 @admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
                                   session: AsyncSession, state: FSMContext):
@@ -186,4 +166,3 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         await callback_query.message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
-
