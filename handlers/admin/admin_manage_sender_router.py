@@ -4,9 +4,8 @@ from aiogram import types, Router, F
 from aiogram.filters import StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
-from aiogram.types import ReplyKeyboardRemove, CallbackQuery
-from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback, DialogCalendarCallback, \
-    DialogCalendar
+from aiogram.types import CallbackQuery
+from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import get_block_active, get_block_names_all, get_date_post_block_by_name, \

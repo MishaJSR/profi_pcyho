@@ -39,12 +39,6 @@ async def get_block_active(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
-async def get_block_by_id(session: AsyncSession, **kwargs):
-    query = select(Block).where(
-        (Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
-    result = await session.execute(query)
-    return result.fetchone()
-
 
 async def get_block_id_by_callback(session: AsyncSession, **kwargs):
     query = select(Block.id).where((Block.is_visible == True) & (Block.is_vebinar == False) & (

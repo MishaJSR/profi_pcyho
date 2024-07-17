@@ -1,13 +1,6 @@
-import calendar
-import datetime
-import logging
-import sqlite3
-
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import Task, Users, MediaBlock
-from sqlalchemy import select, delete, update
-import pandas as pd
-import re
+from database.models import Task
+from sqlalchemy import select, update
 
 
 async def get_task_by_block_id(session: AsyncSession, **kwargs):
@@ -22,10 +15,6 @@ async def get_task_for_delete(session: AsyncSession, **kwargs):
     result = await session.execute(query)
     return result.fetchall()
 
-async def find_task(session: AsyncSession, text: str):
-    query = select(Task).where(Task.description.like(f'%{text}%'))
-    result = await session.execute(query)
-    return result.all()
 
 
 async def add_task_image(session: AsyncSession, **kwargs):

@@ -1,4 +1,4 @@
-from aiogram.filters import Command, StateFilter
+from aiogram.filters import Command
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from dotenv import find_dotenv, load_dotenv

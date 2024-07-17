@@ -18,11 +18,6 @@ async def add_user(session, user_id: int, username: str):
     await session.commit()
 
 
-async def check_sub_orm(session, user_id: int):
-    query = select(Users).where(Users.user_id == user_id)
-    result = await session.execute(query)
-    return result.all()
-
 
 async def get_all_users_id(session, **kwargs):
     query = select(Users.user_id)
