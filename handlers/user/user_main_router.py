@@ -12,6 +12,7 @@ from database.orm_query_user import check_new_user, add_user
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
+from keyboards.user.reply_user import start_kb
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
@@ -35,11 +36,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     try:
         userid, username = message.from_user.id, message.from_user.full_name
         res = await check_new_user(session, userid)
-        text = f'Привет {message.from_user.full_name}'
-        await message.answer(text)
         if len(res) == 0:
             await add_user(session, userid, username)
+            await message.answer(f'Привет {message.from_user.full_name}')
             await message.answer('Готовим блок для тебя ...')
+        else:
+            await message.answer(f'Привет {message.from_user.full_name}', reply_markup=start_kb())
     except Exception as e:
         logging.info(e)
         await message.answer('Ошибка регистрации')
