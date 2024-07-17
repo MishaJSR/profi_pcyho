@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 
-from aiogram.types import InputMediaPhoto, CallbackQuery
+from aiogram.types import InputMediaPhoto, CallbackQuery, ReplyKeyboardRemove
 from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -146,6 +146,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 @admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     AdminManageBlockState.callback_for_task = str(uuid.uuid4())
+    await message.answer("Подтверждение получено", reply_markup=ReplyKeyboardRemove())
     try:
         await message.answer(
             "Пожалуйста выберите дату: ",
@@ -159,7 +160,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-@admin_block_router.callback_query(SimpleCalendarCallback.filter())
+@admin_block_router.callback_query(SimpleCalendarCallback.filter(), StateFilter(AdminManageBlockState))
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
                                   session: AsyncSession, state: FSMContext):
     if not AdminManageBlockState.callback_for_task:

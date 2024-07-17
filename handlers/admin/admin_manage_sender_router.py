@@ -189,7 +189,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 
 
-@admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter())
+@admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter(), StateFilter(AdminStateSpammer))
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
                                   session: AsyncSession, state: FSMContext):
     if not AdminStateSpammer.name_of_block:
