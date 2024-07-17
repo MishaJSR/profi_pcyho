@@ -23,6 +23,12 @@ async def check_sub_orm(session, user_id: int):
     result = await session.execute(query)
     return result.all()
 
+
+async def get_all_users_id(session, **kwargs):
+    query = select(Users.user_id)
+    result = await session.execute(query)
+    return result.fetchall()
+
 async def get_all_users(session_pool, **kwargs):
     query = select(Users.user_id, Users.progress, Users.id_last_block_send)
     async with session_pool.begin().async_session as session:

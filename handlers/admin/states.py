@@ -104,6 +104,8 @@ class AdminStateSpammer(StatesGroup):
     spam_actions = State()
     choose_block = State()
     confirm_date = State()
+
+    set_text_spam = State()
     texts = {
         'AdminStateDelete:start': 'Выберите действия',
         'AdminStateDelete:spam_actions': 'Выберите действия',

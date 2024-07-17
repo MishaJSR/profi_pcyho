@@ -12,6 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_query_block import get_block_active, get_block_names_all, get_date_post_block_by_name, \
     set_date_post_block_by_name
 from database.orm_query_task import get_task_by_block_id
+from database.orm_query_user import get_all_users_id
 from keyboards.admin.reply_admin import start_kb, spam_actions_kb, block_pool_kb, back_kb
 from handlers.admin.states import AdminStateSpammer
 
@@ -28,6 +29,12 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         AdminStateSpammer.name_of_block = None
         await message.answer(text='Выберите действие',
                              reply_markup=start_kb())
+        await state.set_state(AdminStateSpammer.start)
+        return
+
+    if current_state == AdminStateSpammer.set_text_spam:
+        await message.answer(text='Выберите действие',
+                             reply_markup=spam_actions_kb())
         await state.set_state(AdminStateSpammer.start)
         return
 
@@ -98,6 +105,27 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.spam_actions)
         return
 
+
+@admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Отправить спам')
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    await message.answer("Напишите тест для рассылки всем пользователям",
+                         reply_markup=back_kb())
+    await state.set_state(AdminStateSpammer.set_text_spam)
+
+
+@admin_manage_sender_router.message(AdminStateSpammer.set_text_spam, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        await message.answer("Начало рассылки")
+        users = await get_all_users_id(session)
+        for user in users:
+            await message.bot.send_message(chat_id=user._data[0], text=message.text)
+        await message.answer("Рассылка завершена", reply_markup=start_kb())
+
+    except Exception as e:
+        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await state.set_state(AdminStateSpammer.spam_actions)
+        return
 
 @admin_manage_sender_router.message(AdminStateSpammer.choose_block, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):

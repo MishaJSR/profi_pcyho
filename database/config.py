@@ -55,7 +55,8 @@ class TgBot:
     @staticmethod
     def from_env():
         token = os.getenv("TOKEN")
-        admin_ids = [int(os.getenv("ADMIN_ID"))]
+        admin_list = os.getenv('ADMIN_ID').split(", ")
+        admin_ids = [int(ad_id) for ad_id in admin_list]
         use_redis = os.getenv("USE_REDIS") == 'True'
         return TgBot(token=token, admin_ids=admin_ids, use_redis=use_redis)
 
