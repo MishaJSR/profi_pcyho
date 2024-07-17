@@ -40,8 +40,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await add_user(session, userid, username)
             await message.answer(f'Привет {message.from_user.full_name}')
             await message.answer('Готовим блок для тебя ...')
-        else:
-            await message.answer(f'Привет {message.from_user.full_name}', reply_markup=start_kb())
+            return
+        await message.answer(f'Привет {message.from_user.full_name}', reply_markup=start_kb())
     except Exception as e:
         logging.info(e)
         await message.answer('Ошибка регистрации')

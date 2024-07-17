@@ -30,14 +30,12 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     UserCallbackState.tasks = []
     UserCallbackState.block_id = None
     UserCallbackState.now_task = None
-    UserCallbackState.count_tasks = None
     callback_data = call.data
     UserCallbackState.block_id = await get_block_id_by_callback(session, callback_button_id=callback_data)
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])
     ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
                                                      block_id=UserCallbackState.block_id[0])
     if not tasks:
-
         await call.message.answer("Заданий по этому блоку нет", reply_markup=start_kb())
         await call.answer('Вы выбрали задание')
         return
@@ -49,7 +47,6 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         tasks = tasks[len(ready_tasks):]
     for task in tasks:
         UserCallbackState.tasks.append(task._data[0])
-    UserCallbackState.count_tasks = len(tasks)
     if not UserCallbackState.tasks:
         await call.message.answer("Задания отсутствуют")
         await call.answer('Вы выбрали задание')
@@ -71,21 +68,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer(f"Поздравляем !!!\nВы получили {UserCallbackState.now_task.points_for_task} очков")
         await update_user_points(session, user_id=message.from_user.id,
                                  points=UserCallbackState.now_task.points_for_task)
-    await set_user_task_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
-                                 username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
-                                 answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
-                                 is_pass=is_pass)
-    if len(UserCallbackState.tasks) == 0:
-        await message.answer("Все задания пройдены", reply_markup=start_kb())
-        await update_user_progress(session, user_id=message.from_user.id)
-        return
-    else:
-        UserCallbackState.now_task = UserCallbackState.tasks[0]
-        UserCallbackState.tasks = UserCallbackState.tasks[1:]
-        if UserCallbackState.now_task.answer_mode == 'Описание изображения':
-            await prepare_image_task(message, state, session)
-        else:
-            await prepare_test_tasks(message, state)
+    await update_user_task_progress_and_go_to_next(message, session, state, is_pass)
 
 
 @user_callback_router.message(UserCallbackState.test_callback, F.text)
@@ -93,17 +76,20 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     if not message.text.isdigit():
         await message.answer("Ошибка ввода, повторите снова")
         return
-    answer = int(message.text)
     is_pass = False
-    if int(UserCallbackState.now_task.answer) == answer:
+    if int(UserCallbackState.now_task.answer) == int(message.text):
         is_pass = True
         await message.answer(f"Поздравляю Вы заработали {UserCallbackState.now_task.points_for_task} очков")
         await update_user_points(session, user_id=message.from_user.id,
                                  points=UserCallbackState.now_task.points_for_task)
+    await update_user_task_progress_and_go_to_next(message, session, state, is_pass)
+
+
+async def update_user_task_progress_and_go_to_next(message, session, state, is_pass):
     await set_user_task_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
                                  username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
                                  answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
-                                 is_pass=is_pass)
+                                 is_p1ass=is_pass)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
@@ -114,7 +100,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await prepare_image_task(message, state, session)
     else:
         await prepare_test_tasks(message, state)
-
 
 async def prepare_test_tasks(message, state):
     res_message = f"{UserCallbackState.now_task.description}\n"
