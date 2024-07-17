@@ -31,6 +31,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         return
 
     if current_state == AdminManageBlockState.confirm_state or current_state == AdminManageBlockState.date_posting:
+        AdminManageBlockState.callback_for_task = None
         await message.answer(text='Отправьте медиафайл', reply_markup=send_media_kb())
         AdminManageBlockState.media = []
         AdminManageBlockState.video_id_list = []
@@ -94,6 +95,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminManageBlockState.media_state)
 async def fill_admin_state(message: types.Message, state: FSMContext):
+    AdminManageBlockState.callback_for_task = None
     if message.text == 'Оставить пустым':
         await message.answer("Вы оставили поле пустым", reply_markup=send_media_check_kb())
         await state.set_state(AdminManageBlockState.prepare_to_load)
@@ -122,7 +124,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminManageBlockState.prepare_to_load, F.text == 'Подготовить сообщение к рассылке')
 async def fill_admin_state(message: types.Message, state: FSMContext):
-    AdminManageBlockState.callback_for_task = str(uuid.uuid4())
+    AdminManageBlockState.callback_for_task = None
     if not AdminManageBlockState.media:
         await message.answer(f"{AdminManageBlockState.text}")
     else:
@@ -137,14 +139,13 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
                                        reply_markup=get_inline(AdminManageBlockState.callback_for_task))
         else:
             await message.answer_video(video=file_id)
-    AdminManageBlockState.callback_for_task = str(uuid.uuid4())
     await message.answer(text='Все верно?', reply_markup=prepare_to_spam())
     await state.set_state(AdminManageBlockState.confirm_state)
 
 
 @admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    AdminManageBlockState.date_to_posting = None
+    AdminManageBlockState.callback_for_task = str(uuid.uuid4())
     try:
         await message.answer(
             "Пожалуйста выберите дату: ",
