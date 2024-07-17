@@ -118,22 +118,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-# @admin_manage_sender_router.message(AdminStateSpammer.confirm_date, F.text)
-# async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-#     try:
-#         d, m, y = message.text.split('.')
-#         h, minute = 10, 00
-#         date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
-#         await set_date_post_block_by_name(session, block_name=AdminStateSpammer.name_of_block,
-#                                           date_to_post=date_to_post)
-#         await message.answer('Изменение успешно применено', reply_markup=start_kb())
-#         await state.set_state(AdminStateSpammer.spam_actions)
-#
-#     except Exception as e:
-#         await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
-#         await state.set_state(AdminStateSpammer.spam_actions)
-#         return
-
 
 @admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter())
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,

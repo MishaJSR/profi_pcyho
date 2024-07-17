@@ -57,7 +57,6 @@ class AdminManageBlockState(StatesGroup):
     prepare_to_load = State()
     confirm_state = State()
     date_posting = State()
-    vebinar = State()
     name_block = State()
 
 
@@ -72,7 +71,6 @@ class AdminManageBlockState(StatesGroup):
         'AdminManageBlockState:confirm_state': ['', send_media_kb],
         'AdminManageBlockState:date_posting': ['Укажите дату постинга', reset_kb],
         'AdminManageBlockState:name_block': ['Укажите краткое название блока', reset_kb],
-        'AdminManageBlockState:vebinar': ['Это вебинар?', reset_kb],
     }
     text = ''
     photo = None

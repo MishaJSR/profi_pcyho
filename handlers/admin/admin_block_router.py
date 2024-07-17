@@ -1,8 +1,10 @@
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 
-from aiogram.types import InputMediaPhoto
+from aiogram.types import InputMediaPhoto, CallbackQuery
+from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import add_block, get_block_for_add_task, delete_block, get_order_block, \
@@ -45,7 +47,13 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await state.set_state(AdminManageBlockState.choose_block_actions)
         return
 
-
+    if current_state == AdminManageBlockState.name_block:
+        await message.answer(
+            "Пожалуйста выберите дату: ",
+            reply_markup=await SimpleCalendar(locale=await get_user_locale(message.from_user)).start_calendar()
+        )
+        await state.set_state(AdminManageBlockState.date_posting)
+        return
 
     previous = None
     for step in AdminManageBlockState.__all_states__:
@@ -61,8 +69,6 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
 async def fill_admin_state(message: types.Message, state: FSMContext):
     await message.answer(text='Выберите необходимое действие', reply_markup=block_actions())
     await state.set_state(AdminManageBlockState.choose_block_actions)
-
-
 
 
 @admin_block_router.message(AdminManageBlockState.choose_block_actions, F.text == 'Добавить блок')
@@ -136,35 +142,57 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     await state.set_state(AdminManageBlockState.confirm_state)
 
 
-@admin_block_router.message(AdminManageBlockState.confirm_state)
-async def get_photo(message: types.Message, state: FSMContext):
+@admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Подтвердить")
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     AdminManageBlockState.date_to_posting = None
-    await message.answer('Укажите дату постинга в формате 11.02.2025', reply_markup=reset_kb())
-    await state.set_state(AdminManageBlockState.date_posting)
+    try:
+        await message.answer(
+            "Пожалуйста выберите дату: ",
+            reply_markup=await SimpleCalendar(locale=await get_user_locale(message.from_user)).start_calendar()
+        )
+        await state.set_state(AdminManageBlockState.date_posting)
 
-
-@admin_block_router.message(AdminManageBlockState.date_posting, F.text)
-async def get_photo(message: types.Message, state: FSMContext):
-    AdminManageBlockState.date_to_posting = message.text
-    AdminManageBlockState.is_vebinar = None
-    await message.answer('Если это вебинар, укажите это',
-                         reply_markup=vebinar_kb())
-    await state.set_state(AdminManageBlockState.vebinar)
-
-@admin_block_router.message(AdminManageBlockState.vebinar, F.text)
-async def get_photo(message: types.Message, state: FSMContext):
-    if message.text not in veb_actions:
-        await message.answer("Ошибка ввода, повторите попытку")
+    except Exception as e:
+        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await state.set_state(AdminManageBlockState.start)
         return
-    if message.text == veb_actions[0]:
-        AdminManageBlockState.is_vebinar = False
-    else:
-        AdminManageBlockState.is_vebinar = True
-    await message.answer('Укажите уникальное название блока. Это название будет видно только вам',
-                         reply_markup=reset_kb())
-    await state.set_state(AdminManageBlockState.name_block)
 
 
+@admin_block_router.callback_query(SimpleCalendarCallback.filter())
+async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
+                                  session: AsyncSession, state: FSMContext):
+    if not AdminManageBlockState.callback_for_task:
+        await callback_query.message.answer("Клавиатура неактивна")
+        await callback_query.answer("Клавиатура неактивна")
+        return
+    calendar = SimpleCalendar(
+        locale=await get_user_locale(callback_query.from_user), show_alerts=True
+    )
+    calendar.set_dates_range(datetime.datetime(2022, 1, 1), datetime.datetime(2025, 12, 31))
+    selected, date = await calendar.process_selection(callback_query, callback_data)
+    if 'DAY' not in callback_query.data:
+        await callback_query.answer("...")
+        return
+    if not date:
+        date = datetime.datetime.now()
+        selected = True
+    date = date.replace(hour=10, minute=0)
+    AdminManageBlockState.date_to_posting = date
+    if selected:
+        await callback_query.message.answer(
+            f'Вы выбрали {date.strftime("%d.%m.%Y")}'
+        )
+    try:
+        await callback_query.answer("...")
+        await callback_query.message.answer('Укажите уникальное название блока. Это название будет видно только вам',
+                                            reply_markup=reset_kb())
+        await state.set_state(AdminManageBlockState.name_block)
+
+    except Exception as e:
+        await callback_query.answer("...")
+        await callback_query.message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await state.set_state(AdminManageBlockState.start)
+        return
 
 
 @admin_block_router.message(AdminManageBlockState.name_block, F.text)
@@ -181,12 +209,9 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
         has_media = True
     callback = AdminManageBlockState.callback_for_task
     try:
-        d, m, y = AdminManageBlockState.date_to_posting.split('.')
-        h, minute = 10, 00
-        date_to_post = datetime.datetime(year=int(y), month=int(m), day=int(d), hour=int(h), minute=int(minute))
         block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
-                                   date_to_post=date_to_post, progress_block=None, callback_button_id=callback,
-                                   is_vebinar=AdminManageBlockState.is_vebinar)
+                                   date_to_post=AdminManageBlockState.date_to_posting, progress_block=None,
+                                   callback_button_id=callback, is_vebinar=False)
 
         for photo in AdminManageBlockState.media:
             await add_photo_pool(session, block_id, photo.media)
@@ -225,7 +250,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     for block in res:
         AdminManageBlockState.block_list.append(block._data[0].block_name)
         AdminManageBlockState.block_dict_id[block._data[0].block_name] = block._data[0].id
-    await message.answer(text='Выберите какой из блоков вы хотите удалить', reply_markup=block_pool_kb(AdminManageBlockState.block_list))
+    await message.answer(text='Выберите какой из блоков вы хотите удалить',
+                         reply_markup=block_pool_kb(AdminManageBlockState.block_list))
     await state.set_state(AdminManageBlockState.choose_block_to_delete)
 
 
@@ -248,7 +274,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 '''delete block'''
 
 
-
 async def update_progress(message, session):
     try:
         res = await get_order_block(session)
@@ -257,6 +282,7 @@ async def update_progress(message, session):
                 await set_progres_block(session, block_id=el._data[0].id, progress=index + 1)
     except Exception as e:
         await message.answer(e)
+
 
 async def get_generator(arr: list):
     for item in arr:
