@@ -1,3 +1,5 @@
+import datetime
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Block
 from sqlalchemy import select, update
@@ -104,6 +106,13 @@ async def update_count_send_block_session_pool(session_pool, **kwargs):
 
 async def get_time_next_block(session: AsyncSession, **kwargs):
     query = select(Block.date_to_post).where(Block.progress_block == kwargs.get("progress_block"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
+async def get_next_block_progress(session: AsyncSession, **kwargs):
+    query = select(Block.progress_block).where\
+        (Block.date_to_post >= datetime.datetime.now()).order_by(Block.date_to_post).limit(1)
     result = await session.execute(query)
     return result.fetchone()
 

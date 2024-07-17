@@ -106,6 +106,9 @@ class AdminStateSpammer(StatesGroup):
     confirm_date = State()
 
     set_text_spam = State()
+
+    set_text_vebinar = State()
+    send_vebinar = State()
     texts = {
         'AdminStateDelete:start': 'Выберите действия',
         'AdminStateDelete:spam_actions': 'Выберите действия',
@@ -115,3 +118,5 @@ class AdminStateSpammer(StatesGroup):
     data = []
     blocks_name = []
     name_of_block = None
+    web_vebinar = None
+    discription_vebinar = None

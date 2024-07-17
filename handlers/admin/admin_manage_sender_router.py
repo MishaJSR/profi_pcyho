@@ -10,9 +10,10 @@ from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCall
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import get_block_active, get_block_names_all, get_date_post_block_by_name, \
-    set_date_post_block_by_name
+    set_date_post_block_by_name, get_next_block_progress
 from database.orm_query_task import get_task_by_block_id
-from database.orm_query_user import get_all_users_id
+from database.orm_query_user import get_all_users_id, get_all_users_id_progress
+from keyboards.admin.inline_admin import get_inline_vebinar
 from keyboards.admin.reply_admin import start_kb, spam_actions_kb, block_pool_kb, back_kb
 from handlers.admin.states import AdminStateSpammer
 
@@ -32,7 +33,10 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await state.set_state(AdminStateSpammer.start)
         return
 
-    if current_state == AdminStateSpammer.set_text_spam:
+    if current_state == AdminStateSpammer.set_text_spam or current_state == AdminStateSpammer.set_text_vebinar\
+            or current_state == AdminStateSpammer.send_vebinar:
+        AdminStateSpammer.web_vebinar = None
+        AdminStateSpammer.discription_vebinar = None
         await message.answer(text='Выберите действие',
                              reply_markup=spam_actions_kb())
         await state.set_state(AdminStateSpammer.start)
@@ -144,6 +148,44 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
+
+
+@admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Выслать вебинар')
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    AdminStateSpammer.discription_vebinar = None
+    await message.answer("Введите описание рассылки", reply_markup=back_kb())
+    await state.set_state(AdminStateSpammer.set_text_vebinar)
+
+
+
+
+@admin_manage_sender_router.message(AdminStateSpammer.set_text_vebinar, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    AdminStateSpammer.discription_vebinar = message.text
+    await message.answer("Отправьте ссылку на вебинар", reply_markup=back_kb())
+    await state.set_state(AdminStateSpammer.send_vebinar)
+
+
+@admin_manage_sender_router.message(AdminStateSpammer.send_vebinar, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    AdminStateSpammer.web_vebinar = message.text
+    count_send = 0
+    try:
+        await message.answer("Начало рассылки")
+        next_block_progress = await get_next_block_progress(session)
+        users = await get_all_users_id_progress(session)
+        for user in users:
+            if user[1] == next_block_progress[0]:
+                count_send += 1
+                await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar,
+                                               reply_markup=get_inline_vebinar(url=AdminStateSpammer.web_vebinar))
+        await message.answer(f"Успешная рассылка. Выслано {count_send} пользователям", reply_markup=spam_actions_kb())
+        await state.set_state(AdminStateSpammer.spam_actions)
+    except Exception as e:
+        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await state.set_state(AdminStateSpammer.spam_actions)
+        return
+    await state.set_state(AdminStateSpammer.start)
 
 
 

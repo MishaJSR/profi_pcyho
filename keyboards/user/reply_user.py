@@ -25,10 +25,5 @@ def answer_kb(data=None):
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
-def get_inline_veb():
-    builder = InlineKeyboardBuilder()
-    builder.button(text='Пройти задание по курсу', callback_data='asdsaafafadasdasdafaac',
-                   url='https://t.me/humanitiessociety')
-    return builder.as_markup()
 
 

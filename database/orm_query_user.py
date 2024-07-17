@@ -29,6 +29,11 @@ async def get_all_users_id(session, **kwargs):
     result = await session.execute(query)
     return result.fetchall()
 
+async def get_all_users_id_progress(session, **kwargs):
+    query = select(Users.user_id, Users.progress)
+    result = await session.execute(query)
+    return result.fetchall()
+
 async def get_all_users(session_pool, **kwargs):
     query = select(Users.user_id, Users.progress, Users.id_last_block_send)
     async with session_pool.begin().async_session as session:
