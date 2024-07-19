@@ -49,6 +49,7 @@ class AdminManageTaskState(StatesGroup):
     answer_test_to_load = None
     task_list = None
     addition = None
+    add_another = None
 
 
 class AdminManageBlockState(StatesGroup):

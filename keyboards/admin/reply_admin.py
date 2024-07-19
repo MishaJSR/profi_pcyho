@@ -60,6 +60,13 @@ def send_media_kb(data=None):
     return test_kb.as_markup(resize_keyboard=True)
 
 
+def send_media_kb_task(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Назад')
+    test_kb.button(text='Оставить пустым')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
 def send_media_check_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')

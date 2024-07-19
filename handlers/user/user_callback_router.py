@@ -107,12 +107,15 @@ async def prepare_test_tasks(message, state, session):
     caption_text = '*' + UserCallbackState.now_task.description + "*\n\n" + UserCallbackState.now_task.answers + \
            '\n\n' + UserCallbackState.now_task.addition
     photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
-    for index, photo in enumerate(photos):
-        if index == 0:
-            media_group.append(InputMediaPhoto(type='photo', media=photo[0], caption=caption_text, parse_mode="Markdown"))
-        else:
-            media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
-    await message.answer_media_group(media_group, reply_markup=ReplyKeyboardRemove())
+    if len(photos) > 0:
+        for index, photo in enumerate(photos):
+            if index == 0:
+                media_group.append(InputMediaPhoto(type='photo', media=photo[0], caption=caption_text, parse_mode="Markdown"))
+            else:
+                media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
+        await message.answer_media_group(media_group, reply_markup=ReplyKeyboardRemove())
+    else:
+        await message.answer(caption_text, parse_mode="Markdown")
     await state.set_state(UserCallbackState.test_callback)
 
 

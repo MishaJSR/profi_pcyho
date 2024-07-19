@@ -8,7 +8,7 @@ from database.orm_query_block import get_block_for_add_task
 from database.orm_query_media_task import add_media_task
 from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete, delete_task
 from keyboards.admin.reply_admin import start_kb, back_kb, type_task_kb, block_pool_kb, send_spam, test_actions, \
-    list_task_to_delete
+    list_task_to_delete, send_media_kb, send_media_kb_task
 from handlers.admin.states import AdminManageTaskState
 
 admin_add_task_router = Router()
@@ -63,6 +63,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         AdminManageTaskState.answer_test_to_load = None
         AdminManageTaskState.description_test_to_load = None
         AdminManageTaskState.addition = None
+        AdminManageTaskState.add_another = None
         AdminManageTaskState.photo_list = []
         AdminManageTaskState.photo_counter = 0
         await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
@@ -187,6 +188,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminManageTaskState.answers_test_to_load = None
     AdminManageTaskState.answer_test_to_load = None
     AdminManageTaskState.description_test_to_load = None
+    AdminManageTaskState.add_another = None
     AdminManageTaskState.addition = None
     AdminManageTaskState.photo_list = []
     AdminManageTaskState.photo_counter = 0
@@ -199,11 +201,26 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 @admin_add_task_router.message(AdminManageTaskState.description_test, F.text)
 async def fill_admin_state(message: types.Message, state: FSMContext):
     try:
-        AdminManageTaskState.description_test_to_load = message.text.split('\n\n')[0]
-        AdminManageTaskState.answers_test_to_load = message.text.split('\n\n')[1]
-        AdminManageTaskState.answer_test_to_load = message.text.split('\n\n')[2]
-        AdminManageTaskState.addition = message.text.split('\n\n')[3]
-        await message.answer("Отправьте изображение", reply_markup=back_kb())
+        arr_abz = message.text.split('\n\n')
+        index_answer = 0
+        for index, el in enumerate(arr_abz):
+            if el.isdigit():
+                index_answer = index
+        index_answers = index_answer - 1
+        if index_answer == (len(arr_abz) - 1):
+            index_addition = None
+        else:
+            index_addition = -1
+        index_description = index_answers - 1
+        AdminManageTaskState.add_another = message.text.split('\n\n')[:index_description]
+        AdminManageTaskState.description_test_to_load = message.text.split('\n\n')[index_description]
+        AdminManageTaskState.answers_test_to_load = message.text.split('\n\n')[index_answers]
+        AdminManageTaskState.answer_test_to_load = message.text.split('\n\n')[index_answer]
+        if index_addition:
+            AdminManageTaskState.addition = message.text.split('\n\n')[index_addition]
+        else:
+            AdminManageTaskState.addition = ""
+        await message.answer("Отправьте изображение", reply_markup=send_media_kb_task())
         await state.set_state(AdminManageTaskState.image_test)
     except Exception as e:
         await message.answer(f'Ошибка прочтения\n')
@@ -214,11 +231,26 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_add_task_router.message(AdminManageTaskState.image_test)
 async def fill_admin_state(message: types.Message, state: FSMContext):
+    if message.text == "Оставить пустым":
+        if isinstance(AdminManageTaskState.add_another, str):
+            another = AdminManageTaskState.add_another
+        else:
+            another = "".join(AdminManageTaskState.add_another)
+        text = another + '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
+               '\n\n' + AdminManageTaskState.addition
+        await message.answer(text, parse_mode="Markdown")
+        await message.answer(f'Все верно?', reply_markup=send_spam())
+        await state.set_state(AdminManageTaskState.confirm_test)
+        return
     if not message.photo:
         await message.answer("Ошибка ввода, необходимо отправить изображение")
         return
     try:
-        text = '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
+        if isinstance(AdminManageTaskState.add_another, str):
+            another = AdminManageTaskState.add_another
+        else:
+            another = "\n\n".join(AdminManageTaskState.add_another)
+        text = another + '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
                '\n\n' + AdminManageTaskState.addition
         if AdminManageTaskState.photo_counter == 0:
             AdminManageTaskState.photo_list.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id,
