@@ -22,7 +22,7 @@ async def add_block(session: AsyncSession, **kwargs):
 
 
 async def get_block_for_add_task(session: AsyncSession, **kwargs):
-    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False))
+    query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False)).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
 
