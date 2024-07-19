@@ -212,7 +212,10 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         else:
             index_addition = -1
         index_description = index_answers - 1
-        AdminManageTaskState.add_another = message.text.split('\n\n')[:index_description]
+        if index_description == 0:
+            AdminManageTaskState.add_another = ""
+        else:
+            AdminManageTaskState.add_another = message.text.split('\n\n')[:index_description]
         AdminManageTaskState.description_test_to_load = message.text.split('\n\n')[index_description]
         AdminManageTaskState.answers_test_to_load = message.text.split('\n\n')[index_answers]
         AdminManageTaskState.answer_test_to_load = message.text.split('\n\n')[index_answer]
@@ -234,8 +237,11 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     if message.text == "Оставить пустым":
         if isinstance(AdminManageTaskState.add_another, str):
             another = AdminManageTaskState.add_another
+        elif len(AdminManageTaskState.add_another) == 0:
+            another = ""
         else:
             another = "".join(AdminManageTaskState.add_another)
+            another += "\n\n"
         text = another + '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
                '\n\n' + AdminManageTaskState.addition
         await message.answer(text, parse_mode="Markdown")
@@ -248,9 +254,13 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     try:
         if isinstance(AdminManageTaskState.add_another, str):
             another = AdminManageTaskState.add_another
+        elif len(AdminManageTaskState.add_another) == 0:
+            another = ""
         else:
             another = "\n\n".join(AdminManageTaskState.add_another)
-        text = another + '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
+            another += "\n\n"
+        AdminManageTaskState.description_test_to_load = another + '*' + AdminManageTaskState.description_test_to_load + "*"
+        text = AdminManageTaskState.description_test_to_load + "\n\n" + AdminManageTaskState.answers_test_to_load + \
                '\n\n' + AdminManageTaskState.addition
         if AdminManageTaskState.photo_counter == 0:
             AdminManageTaskState.photo_list.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id,
@@ -321,7 +331,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         res = await get_task_for_delete(session, task_id=AdminManageTaskState.block_id)
         AdminManageTaskState.task_list = {}
         for task in res:
-            AdminManageTaskState.task_list[task._data[0].id] = task._data[0].description
+            AdminManageTaskState.task_list[task._data[0].id] = task._data[0].description[:25]
         await message.answer(f'Выберите задание для удаления',
                              reply_markup=list_task_to_delete(list(AdminManageTaskState.task_list.values())))
         await state.set_state(AdminManageTaskState.block_delete)
@@ -331,7 +341,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 @admin_add_task_router.message(AdminManageTaskState.block_delete, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    id_task_to_delete = get_key_by_value(AdminManageTaskState.task_list, message.text)
+    id_task_to_delete = get_key_by_value(AdminManageTaskState.task_list, message.text[:25])
     if not id_task_to_delete:
         await message.answer("Ошибка ввода", reply_markup=start_kb())
         await state.set_state(AdminManageTaskState.start)
