@@ -245,6 +245,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         text = another + '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
                '\n\n' + AdminManageTaskState.addition
         await message.answer(text, parse_mode="Markdown")
+        AdminManageTaskState.description_test_to_load = another + '*' + AdminManageTaskState.description_test_to_load + "*"
         await message.answer(f'Все верно?', reply_markup=send_spam())
         await state.set_state(AdminManageTaskState.confirm_test)
         return

@@ -11,6 +11,7 @@ from database.orm_query_user import get_all_users, update_last_send_block_sessio
     update_users_progress_session_pool
 from keyboards.admin.inline_admin import get_inline
 from keyboards.user.reply_user import start_kb
+import emoji
 
 
 async def spam_task(bot, session_pool):
@@ -35,7 +36,7 @@ async def spam_task(bot, session_pool):
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
         except Exception as e:
             print('error', e)
-        await asyncio.sleep(20)
+        await asyncio.sleep(10)
 
 
 async def send_spam(bot, session_pool, user_id, block_id):
@@ -57,7 +58,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
             await bot.send_message(chat_id=user_id, text=content)
             await update_count_send_block_session_pool(session_pool, block_id=block_id)
             if has_tasks:
-                await bot.send_message(chat_id=user_id, text="Пройти тест по блоку",
+                await bot.send_message(chat_id=user_id, text="Перейти к тесту " + emoji.emojize(':down_arrow:'),
                                        reply_markup=get_inline(callback_data=callback))
             else:
                 await update_users_progress_session_pool(session_pool)
@@ -85,7 +86,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
         else:
             await update_count_send_block_session_pool(session_pool, block_id=block_id)
         if has_tasks:
-            await bot.send_message(chat_id=user_id, text="Пройти тест по блоку",
+            await bot.send_message(chat_id=user_id, text="Перейти к тесту " + emoji.emojize(':down_arrow:'),
                                    reply_markup=get_inline(callback_data=callback))
         else:
             await update_users_progress_session_pool(session_pool)

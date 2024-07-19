@@ -39,7 +39,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if len(res) == 0:
             await add_user(session, userid, username)
             await message.answer(f'Привет {message.from_user.full_name}')
-            await message.answer('Готовим блок для тебя ...')
+            await message.answer('Готовим урок для тебя ...')
             return
         await message.answer(f'Привет {message.from_user.full_name}', reply_markup=start_kb())
     except Exception as e:
@@ -60,11 +60,11 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         res = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res2 = await get_time_next_block(session, progress_block=res[0])
         if res2[0] < datetime.datetime.now():
-            await message.answer(f"Следующий блок уже вышел\n"
-                                 f"Если вы уже прошли все задания, бот в ближайшее время вышлет Вам новый блок",
+            await message.answer(f"Следующий урок уже вышел\n"
+                                 f"Если вы уже прошли все задания, Хэппи в ближайшее время вышлет Вам новый урок",
                                  reply_markup=ReplyKeyboardRemove())
         else:
             rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
-            await message.answer(f"Следующий блок выйдет {rus_date}")
+            await message.answer(f"Следующий урок выйдет {rus_date}")
     except Exception as e:
         await message.answer(f"Обучение пройдено, спасибо что были с нами!!!")

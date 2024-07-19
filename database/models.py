@@ -53,7 +53,7 @@ class Users(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    username: Mapped[str] = mapped_column(String(30), nullable=False)
+    username: Mapped[str] = mapped_column(Text, nullable=False)
     progress: Mapped[int] = mapped_column(Integer, default=1)
     id_last_block_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_subscribe: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

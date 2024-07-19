@@ -75,7 +75,12 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     if not message.text.isdigit():
         await message.answer("Повторите попытку. Ответы должны быть в формате 134")
-    answer_user = sorted([int(ans) for ans in message.text])
+        return
+    try:
+        answer_user = sorted([int(ans) for ans in message.text])
+    except ValueError as e:
+        await message.answer("Повторите попытку. Ответы должны быть в формате 134")
+        return
     answer_right = sorted([int(ans) for ans in UserCallbackState.now_task.answer])
     is_pass = False
     if answer_user == answer_right:
@@ -104,7 +109,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
 
 async def prepare_test_tasks(message, state, session):
     media_group = []
-    caption_text = '*' + UserCallbackState.now_task.description + "*\n\n" + UserCallbackState.now_task.answers + \
+    caption_text = UserCallbackState.now_task.description + "\n\n" + UserCallbackState.now_task.answers + \
            '\n\n' + UserCallbackState.now_task.addition
     photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
     if len(photos) > 0:
