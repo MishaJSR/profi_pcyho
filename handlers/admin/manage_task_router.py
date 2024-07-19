@@ -57,6 +57,21 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await state.set_state(AdminManageTaskState.block_delete_choose)
         return
 
+    if current_state == AdminManageTaskState.confirm_test or current_state == AdminManageTaskState.image_test:
+        AdminManageTaskState.task_type = message.text
+        AdminManageTaskState.answers_test_to_load = None
+        AdminManageTaskState.answer_test_to_load = None
+        AdminManageTaskState.description_test_to_load = None
+        AdminManageTaskState.addition = None
+        AdminManageTaskState.photo_list = []
+        AdminManageTaskState.photo_counter = 0
+        await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
+                             f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
+                             f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
+        await state.set_state(AdminManageTaskState.description_test)
+        return
+
+
     previous = None
     for step in AdminManageTaskState.__all_states__:
         if step.state == current_state:
@@ -172,39 +187,69 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminManageTaskState.answers_test_to_load = None
     AdminManageTaskState.answer_test_to_load = None
     AdminManageTaskState.description_test_to_load = None
-    await message.answer(f'Напишите тест в формате\nОписание:\nОписание задания\n'
-                         f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
-                         f'Ответ:\n1', reply_markup=back_kb())
+    AdminManageTaskState.addition = None
+    AdminManageTaskState.photo_list = []
+    AdminManageTaskState.photo_counter = 0
+    await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
+                         f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
+                         f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
     await state.set_state(AdminManageTaskState.description_test)
 
 
 @admin_add_task_router.message(AdminManageTaskState.description_test, F.text)
 async def fill_admin_state(message: types.Message, state: FSMContext):
     try:
-        AdminManageTaskState.answers_test_to_load = '`'.join(message.text[message.text.find("Варианты ответа:") + 17:
-                                                                          message.text.find("Ответ:")].split("\n")[:-1])
-        AdminManageTaskState.description_test_to_load = message.text.split('\n')[1]
-        AdminManageTaskState.answer_test_to_load = message.text.replace('\n', "").split('Ответ:')[1]
-        await message.answer(f'Описание:\n{AdminManageTaskState.description_test_to_load}\n'
-                             f'Варианты ответа:\n{AdminManageTaskState.answers_test_to_load}\n'
-                             f'Ответ:\n{AdminManageTaskState.answer_test_to_load}')
-        await message.answer(f'Все верно?', reply_markup=send_spam())
-        await state.set_state(AdminManageTaskState.confirm_test)
+        AdminManageTaskState.description_test_to_load = message.text.split('\n\n')[0]
+        AdminManageTaskState.answers_test_to_load = message.text.split('\n\n')[1]
+        AdminManageTaskState.answer_test_to_load = message.text.split('\n\n')[2]
+        AdminManageTaskState.addition = message.text.split('\n\n')[3]
+        await message.answer("Отправьте изображение", reply_markup=back_kb())
+        await state.set_state(AdminManageTaskState.image_test)
     except Exception as e:
         await message.answer(f'Ошибка прочтения\n')
-        await message.answer(f'Напишите тест в формате\nОписание:\nОписание задания\n'
-                             f'Варианты ответа:\nВариант1\nВариант2\nВариант3\n'
-                             f'Ответ:\n1', reply_markup=back_kb())
+        await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
+                             f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
+                             f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
+
+
+@admin_add_task_router.message(AdminManageTaskState.image_test)
+async def fill_admin_state(message: types.Message, state: FSMContext):
+    if not message.photo:
+        await message.answer("Ошибка ввода, необходимо отправить изображение")
+        return
+    try:
+        text = '*' + AdminManageTaskState.description_test_to_load + "*\n\n" + AdminManageTaskState.answers_test_to_load + \
+               '\n\n' + AdminManageTaskState.addition
+        if AdminManageTaskState.photo_counter == 0:
+            AdminManageTaskState.photo_list.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id,
+                                                                   caption=text, parse_mode="Markdown"))
+        else:
+            AdminManageTaskState.photo_list.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id))
+    except Exception as e:
+        await message.answer("Ошибка при получении медиафайла", reply_markup=start_kb())
+        return
+    if AdminManageTaskState.photo_counter == 0:
+        AdminManageTaskState.photo_counter += 1
+        await message.answer("Изображения получены")
+        await message.answer_media_group(media=AdminManageTaskState.photo_list)
+        await message.answer(f'Все верно?', reply_markup=send_spam())
+        await state.set_state(AdminManageTaskState.confirm_test)
+
+
+
 
 
 @admin_add_task_router.message(AdminManageTaskState.confirm_test, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
-        await add_task_test(session, block_id=AdminManageTaskState.block_id,
+        task_id = await add_task_test(session, block_id=AdminManageTaskState.block_id,
                             description=AdminManageTaskState.description_test_to_load,
                             answer_mode=AdminManageTaskState.task_type,
                             answers=AdminManageTaskState.answers_test_to_load,
-                            answer=AdminManageTaskState.answer_test_to_load)
+                            answer=AdminManageTaskState.answer_test_to_load,
+                            addition=AdminManageTaskState.addition)
+        for photo in AdminManageTaskState.photo_list:
+            await add_photo_pool_task(session, task_id, photo.media)
         await message.answer('Успешная загрузка', reply_markup=start_kb())
     except Exception as e:
         print(e)

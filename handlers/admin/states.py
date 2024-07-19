@@ -13,6 +13,7 @@ class AdminManageTaskState(StatesGroup):
     answers_checker_keys = State()
 
     load_task = State()
+    image_test = State()
     description_test = State()
     confirm_test = State()
 
@@ -47,6 +48,7 @@ class AdminManageTaskState(StatesGroup):
     answers_test_to_load = None
     answer_test_to_load = None
     task_list = None
+    addition = None
 
 
 class AdminManageBlockState(StatesGroup):

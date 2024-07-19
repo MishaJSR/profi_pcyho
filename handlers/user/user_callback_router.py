@@ -57,7 +57,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await prepare_image_task(call.message, state, session)
         await call.answer('Вы выбрали задание')
     else:
-        await prepare_test_tasks(call.message, state)
+        await prepare_test_tasks(call.message, state, session)
         await call.answer('Вы выбрали задание')
 
 
@@ -74,10 +74,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 @user_callback_router.message(UserCallbackState.test_callback, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     if not message.text.isdigit():
-        await message.answer("Ошибка ввода, повторите снова")
-        return
+        await message.answer("Повторите попытку. Ответы должны быть в формате 134")
+    answer_user = sorted([int(ans) for ans in message.text])
+    answer_right = sorted([int(ans) for ans in UserCallbackState.now_task.answer])
     is_pass = False
-    if int(UserCallbackState.now_task.answer) == int(message.text):
+    if answer_user == answer_right:
         is_pass = True
         await message.answer(f"Поздравляю Вы заработали {UserCallbackState.now_task.points_for_task} очков")
         await update_user_points(session, user_id=message.from_user.id,
@@ -89,7 +90,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     await set_user_task_progress(session, user_id=message.from_user.id, task_id=UserCallbackState.now_task.id,
                                  username=message.from_user.full_name, block_id=UserCallbackState.now_task.block_id,
                                  answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
-                                 is_p1ass=is_pass)
+                                 is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
@@ -99,15 +100,19 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     if UserCallbackState.now_task.answer_mode == 'Описание изображения':
         await prepare_image_task(message, state, session)
     else:
-        await prepare_test_tasks(message, state)
+        await prepare_test_tasks(message, state, session)
 
-async def prepare_test_tasks(message, state):
-    res_message = f"{UserCallbackState.now_task.description}\n"
-    UserCallbackState.list_of_answers = []
-    UserCallbackState.list_of_answers = UserCallbackState.now_task.answers.split('`')
-    for index, answer in enumerate(UserCallbackState.list_of_answers):
-        res_message += f"{index + 1}. {answer}\n"
-    await message.answer(res_message, reply_markup=answer_kb(data=len(UserCallbackState.list_of_answers)))
+async def prepare_test_tasks(message, state, session):
+    media_group = []
+    caption_text = '*' + UserCallbackState.now_task.description + "*\n\n" + UserCallbackState.now_task.answers + \
+           '\n\n' + UserCallbackState.now_task.addition
+    photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
+    for index, photo in enumerate(photos):
+        if index == 0:
+            media_group.append(InputMediaPhoto(type='photo', media=photo[0], caption=caption_text, parse_mode="Markdown"))
+        else:
+            media_group.append(InputMediaPhoto(type='photo', media=photo[0]))
+    await message.answer_media_group(media_group, reply_markup=ReplyKeyboardRemove())
     await state.set_state(UserCallbackState.test_callback)
 
 
