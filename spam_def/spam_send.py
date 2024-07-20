@@ -18,7 +18,7 @@ async def spam_task(bot, session_pool):
     print('start')
     await asyncio.sleep(5)
     while True:
-        print("Task is running...")
+        #print("Task is running...")
         try:
             now_time = datetime.datetime.now()
             block_to_send = {}

@@ -111,6 +111,9 @@ class AdminStateSpammer(StatesGroup):
     set_text_spam = State()
 
     set_text_vebinar = State()
+    set_image_vebinar = State()
+    prepare_to_load_img = State()
+    set_veb_vebinar = State()
     send_vebinar = State()
     texts = {
         'AdminStateDelete:start': 'Выберите действия',
@@ -123,3 +126,5 @@ class AdminStateSpammer(StatesGroup):
     name_of_block = None
     web_vebinar = None
     discription_vebinar = None
+    photo_counter = 0
+    media = []
