@@ -228,13 +228,13 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         next_block_progress = await get_next_block_progress(session)
         users = await get_all_users_id_progress(session)
         for user in users:
-            # if user[1] == next_block_progress[0]:
-            if AdminStateSpammer.media:
-                await message.bot.send_media_group(chat_id=user._data[0], media=AdminStateSpammer.media)
-                await message.bot.send_message(chat_id=user._data[0], text="Вебинар", reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
-            else:
-                await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar, reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
-            count_send += 1
+            if user[1] == next_block_progress[0]:
+                if AdminStateSpammer.media:
+                    await message.bot.send_media_group(chat_id=user._data[0], media=AdminStateSpammer.media)
+                    await message.bot.send_message(chat_id=user._data[0], text="Вебинар", reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
+                else:
+                    await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar, reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
+                count_send += 1
         await message.answer(f"Успешная рассылка. Выслано {count_send} пользователям", reply_markup=spam_actions_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
     except Exception as e:
