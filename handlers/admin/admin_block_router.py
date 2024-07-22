@@ -162,7 +162,6 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         return
     if not date:
         date = datetime.datetime.now()
-    #date = date.replace(hour=10, minute=0)
     AdminManageBlockState.date_to_posting = date
     await callback_query.message.answer(f'Вы выбрали {date.strftime("%d.%m.%Y")}')
     await callback_query.answer("...")
