@@ -129,3 +129,4 @@ class AdminStateSpammer(StatesGroup):
     discription_vebinar = None
     photo_counter = 0
     media = []
+    date_change = None

@@ -15,7 +15,7 @@ from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import get_all_users_id, get_all_users_id_progress
 from keyboards.admin.inline_admin import get_inline_vebinar
 from keyboards.admin.reply_admin import start_kb, spam_actions_kb, block_pool_kb, back_kb, send_media_vebinar, \
-    send_media_kb, send_media_kb_veb, send_media_check_kb, send_spam
+    send_media_kb, send_media_kb_veb, send_media_check_kb, send_spam, reset_kb
 from handlers.admin.states import AdminStateSpammer
 
 admin_manage_sender_router = Router()
@@ -107,6 +107,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.choose_block)
 
     except Exception as e:
+        print(e)
         await message.answer(f'Ошибка при попытке подключения к базе данных\n'
                              f'Возможно у вас отсутствуют блоки с возможностью редактирования даты',
                              reply_markup=start_kb())
@@ -150,8 +151,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.confirm_date)
 
     except Exception as e:
-        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
-        await state.set_state(AdminStateSpammer.spam_actions)
+        await message.answer("Ошибка, неправильный формат даты\nПовторите ввод")
         return
 
 
@@ -264,25 +264,35 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         return
     if datetime.datetime.now() > datetime.datetime(year=callback_data.year,
                                                    month=callback_data.month,
-                                                   day=callback_data.day + 1):
+                                                   day=callback_data.day):
         await callback_query.message.answer("Невозможно установить дату которая раньше текущего дня")
         return
     if not date:
         date = datetime.datetime.now()
         selected = True
-    date = date.replace(hour=10, minute=0)
+
     if selected:
         await callback_query.message.answer(
             f'Вы выбрали {date.strftime("%d.%m.%Y")}',
             reply_markup=start_kb()
         )
+    AdminStateSpammer.date_change = date
+    await callback_query.message.answer('Укажите время постинга в формате 09.00', reply_markup=reset_kb())
+
+
+
+@admin_manage_sender_router.message(AdminStateSpammer.confirm_date, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
+        hour_to_post = int(message.text.split(".")[0])
+        minute_to_post = int(message.text.split(".")[1])
+        AdminStateSpammer.date_change = AdminStateSpammer.date_change.replace(hour=hour_to_post, minute=minute_to_post)
         await set_date_post_block_by_name(session, block_name=AdminStateSpammer.name_of_block,
-                                          date_to_post=date)
-        await callback_query.message.answer('Изменение успешно применено', reply_markup=start_kb())
+                                          date_to_post=AdminStateSpammer.date_change)
+        await message.answer('Изменение успешно применено', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
 
     except Exception as e:
-        await callback_query.message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
+        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return

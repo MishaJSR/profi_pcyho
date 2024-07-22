@@ -71,8 +71,8 @@ async def get_block_all_session_pool(session_pool, **kwargs):
 
 
 async def get_block_names_all_not_past(session: AsyncSession, **kwargs):
-    query = select(Block.block_name).where(Block.is_visible == True &
-                                           Block.date_to_post > datetime.datetime.now()).order_by(Block.date_to_post)
+    query = select(Block.block_name).where((Block.is_visible == True) &
+                                           (Block.date_to_post > datetime.datetime.now())).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
 
