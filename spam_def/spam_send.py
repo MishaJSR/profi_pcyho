@@ -56,6 +56,9 @@ async def send_spam(bot, session_pool, user_id, block_id):
         if not block:
             #await send_vebinar(bot, session_pool, user_id, block_id)
             return
+        if block._data[0].is_sub_block:
+            await send_multi_post(session_pool, user_id=user_id, block_id=block._data[0].id)
+            return
         content = block._data[0].content
         callback = block._data[0].callback_button_id
         block_id = block._data[0].id
@@ -106,3 +109,5 @@ async def send_spam(bot, session_pool, user_id, block_id):
         await bot.send_message(chat_id=548349299, text=f'Ошибка при попытке подключения к базе данных {e}', reply_markup=start_kb())
         return
 
+async def send_multi_post(bot, session_pool, user_id, block_id):
+    pass
