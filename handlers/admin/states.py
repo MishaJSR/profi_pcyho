@@ -60,6 +60,7 @@ class AdminManageBlockState(StatesGroup):
     prepare_to_load = State()
     confirm_state = State()
     date_posting = State()
+    time_block = State()
     name_block = State()
 
 

@@ -47,7 +47,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await state.set_state(AdminManageBlockState.choose_block_actions)
         return
 
-    if current_state == AdminManageBlockState.name_block:
+    if current_state == AdminManageBlockState.name_block or current_state == AdminManageBlockState.time_block:
         await message.answer(
             "Пожалуйста выберите дату: ",
             reply_markup=await SimpleCalendar(locale=await get_user_locale(message.from_user)).start_calendar()
@@ -162,12 +162,30 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
         return
     if not date:
         date = datetime.datetime.now()
-    date = date.replace(hour=10, minute=0)
+    #date = date.replace(hour=10, minute=0)
     AdminManageBlockState.date_to_posting = date
     await callback_query.message.answer(f'Вы выбрали {date.strftime("%d.%m.%Y")}')
     await callback_query.answer("...")
-    await callback_query.message.answer('Укажите уникальное название блока. Это название будет видно только вам',
+    await callback_query.message.answer('Укажите время постинга в формате 09.00',
                                         reply_markup=reset_kb())
+    await state.set_state(AdminManageBlockState.time_block)
+
+
+@admin_block_router.message(AdminManageBlockState.time_block, F.text)
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        hour_to_post = int(message.text.split(".")[0])
+        minute_to_post = int(message.text.split(".")[1])
+        AdminManageBlockState.date_to_posting = AdminManageBlockState.date_to_posting.replace(hour=hour_to_post,
+                                                                                              minute=minute_to_post)
+        await message.answer('Укажите уникальное название блока. Это название будет видно только вам',
+                                            reply_markup=reset_kb())
+        await state.set_state(AdminManageBlockState.name_block)
+    except Exception as e:
+        await message.answer("Ошибка, неправильный формат даты\nПовторите ввод")
+        return
+
+
     await state.set_state(AdminManageBlockState.name_block)
 
 

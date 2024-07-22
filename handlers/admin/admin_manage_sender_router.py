@@ -34,8 +34,8 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await state.set_state(AdminStateSpammer.start)
         return
 
-    if current_state == AdminStateSpammer.set_text_spam or current_state == AdminStateSpammer.set_text_vebinar\
-            or current_state == AdminStateSpammer.send_vebinar or current_state == AdminStateSpammer.set_image_vebinar\
+    if current_state == AdminStateSpammer.set_text_spam or current_state == AdminStateSpammer.set_text_vebinar \
+            or current_state == AdminStateSpammer.send_vebinar or current_state == AdminStateSpammer.set_image_vebinar \
             or current_state == AdminStateSpammer.prepare_to_load_img or current_state == AdminStateSpammer.set_veb_vebinar:
         AdminStateSpammer.web_vebinar = None
         AdminStateSpammer.discription_vebinar = None
@@ -108,7 +108,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
     except Exception as e:
         await message.answer(f'Ошибка при попытке подключения к базе данных\n'
-                             f'Возможно у вас отсутствуют блоки с возможностью редактирования даты', reply_markup=start_kb())
+                             f'Возможно у вас отсутствуют блоки с возможностью редактирования даты',
+                             reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
 
@@ -133,6 +134,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
         return
+
 
 @admin_manage_sender_router.message(AdminStateSpammer.choose_block, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
@@ -181,7 +183,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         if message.photo:
             if AdminStateSpammer.photo_counter == 0:
                 AdminStateSpammer.media.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id,
-                                                                   caption=AdminStateSpammer.discription_vebinar))
+                                                               caption=AdminStateSpammer.discription_vebinar))
             else:
                 AdminStateSpammer.media.append(InputMediaPhoto(type='photo', media=message.photo[-1].file_id))
             AdminStateSpammer.photo_counter += 1
@@ -190,8 +192,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     except Exception as e:
         await message.answer(f"{e}Ошибка при получении медиафайла")
 
+
 @admin_manage_sender_router.message(StateFilter(AdminStateSpammer.prepare_to_load_img),
-                                    F.text=="Подготовить вебинар к рассылке")
+                                    F.text == "Подготовить вебинар к рассылке")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
         if not AdminStateSpammer.media:
@@ -206,9 +209,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer("Ошибка при получении медиафайла")
 
 
-
-
-@admin_manage_sender_router.message(AdminStateSpammer.set_veb_vebinar, F.text=="Подтвердить")
+@admin_manage_sender_router.message(AdminStateSpammer.set_veb_vebinar, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer("Отправьте ссылку на вебинар", reply_markup=back_kb())
     await state.set_state(AdminStateSpammer.send_vebinar)
@@ -231,9 +232,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
             if user[1] == next_block_progress[0]:
                 if AdminStateSpammer.media:
                     await message.bot.send_media_group(chat_id=user._data[0], media=AdminStateSpammer.media)
-                    await message.bot.send_message(chat_id=user._data[0], text="Вебинар", reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
+                    await message.bot.send_message(chat_id=user._data[0], text="Вебинар",
+                                                   reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
                 else:
-                    await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar, reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
+                    await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar,
+                                                   reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
                 count_send += 1
         await message.answer(f"Успешная рассылка. Выслано {count_send} пользователям", reply_markup=spam_actions_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
@@ -242,7 +245,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.spam_actions)
         return
     await state.set_state(AdminStateSpammer.start)
-
 
 
 @admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter(), StateFilter(AdminStateSpammer))
