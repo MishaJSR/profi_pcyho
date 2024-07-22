@@ -6,6 +6,13 @@ class Base(DeclarativeBase):
     updated: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), onupdate=func.now())
 
 
+class BlockPool(Base):
+    __tablename__ = 'block_pool'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    block_main_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    has_media: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
 class Task(Base):
     __tablename__ = 'task'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -31,6 +38,7 @@ class Block(Base):
     callback_button_id: Mapped[str] = mapped_column(Text, nullable=True)
     count_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_vebinar: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_sub_block: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     is_visible: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
 
 
@@ -38,6 +46,13 @@ class MediaBlock(Base):
     __tablename__ = 'media_block'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     block_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    photo_id: Mapped[str] = mapped_column(Text, nullable=True)
+    video_id: Mapped[str] = mapped_column(Text, nullable=True)
+
+class MediaBlockPool(Base):
+    __tablename__ = 'media_block_pool'
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    block_pool_id: Mapped[int] = mapped_column(Integer, nullable=False)
     photo_id: Mapped[str] = mapped_column(Text, nullable=True)
     video_id: Mapped[str] = mapped_column(Text, nullable=True)
 

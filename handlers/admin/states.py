@@ -85,6 +85,7 @@ class AdminManageBlockState(StatesGroup):
     photo_counter = 0
     callback_for_task = None
     date_to_posting = None
+    posts = []
 
     block_list = []
     block_dict_id = {}

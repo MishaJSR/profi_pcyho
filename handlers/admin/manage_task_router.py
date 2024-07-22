@@ -217,6 +217,9 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         AdminManageTaskState.description_test_to_load = message.text.split('\n\n')[index_description]
         AdminManageTaskState.answers_test_to_load = message.text.split('\n\n')[index_answers]
         AdminManageTaskState.answer_test_to_load = message.text.split('\n\n')[index_answer]
+        if not AdminManageTaskState.answer_test_to_load.isdigit():
+            await message.answer("Не могу найти ответ")
+            raise Exception
         if index_addition:
             AdminManageTaskState.addition = message.text.split('\n\n')[index_addition]
         else:

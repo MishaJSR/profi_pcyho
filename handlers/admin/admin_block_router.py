@@ -9,6 +9,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_block import add_block, delete_block, get_order_block, \
     set_progres_block, get_block_for_delete
+from database.orm_query_block_pool import add_block_pool
+from database.orm_query_block_pool_media import add_block_pool_media
 from database.orm_query_media_block import add_media
 from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
@@ -73,6 +75,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminManageBlockState.choose_block_actions, F.text == 'Добавить блок')
 async def fill_admin_state(message: types.Message, state: FSMContext):
+    AdminManageBlockState.posts = []
     AdminManageBlockState.text = None
     await message.answer(text='Напишите текст рассылки', reply_markup=reset_kb())
     await state.set_state(AdminManageBlockState.text_state)
@@ -122,7 +125,6 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 @admin_block_router.message(AdminManageBlockState.prepare_to_load, F.text == 'Подготовить сообщение к рассылке')
 async def fill_admin_state(message: types.Message, state: FSMContext):
-    AdminManageBlockState.callback_for_task = None
     if not AdminManageBlockState.media:
         await message.answer(f"{AdminManageBlockState.text}")
     else:
@@ -130,22 +132,38 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     for index, file_id in enumerate(AdminManageBlockState.video_id_list):
         if index == len(AdminManageBlockState.video_id_list) - 1:
             await message.answer_video(video=file_id)
-    await message.answer(text='Все верно?', reply_markup=prepare_to_spam())
+    await message.answer(text='Выберите дальнейшее действие', reply_markup=prepare_to_spam())
     await state.set_state(AdminManageBlockState.confirm_state)
 
 
-@admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Подтвердить")
+@admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Добавить еще один пост")
+async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
+    has_media = False
+    if AdminManageBlockState.media or AdminManageBlockState.video_id_list:
+        has_media = True
+    AdminManageBlockState.posts.append([AdminManageBlockState.text, has_media, AdminManageBlockState.media,
+                                        AdminManageBlockState.video_id_list])
+    await message.answer(text='Напишите текст рассылки нового сообщения', reply_markup=reset_kb())
+    await state.set_state(AdminManageBlockState.text_state)
+
+
+@admin_block_router.message(AdminManageBlockState.confirm_state, F.text == "Подтвердить и закончить добавление постов")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     AdminManageBlockState.callback_for_task = str(uuid.uuid4())
+    has_media = False
+    if AdminManageBlockState.media or AdminManageBlockState.video_id_list:
+        has_media = True
+    AdminManageBlockState.posts.append([AdminManageBlockState.text, has_media, AdminManageBlockState.media,
+                                        AdminManageBlockState.video_id_list])
     await message.answer(
-        "Загрузка календаря",
+        "Загрузка календаря ...",
         reply_markup=await SimpleCalendar(locale=await get_user_locale(message.from_user)).start_calendar()
     )
     await state.set_state(AdminManageBlockState.date_posting)
     await message.answer("Выберите дату постинга", reply_markup=back_kb())
 
 
-@admin_block_router.callback_query(SimpleCalendarCallback.filter(), StateFilter(AdminManageBlockState))
+@admin_block_router.callback_query(SimpleCalendarCallback.filter(), AdminManageBlockState.date_posting)
 async def process_simple_calendar(callback_query: CallbackQuery, callback_data: CallbackData,
                                   session: AsyncSession, state: FSMContext):
     if not AdminManageBlockState.callback_for_task:
@@ -192,19 +210,32 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 async def get_photo(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer('Загрузка блока', reply_markup=reset_kb())
     block = message.text
-    has_media = False
-    text = AdminManageBlockState.text
-    if AdminManageBlockState.media or AdminManageBlockState.video_id_list:
-        has_media = True
-    callback = AdminManageBlockState.callback_for_task
     try:
-        block_id = await add_block(session, block_name=block, content=text, has_media=has_media,
-                                   date_to_post=AdminManageBlockState.date_to_posting, progress_block=None,
-                                   callback_button_id=callback, is_vebinar=False)
-        for photo in AdminManageBlockState.media:
-            await add_photo_pool(session, block_id, photo.media)
-        for video_id in AdminManageBlockState.video_id_list:
-            await add_video_pool(session, block_id, video_id)
+        if len(AdminManageBlockState.posts) == 1:
+            content, has_media, photos, videos = AdminManageBlockState.posts[0]
+            block_id = await add_block(session, block_name=block, content=content, has_media=has_media,
+                                       date_to_post=AdminManageBlockState.date_to_posting, progress_block=None,
+                                       callback_button_id=AdminManageBlockState.callback_for_task, is_vebinar=False,
+                                       is_sub_block=False)
+            for photo in photos:
+                await add_photo_pool(session, block_id, photo.media)
+            for video_id in videos:
+                await add_video_pool(session, block_id, video_id)
+        else:
+            block_id = await add_block(session, block_name=block, content="Subblock", has_media=False,
+                                       date_to_post=AdminManageBlockState.date_to_posting, progress_block=None,
+                                       callback_button_id=AdminManageBlockState.callback_for_task, is_vebinar=False,
+                                       is_sub_block=True)
+            for post in AdminManageBlockState.posts:
+                content, has_media, photos, videos = post
+                block_pool_id = await add_block_pool(session, content=content, has_media=has_media, block_main_id=block_id)
+                for photo in photos:
+                    await add_block_pool_media(session, block_pool_id=block_pool_id, photo_id=photo.media)
+                for video_id in videos:
+                    await add_block_pool_media(session, block_pool_id=block_pool_id, video_id=video_id)
+
+
+
     except Exception as e:
         logging.info(e)
         await message.answer(f'Ошибка загрузки {e}', reply_markup=start_kb())

@@ -123,7 +123,8 @@ def send_spam(data=None):
 def prepare_to_spam(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')
-    test_kb.button(text='Подтвердить')
+    test_kb.button(text='Добавить еще один пост')
+    test_kb.button(text='Подтвердить и закончить добавление постов')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
