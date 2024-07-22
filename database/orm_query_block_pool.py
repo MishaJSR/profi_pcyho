@@ -15,3 +15,10 @@ async def add_block_pool(session: AsyncSession, **kwargs):
     await session.commit()
     await session.refresh(obj)
     return obj.id
+
+
+async def get_block_pool_all_session_pool(session_pool, **kwargs):
+    query = select(BlockPool).where(BlockPool.block_main_id == kwargs.get("block_main_id"))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchall()
