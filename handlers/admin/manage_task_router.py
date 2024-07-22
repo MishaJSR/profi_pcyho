@@ -20,13 +20,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     await message.answer("Выберите действие", reply_markup=test_actions())
     await state.set_state(AdminManageTaskState.choose_actions)
     current_state = await state.get_state()
-    print(current_state)
 
 
 @admin_add_task_router.message(StateFilter(AdminManageTaskState), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
-    print(current_state)
 
     if current_state == AdminManageTaskState.type_task_choose:
         await message.answer(text='Выберите блок для добавления задания',

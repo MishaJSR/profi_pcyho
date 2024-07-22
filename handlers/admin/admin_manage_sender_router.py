@@ -101,7 +101,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         for block in blocks:
             AdminStateSpammer.blocks_name.append(block[0])
         if not AdminStateSpammer.blocks_name:
-            await message.answer("Блоки не были добавлены", reply_markup=start_kb())
+            await message.answer(f'Возможно у вас отсутствуют блоки с возможностью редактирования даты',
+                                 reply_markup=start_kb())
             return
         await message.answer("Выберите блок", reply_markup=block_pool_kb(AdminStateSpammer.blocks_name))
         await state.set_state(AdminStateSpammer.choose_block)
