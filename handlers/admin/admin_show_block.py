@@ -8,27 +8,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_query_block import get_block_for_add_task, get_block_by_block_name
 from database.orm_query_block_pool import get_block_pool_all
 from database.orm_query_block_pool_media import get_videos_id_from_block_pool, get_photos_id_from_block_pool
-from database.orm_query_media_block import get_videos_id_from_block_session_pool, get_videos_id_from_block, \
-    get_photos_id_from_block
-from database.orm_query_media_task import add_media_task, get_media_task_by_task_id
-from database.orm_query_task import add_task_image, add_task_test, get_task_for_delete, delete_task, \
-    get_task_by_block_id
-from database.orm_superuser import set_backup
-from keyboards.admin.inline_admin import get_inline
-from keyboards.admin.reply_admin import start_kb, back_kb, type_task_kb, block_pool_kb, send_spam, test_actions, \
-    list_task_to_delete, send_media_kb, send_media_kb_task, show_block_or_test, spam_actions_kb
-from handlers.admin.states import AdminManageTaskState, AdminStatePreShow
+from database.orm_query_media_block import get_videos_id_from_block, get_photos_id_from_block
+from database.orm_query_media_task import get_media_task_by_task_id
+from database.orm_query_task import get_task_for_delete, get_task_by_block_id
+from keyboards.admin.reply_admin import start_kb, block_pool_kb, show_block_or_test, spam_actions_kb
+from handlers.admin.states import AdminStatePreShow
 
 admin_show_block_router = Router()
 
 @admin_show_block_router.message(StateFilter(AdminStatePreShow), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
-    print(current_state)
 
     if current_state == AdminStatePreShow.choose_block_or_test:
         await message.answer(text='Выберите блок для предпросмотра',
-                         reply_markup=block_pool_kb(data=AdminStatePreShow.block_pool))
+                             reply_markup=block_pool_kb(data=AdminStatePreShow.block_pool))
         await state.set_state(AdminStatePreShow.choose_block)
         return
 

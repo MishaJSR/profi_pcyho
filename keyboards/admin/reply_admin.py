@@ -146,3 +146,4 @@ def show_block_or_test(data=None):
     test_kb.button(text='Содержание теста')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
+

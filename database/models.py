@@ -69,6 +69,8 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
+    user_class: Mapped[str] = mapped_column(Text, nullable=False)
+    parent_id: Mapped[int] = mapped_column(Integer, nullable=True)
     progress: Mapped[int] = mapped_column(Integer, default=1)
     id_last_block_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_subscribe: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
@@ -81,7 +83,7 @@ class UsersTaskProgress(Base):
     __tablename__ = 'users_task_progress'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
-    username: Mapped[str] = mapped_column(String(30), nullable=False)
+    username: Mapped[str] = mapped_column(Text, nullable=False)
     block_id: Mapped[int] = mapped_column(Integer,  nullable=False)
     task_id: Mapped[int] = mapped_column(Integer,  nullable=False)
     answer_mode: Mapped[str] = mapped_column(String(20), nullable=False)

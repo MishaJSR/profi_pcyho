@@ -11,3 +11,9 @@ def get_inline_vebinar(url):
     builder.button(text='Перейти на вебинар', callback_data='asdsaafafadasdasdafaac',
                    url=url)
     return builder.as_markup()
+
+
+def get_inline_parent():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Перейти к регистрации', callback_data='asdsaafafadasdasdafaac')
+    return builder.as_markup()

@@ -8,12 +8,14 @@ async def check_new_user(session, user_id: int):
     return result.all()
 
 
-async def add_user(session, user_id: int, username: str):
+async def add_user(session, user_id: int, username: str, user_class: str, parent_id=None):
     if not username:
         username = ')'
     obj = Users(
         user_id=user_id,
-        username=username
+        username=username,
+        user_class=user_class,
+        parent_id=parent_id
     )
     session.add(obj)
     await session.commit()
