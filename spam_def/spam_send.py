@@ -2,7 +2,6 @@ import asyncio
 import datetime
 import os
 
-from EaseExcel.src.Excel.ease_excel import EaseExcel
 from aiogram.types import InputMediaPhoto
 
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \

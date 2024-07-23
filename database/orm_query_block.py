@@ -136,3 +136,9 @@ async def get_block_by_block_name(session: AsyncSession, **kwargs):
     query = select(Block).where(Block.block_name == kwargs.get("block_name"))
     result = await session.execute(query)
     return result.fetchone()
+
+
+async def get_block_id_by_progress(session: AsyncSession, **kwargs):
+    query = select(Block.id).where(Block.progress_block == kwargs.get("progress_block"))
+    result = await session.execute(query)
+    return result.fetchone()

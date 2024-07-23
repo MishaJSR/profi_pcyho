@@ -6,7 +6,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import get_block_id_by_callback, get_time_next_block
+from database.orm_query_block import get_block_id_by_callback, get_time_next_block, \
+    get_block_id_by_progress
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
@@ -107,19 +108,10 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         if res[0] != "Ребёнок":
             await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
             await state.set_state(UserCallbackState.user_callback)
-        else:
-            try:
-                res = await get_progress_by_user_id(session, user_id=message.from_user.id)
-                res2 = await get_time_next_block(session, progress_block=res[0])
-                if res2[0] < datetime.datetime.now():
-                    await message.answer(f"Следующий урок уже вышел\n"
-                                         f"Если вы уже прошли все задания, Хэппи в ближайшее время вышлет Вам новый урок",
-                                         reply_markup=ReplyKeyboardRemove())
-                else:
-                    rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
-                    await message.answer(f"Следующий урок выйдет {rus_date}")
-            except Exception as e:
-                await message.answer("Ссылка для ребенка")
+        progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
+        res = await get_block_id_by_progress(session, progress_block=progress[0])
+        if not res:
+            await message.answer("Ссылка для ребенка")
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]

@@ -1,6 +1,5 @@
 import datetime
 import logging
-import pywhatkit
 
 from aiogram.filters import Command, StateFilter, CommandStart
 from aiogram import types, Router, F
