@@ -9,7 +9,8 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_user import check_new_user, add_user
+from database.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
+    update_user_subscribe
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
@@ -37,29 +38,29 @@ class UserState(StatesGroup):
 @user_private_router.message(StateFilter('*'), CommandStart())
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     if len(message.text) > 6:
-        UserRegistrationState.children_id = message.text.split(' ')[1]
+        UserRegistrationState.children_id = int(message.text.split(' ')[1])
+        res_parent = await get_user_parent(session, user_id=UserRegistrationState.children_id)
+        if res_parent[0]:
+            await message.answer("Вы уже разрешили доступ ребенку")
+            return
+        if UserRegistrationState.children_id == message.from_user.id:
+            await message.answer("Эта ссылка для родителя")
+            return
         await message.answer("тут должно быть превью курса")
         await message.answer("Разрешить вашему ребёнку пройти наш курс?", reply_markup=parent_permission())
         return
-    await message.answer(f'Привет {message.from_user.full_name}')
-    await message.answer(text="Укажи кем ты являешься", reply_markup=users_pool_kb())
-    await state.set_state(UserRegistrationState.start)
-    # try:
-    #     userid, username = message.from_user.id, message.from_user.full_name
-    #     res = await check_new_user(session, userid)
-    #     if len(res) == 0:
-    #         await add_user(session, userid, username)
-    #         await message.answer(f'Привет {message.from_user.full_name}')
-    #         await message.answer('Готовим урок для тебя ...')
-    #         return
-    #     await message.answer(f'Привет {message.from_user.full_name}', reply_markup=start_kb())
-    # except Exception as e:
-    #     logging.info(e)
-    #     await message.answer('Ошибка регистрации')
-    # await state.set_state(UserState.start_user)
+    res = await check_new_user(session, user_id=message.from_user.id)
+    if not res:
+        await message.answer(f'Привет {message.from_user.full_name}')
+        await message.answer(text="Укажи кем ты являешься", reply_markup=users_pool_kb())
+        await state.set_state(UserRegistrationState.start)
+        return
+    await message.answer(f'С возвращением {message.from_user.full_name}', reply_markup=start_kb())
+    await state.set_state(UserState.start_user)
 
 @user_private_router.message(StateFilter('*'), F.text == "Да, я даю согласие")
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    await update_parent_id(session, user_id=UserRegistrationState.children_id, parent_id=message.from_user.id)
     await message.answer("Спасибо Вам за доверие", reply_markup=ReplyKeyboardRemove())
     await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
 
@@ -76,41 +77,50 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(f'Я не распознала твоего ответа\nПопробуй снова')
         return
     try:
-        await add_user(session, user_id=message.from_user.id,
-                       username=message.from_user.full_name,
-                       user_class=message.text)
         if message.text == "Ребёнок":
+            await add_user(session, user_id=message.from_user.id,
+                           username=message.from_user.full_name,
+                           user_class=message.text)
             link = f"https://t.me/train_chiildren_psychology_bot?start={message.from_user.id}"
             await message.answer(f"Для продолжения обучения необходимо разрешение родителя\n"
-                                 f"Если он согласится на твое обучение, Хэппи отправит тебе твой первый урок")
+                                 f"Если он согласится на твое обучение, Хэппи отправит тебе твой первый урок",
+                                 reply_markup=ReplyKeyboardRemove())
             await message.answer(link)
             await message.answer("Отправь эту ссылку своему родителю")
             await state.set_state(UserRegistrationState.children)
         elif message.text == "Родитель":
+            await add_user(session, user_id=message.from_user.id,
+                           username=message.from_user.full_name,
+                           user_class=message.text)
+            await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
+                                 reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
         else:
-            await state.set_state(UserRegistrationState.teacher)
+            await add_user(session, user_id=message.from_user.id,
+                           username=message.from_user.full_name,
+                           user_class=message.text)
+            await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
+                                 reply_markup=send_contact_kb())
+            await state.set_state(UserRegistrationState.parent)
     except Exception as e:
         await message.answer("Ошибка регистрации")
 
 
-@user_private_router.message(UserRegistrationState.children)
+
+@user_private_router.message(UserRegistrationState.parent)
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    if not message.contact:
-        await message.answer(f"Не поняла твоего сообщения\nЧтобы отправить контакт родителя:\n"
-                             "1. Открой его профиль в телеграмм\n"
-                             "2. Нажми на кнопку Поделиться контактом\n"
-                             "3. Отправь контакт Хэппи")
-        return
-    user_id = message.contact.user_id
-    await message.bot.send_message(chat_id=user_id, text="Привет Петушок")
+    if message.contact:
+        phone_number = "+" + message.contact.phone_number
+        await update_user_phone(session, phone_number=phone_number, user_id=message.from_user.id)
+    else:
+        await update_user_subscribe(session, user_id=message.from_user.id)
+    await message.answer("Представьте себя ребенком и погрузитесь полностью в прохождение онлайн-квеста")
 
 
-@user_private_router.message(StateFilter('*'), F.contact)
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    pywhatkit.sendwhatmsg('+79111938665', 'Привет мир!', 12, 35)
-    # user_id = message.contact.user_id
-    # await message.bot.send_message(chat_id=user_id, text="Привет Хетаг")
+
+
+
+
 
 
 @user_private_router.message(StateFilter('*'), Command("points"))
@@ -122,6 +132,10 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
 @user_private_router.message(StateFilter('*'), F.text == 'Когда будет следующий блок?')
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
+        res_parent = await get_user_parent(session, user_id=message.from_user.id)
+        if not res_parent[0]:
+            await message.answer("Родитель еще не подтвердил твой доступ к блоку")
+            return
         res = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res2 = await get_time_next_block(session, progress_block=res[0])
         if res2[0] < datetime.datetime.now():

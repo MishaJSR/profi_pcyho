@@ -30,6 +30,7 @@ def answer_kb(data=None):
 def send_contact_kb():
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Поделиться номером', request_contact=True)
+    test_kb.button(text='Пропустить')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
