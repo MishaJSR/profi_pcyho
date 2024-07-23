@@ -17,7 +17,6 @@ async def get_tasks_by_block_id_session_pool(session_pool, **kwargs):
     return result.fetchall()
 
 async def get_task_for_delete(session: AsyncSession, **kwargs):
-    pass
     query = select(Task).where((Task.is_visible == True) & (Task.block_id == kwargs.get('task_id')))
     result = await session.execute(query)
     return result.fetchall()

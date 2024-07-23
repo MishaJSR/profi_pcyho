@@ -130,3 +130,9 @@ async def delete_block(session: AsyncSession, **kwargs):
         is_visible=False)
     await session.execute(query)
     await session.commit()
+
+
+async def get_block_by_block_name(session: AsyncSession, **kwargs):
+    query = select(Block).where(Block.block_name == kwargs.get("block_name"))
+    result = await session.execute(query)
+    return result.fetchone()

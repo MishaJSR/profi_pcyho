@@ -1,6 +1,7 @@
 from aiogram.fsm.state import StatesGroup, State
-from keyboards.admin.reply_admin import start_kb, back_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, block_pool_kb, \
-    test_actions, type_task_kb
+from keyboards.admin.reply_admin import start_kb, back_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, \
+    block_pool_kb, \
+    test_actions, type_task_kb, spam_actions_kb
 
 
 class AdminManageTaskState(StatesGroup):
@@ -102,6 +103,21 @@ class AdminStateDelete(StatesGroup):
         'AdminStateDelete:confirm_delete': 'Подтверждение',
     }
     data = []
+
+
+class AdminStatePreShow(StatesGroup):
+    start = State()
+    choose_block = State()
+    choose_block_or_test = State()
+    texts = {
+        'AdminStatePreShow:start': ['Выберите действие', spam_actions_kb],
+        'AdminStatePreShow:choose_block': 'Выбор задания для удаления',
+        'AdminStatePreShow:choose_block_or_test': 'Подтверждение',
+    }
+    data = []
+    block_pool = []
+    block_name = None
+    block_id = None
 
 
 class AdminStateSpammer(StatesGroup):
