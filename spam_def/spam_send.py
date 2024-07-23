@@ -8,7 +8,8 @@ from aiogram.types import InputMediaPhoto
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
     update_count_send_block_session_pool
 from database.orm_query_block_pool import get_block_pool_all_session_pool
-from database.orm_query_block_pool_media import get_photos_id_from_block_pool_session_pool
+from database.orm_query_block_pool_media import get_photos_id_from_block_pool_session_pool, \
+    get_videos_id_from_block_pool_session_pool
 from database.orm_query_media_block import get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
 from database.orm_query_task import get_task_by_block_id, get_tasks_by_block_id_session_pool
 from database.orm_query_user import get_all_users, update_last_send_block_session_pool, \
@@ -116,9 +117,9 @@ async def send_multi_post(bot, session_pool, user_id, block_id, has_tasks, callb
         else:
             media_group = []
             photo_ids = await get_photos_id_from_block_pool_session_pool(session_pool, block_pool_id=block_pool_id)
-            videos_ids = await get_photos_id_from_block_pool_session_pool(session_pool, block_pool_id=block_pool_id)
-            video_content = [video._data[0] for video in photo_ids]
-            photo_content = [photo._data[0] for photo in videos_ids]
+            videos_ids = await get_videos_id_from_block_pool_session_pool(session_pool, block_pool_id=block_pool_id)
+            video_content = [video._data[0] for video in videos_ids]
+            photo_content = [photo._data[0] for photo in photo_ids]
             if photo_ids:
                 for index, photo_id in enumerate(photo_content):
                     if index == 0:

@@ -31,11 +31,13 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         await message.answer('Предыдущего шага нет')
         return
 
-    if current_state == AdminManageBlockState.confirm_state or current_state == AdminManageBlockState.date_posting:
+    if current_state == AdminManageBlockState.confirm_state or current_state == AdminManageBlockState.date_posting or \
+            current_state == AdminManageBlockState.prepare_to_load:
         AdminManageBlockState.callback_for_task = None
         await message.answer(text='Отправьте медиафайл', reply_markup=send_media_kb())
         AdminManageBlockState.media = []
         AdminManageBlockState.video_id_list = []
+        AdminManageBlockState.photo_counter = 0
         await state.set_state(AdminManageBlockState.media_state)
         return
 
@@ -60,6 +62,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     previous = None
     for step in AdminManageBlockState.__all_states__:
         if step.state == current_state:
+            print(current_state)
             await state.set_state(previous)
             await message.answer(f"Вы вернулись к прошлому шагу \n{AdminManageBlockState.texts[previous.state][0]}",
                                  reply_markup=AdminManageBlockState.texts[previous.state][1]())
@@ -130,8 +133,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     else:
         await message.answer_media_group(media=AdminManageBlockState.media)
     for index, file_id in enumerate(AdminManageBlockState.video_id_list):
-        if index == len(AdminManageBlockState.video_id_list) - 1:
-            await message.answer_video(video=file_id)
+        await message.answer_video(video=file_id)
     await message.answer(text='Выберите дальнейшее действие', reply_markup=prepare_to_spam())
     await state.set_state(AdminManageBlockState.confirm_state)
 
