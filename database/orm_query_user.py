@@ -35,7 +35,8 @@ async def get_all_users_id_progress(session, **kwargs):
 
 
 async def get_all_users(session_pool, **kwargs):
-    query = select(Users.user_id, Users.progress, Users.id_last_block_send).where(Users.is_subscribe == True)
+    query = select(Users.user_id, Users.progress,
+                   Users.id_last_block_send, Users.user_class).where(Users.is_subscribe == True)
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
@@ -89,6 +90,13 @@ async def update_parent_id(session, **kwargs):
     await session.commit()
 
 
+async def update_user_callback(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        user_callback=kwargs.get("user_callback"))
+    await session.execute(query)
+    await session.commit()
+
+
 async def get_user_points(session, **kwargs):
     query = select(Users.points).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
@@ -97,6 +105,18 @@ async def get_user_points(session, **kwargs):
 
 async def get_user_parent(session, **kwargs):
     query = select(Users.parent_id).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
+async def get_user_class(session, **kwargs):
+    query = select(Users.user_class).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
+async def check_user_subscribe(session, **kwargs):
+    query = select(Users.is_subscribe, Users.progress, Users.user_class, Users.user_callback).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
 

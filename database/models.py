@@ -75,6 +75,7 @@ class Users(Base):
     id_last_block_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_subscribe: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     phone_number: Mapped[str] = mapped_column(Text, nullable=True)
+    user_callback: Mapped[str] = mapped_column(Text, nullable=True)
     day_start_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     day_end_subscribe: Mapped[DateTime] = mapped_column(DateTime, nullable=True)
     points: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

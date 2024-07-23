@@ -1,13 +1,16 @@
+from datetime import datetime
+
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import get_block_id_by_callback
+from database.orm_query_block import get_block_id_by_callback, get_time_next_block
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
-from database.orm_query_user import update_user_progress, update_user_points
+from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
+    get_progress_by_user_id
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from keyboards.user.reply_user import start_kb, answer_kb
 
@@ -18,6 +21,7 @@ class UserCallbackState(StatesGroup):
     start_callback = State()
     image_callback = State()
     test_callback = State()
+    user_callback = State()
     tasks = []
     count_tasks = None
     block_id = None
@@ -99,6 +103,23 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
+        res = await get_user_class(session, user_id=message.from_user.id)
+        if res[0] != "Ребёнок":
+            await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
+            await state.set_state(UserCallbackState.user_callback)
+        else:
+            try:
+                res = await get_progress_by_user_id(session, user_id=message.from_user.id)
+                res2 = await get_time_next_block(session, progress_block=res[0])
+                if res2[0] < datetime.datetime.now():
+                    await message.answer(f"Следующий урок уже вышел\n"
+                                         f"Если вы уже прошли все задания, Хэппи в ближайшее время вышлет Вам новый урок",
+                                         reply_markup=ReplyKeyboardRemove())
+                else:
+                    rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
+                    await message.answer(f"Следующий урок выйдет {rus_date}")
+            except Exception as e:
+                await message.answer("Ссылка для ребенка")
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
@@ -106,6 +127,19 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         await prepare_image_task(message, state, session)
     else:
         await prepare_test_tasks(message, state, session)
+
+
+@user_callback_router.message(UserCallbackState.user_callback, F.text)
+async def user_callback(message: types.Message, session: AsyncSession, state: FSMContext):
+    await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
+    await message.answer("Спасибо за ответ!")
+    user_class = await get_user_class(session, user_id=message.from_user.id)
+    if user_class[0] == "Педагог":
+        await message.answer("Ссылка для педагога")
+    else:
+        await message.answer("Ссылка для родителя")
+
+
 
 async def prepare_test_tasks(message, state, session):
     media_group = []
