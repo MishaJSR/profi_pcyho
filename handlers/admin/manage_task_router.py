@@ -276,6 +276,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         AdminManageTaskState.photo_counter += 1
         await message.answer("Изображения получены")
         await message.answer_media_group(media=AdminManageTaskState.photo_list)
+        await message.bot.send_media_group(chat_id=-1002164443199, media=AdminManageTaskState.photo_list)
         await message.answer(f'Все верно?', reply_markup=send_spam())
         await state.set_state(AdminManageTaskState.confirm_test)
 

@@ -12,7 +12,7 @@ from database.orm_query_media_block import get_videos_id_from_block, get_photos_
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_for_delete, get_task_by_block_id
 from keyboards.admin.reply_admin import start_kb, block_pool_kb, show_block_or_test, spam_actions_kb
-from handlers.admin.states import AdminStatePreShow
+from handlers.admin.states import AdminStatePreShow, AdminStateSpammer
 
 admin_show_block_router = Router()
 
@@ -27,7 +27,8 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         return
 
     if current_state == AdminStatePreShow.start:
-        await message.answer(text='Выберите действие', reply_markup=spam_actions_kb())
+        await message.answer(text='Выберите действие', reply_markup=start_kb())
+        await state.set_state(AdminStateSpammer.start)
         return
 
     previous = None

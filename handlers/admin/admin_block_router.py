@@ -132,8 +132,10 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f"{AdminManageBlockState.text}")
     else:
         await message.answer_media_group(media=AdminManageBlockState.media)
+        await message.bot.send_media_group(chat_id=-1002164443199, media=AdminManageBlockState.media)
     for index, file_id in enumerate(AdminManageBlockState.video_id_list):
         await message.answer_video(video=file_id)
+        await message.bot.send_video(chat_id=-1002164443199, video=file_id)
     await message.answer(text='Выберите дальнейшее действие', reply_markup=prepare_to_spam())
     await state.set_state(AdminManageBlockState.confirm_state)
 
