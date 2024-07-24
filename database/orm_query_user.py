@@ -76,6 +76,12 @@ async def update_user_subscribe(session, **kwargs):
     await session.execute(query)
     await session.commit()
 
+async def update_name_user(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        name_of_user=kwargs.get("name_of_user"))
+    await session.execute(query)
+    await session.commit()
+
 
 async def update_users_progress_session_pool(session_pool, **kwargs):
     query = update(Users).values(
@@ -125,7 +131,14 @@ async def get_user_class(session, **kwargs):
 
 
 async def check_user_subscribe(session, **kwargs):
-    query = select(Users.is_subscribe, Users.progress, Users.user_class, Users.user_callback, Users.user_become_children).where(Users.user_id == kwargs.get("user_id"))
+    query = select(Users.is_subscribe, Users.progress, Users.user_class, Users.user_callback, Users.user_become_children,
+                   Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+async def check_user_subscribe_new_user(session, **kwargs):
+    query = select(Users.is_subscribe, Users.user_class, Users.user_callback, Users.phone_number,
+                   Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
 

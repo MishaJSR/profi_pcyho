@@ -11,10 +11,11 @@ from database.orm_query_block import get_block_id_by_callback, get_time_next_blo
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
-    get_progress_by_user_id, update_user_become
+    get_progress_by_user_id, update_user_become, add_user, check_user_subscribe, check_user_subscribe_new_user
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
+from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block
-from keyboards.user.reply_user import start_kb, answer_kb
+from keyboards.user.reply_user import start_kb, answer_kb, send_contact_kb, send_name_user_kb
 
 user_callback_router = Router()
 
@@ -35,6 +36,23 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await update_user_become(session, user_id=call.from_user.id)
     await call.answer("Хорошо, идем дальше")
     await call.message.answer("Хорошо\nИдем дальше!")
+
+
+@user_callback_router.callback_query(lambda call: call.data=="parent_registration")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    try:
+        is_sub, user_class, user_callback, phone_number, name_of_user = await check_user_subscribe_new_user(session, user_id=call.from_user.id)
+        await call.message.answer("Вы уже зарегистрированы")
+    except Exception as e:
+        await add_user(session, user_id=call.from_user.id,
+                       username=call.from_user.full_name,
+                       user_class="Родитель")
+        await call.message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
+                             reply_markup=send_contact_kb())
+        await call.answer("Начало регистрации")
+        await state.set_state(UserRegistrationState.parent)
+
+
 
 
 @user_callback_router.callback_query()

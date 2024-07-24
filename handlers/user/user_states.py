@@ -8,6 +8,7 @@ class UserRegistrationState(StatesGroup):
     start = State()
     children = State()
     parent = State()
+    name_get = State()
     texts = {
         'UserRegistrationState:start': ['Выберите действие', spam_actions_kb],
         'UserRegistrationState:choose_block': 'Выбор задания для удаления',

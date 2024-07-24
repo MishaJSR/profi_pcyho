@@ -73,6 +73,7 @@ class Users(Base):
     user_become_children: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     parent_id: Mapped[int] = mapped_column(Integer, nullable=True)
     progress: Mapped[int] = mapped_column(Integer, default=1)
+    name_of_user: Mapped[str] = mapped_column(Text, nullable=True)
     id_last_block_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_subscribe: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     phone_number: Mapped[str] = mapped_column(Text, nullable=True)

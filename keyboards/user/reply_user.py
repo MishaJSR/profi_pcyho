@@ -34,6 +34,12 @@ def send_contact_kb():
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
+def send_name_user_kb():
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Пропустить')
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
 def users_pool_kb():
     test_kb = ReplyKeyboardBuilder()
     for text in users_pool:

@@ -15,7 +15,7 @@ def get_inline_vebinar(url):
 
 def get_inline_parent():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Перейти к регистрации', callback_data='asdsaafafadasdasdafaac')
+    builder.button(text='Перейти к регистрации', callback_data='parent_registration')
     return builder.as_markup()
 
 def get_inline_parent_all_block():
