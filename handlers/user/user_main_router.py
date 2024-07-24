@@ -14,7 +14,7 @@ from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent
+from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission
 
 user_private_router = Router()
@@ -55,7 +55,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(text="Укажи кем ты являешься", reply_markup=users_pool_kb())
         await state.set_state(UserRegistrationState.start)
         return
-    is_sub, progress, user_class, user_callback = await check_user_subscribe(session, user_id=message.from_user.id)
+    is_sub, progress, user_class, user_callback, user_become = await check_user_subscribe(session, user_id=message.from_user.id)
     if user_class == "Ребёнок":
             await message.answer(f'С возвращением {message.from_user.full_name}', reply_markup=start_kb())
             await state.set_state(UserState.start_user)
@@ -65,30 +65,38 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                              reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
-    if progress == 1:
+    if progress == 2 and user_class == "Преподаватель":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
-    if not user_callback:
+    if progress == 1 and user_class == "Родитель":
+        await message.answer('Урок уже выслан\n'
+                             'Пожалуйста ознакомьтесь с ним и пройдите задания')
+        return
+    if not user_callback and not user_become:
         await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
         await state.set_state(UserState.user_callback)
         return
-    if user_class == "Родитель":
+    if user_class == "Родитель" and not user_become:
+        await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
         await message.answer("ссылка для родителя")
         return
-    if user_class == "Педагог":
+    if user_class == "Преподаватель":
         await message.answer("ссылка для педагога")
         return
-
+    if user_class == "Родитель" and user_become:
+        await message.answer("ссылка для родителя")
+        return
 
 @user_private_router.message(UserState.user_callback, F.text)
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
     await message.answer("Спасибо за ответ!")
     user_class = await get_user_class(session, user_id=message.from_user.id)
-    if user_class[0] == "Педагог":
+    if user_class[0] == "Преподаватель":
         await message.answer("Ссылка для педагога")
     else:
+        await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
         await message.answer("Ссылка для родителя")
 
 
@@ -124,7 +132,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
             await message.answer(f"Следующий урок выйдет {rus_date}")
     except Exception as e:
-        await message.answer(f"Ссылка для ребенка")
+        await message.answer(f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+        await message.answer("Скрипт для ребёнка")
 
 
 @user_private_router.message(UserRegistrationState.start, F.text)
@@ -141,8 +150,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await message.answer(f"Для продолжения обучения необходимо разрешение родителя\n"
                                  f"Если он согласится на твое обучение, Хэппи отправит тебе твой первый урок",
                                  reply_markup=ReplyKeyboardRemove())
-            await message.answer(link)
             await message.answer("Отправь эту ссылку своему родителю")
+            await message.answer(link)
             await state.set_state(UserRegistrationState.children)
         elif message.text == "Родитель":
             await add_user(session, user_id=message.from_user.id,
@@ -154,7 +163,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         else:
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
-                           user_class=message.text)
+                           user_class=message.text, progress=2)
             await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
                                  reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)

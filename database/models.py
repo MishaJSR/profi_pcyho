@@ -70,6 +70,7 @@ class Users(Base):
     user_id: Mapped[int] = mapped_column(Integer, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
     user_class: Mapped[str] = mapped_column(Text, nullable=False)
+    user_become_children: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     parent_id: Mapped[int] = mapped_column(Integer, nullable=True)
     progress: Mapped[int] = mapped_column(Integer, default=1)
     id_last_block_send: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

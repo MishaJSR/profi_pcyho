@@ -11,8 +11,9 @@ from database.orm_query_block import get_block_id_by_callback, get_time_next_blo
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
-    get_progress_by_user_id
+    get_progress_by_user_id, update_user_become
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
+from keyboards.admin.inline_admin import get_inline_parent_all_block
 from keyboards.user.reply_user import start_kb, answer_kb
 
 user_callback_router = Router()
@@ -28,6 +29,12 @@ class UserCallbackState(StatesGroup):
     block_id = None
     now_task = None
     list_of_answers = []
+
+@user_callback_router.callback_query(lambda call: call.data=="parent_want_to_be_children")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await update_user_become(session, user_id=call.from_user.id)
+    await call.answer("Хорошо, идем дальше")
+    await call.message.answer("Хорошо\nИдем дальше!")
 
 
 @user_callback_router.callback_query()
@@ -104,14 +111,16 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     if len(UserCallbackState.tasks) == 0:
         await message.answer("Все задания пройдены", reply_markup=start_kb())
         await update_user_progress(session, user_id=message.from_user.id)
-        res = await get_user_class(session, user_id=message.from_user.id)
-        if res[0] != "Ребёнок":
+        user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
+        if user_class != "Ребёнок" and not user_become:
             await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
             await state.set_state(UserCallbackState.user_callback)
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
             await message.answer("Ссылка для ребенка")
+            await message.answer(
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
@@ -126,9 +135,10 @@ async def user_callback(message: types.Message, session: AsyncSession, state: FS
     await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
     await message.answer("Спасибо за ответ!")
     user_class = await get_user_class(session, user_id=message.from_user.id)
-    if user_class[0] == "Педагог":
+    if user_class[0] == "Преподаватель":
         await message.answer("Ссылка для педагога")
     else:
+        await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
         await message.answer("Ссылка для родителя")
 
 

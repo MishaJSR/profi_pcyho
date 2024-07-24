@@ -41,7 +41,9 @@ async def spam_task(bot, session_pool, engine):
                 if block._data[0].date_to_post <= now_time:
                     block_to_send[block._data[0].progress_block] = block._data[0].id
             for user in users:
-                if user[1] == 2 and user[3] != "Ребёнок":
+                if user[1] == 2 and user[3] == "Родитель" and not (user[4]):
+                    continue
+                if user[1] == 3 and user[3] == "Преподаватель":
                     continue
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
