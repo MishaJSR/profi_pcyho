@@ -3,7 +3,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 import emoji
 
 start_but = ['Когда будет следующий блок?']
-users_pool = ['Ребёнок', 'Родитель', 'Преподаватель']
+users_pool = ['Ребёнок', 'Родитель', 'Педагог']
 
 def start_kb(data=None):
     test_kb = ReplyKeyboardBuilder()

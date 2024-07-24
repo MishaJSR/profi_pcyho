@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import UsersTaskProgress
-from sqlalchemy import select
+from sqlalchemy import select, delete
+
 
 async def set_user_task_progress(session, **kwargs):
     obj = UsersTaskProgress(
@@ -25,3 +26,7 @@ async def get_task_progress_by_user_id(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
+async def delete_all_user_progress(session):
+    query = delete(UsersTaskProgress)
+    await session.execute(query)
+    await session.commit()

@@ -3,6 +3,8 @@ from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from dotenv import find_dotenv, load_dotenv
 
+from database.orm_query_user import delete_all_user
+from database.orm_query_user_task_progress import delete_all_user_progress
 from filters.admin_filter import AdminFilter
 from handlers.admin.admin_manage_sender_router import admin_manage_sender_router
 from handlers.admin.admin_show_block import admin_show_block_router
@@ -26,10 +28,11 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
 
 
 
-@admin_private_router.message(F.text == 'Отмена')
-async def fill_admin_state(message: types.Message, state: FSMContext):
-    await message.answer(text='Вы вернулись в основное меню', reply_markup=start_kb())
-    await state.set_state(AdminManageTaskState.start)
+@admin_private_router.message(F.text == 'Удалить всех пользователей')
+async def fill_admin_state(message: types.Message, session,  state: FSMContext):
+    await delete_all_user(session)
+    await delete_all_user_progress(session)
+    await message.answer("Удалено")
 
 
 

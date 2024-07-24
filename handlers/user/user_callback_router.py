@@ -136,6 +136,16 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
+            if user_become:
+                await message.answer(
+                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+                await message.answer("Ссылка для родителя")
+                return
+            if user_class == "Педагог":
+                await message.answer(
+                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+                await message.answer("Ссылка для педагога")
+                return
             await message.answer("Ссылка для ребенка")
             await message.answer(
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
@@ -153,7 +163,7 @@ async def user_callback(message: types.Message, session: AsyncSession, state: FS
     await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
     await message.answer("Спасибо за ответ!")
     user_class = await get_user_class(session, user_id=message.from_user.id)
-    if user_class[0] == "Преподаватель":
+    if user_class[0] == "Педагог":
         await message.answer("Ссылка для педагога")
     else:
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())

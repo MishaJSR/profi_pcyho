@@ -47,7 +47,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if res_parent[0]:
             await message.answer("Вы уже разрешили доступ ребенку")
             return
-        if UserRegistrationState.children_id != message.from_user.id:
+        if UserRegistrationState.children_id == message.from_user.id:
             await message.answer("Эта ссылка для родителя")
             return
         await message.answer("тут должно быть превью курса")
@@ -69,12 +69,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                              reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
-    if not name_of_user and (not user_class == "Ребёнок"):
+    if not name_of_user and (not user_class == "Ребёнок") and not is_sub:
         await message.answer("Мы также будем очень рады, если вы оставите нам своё имя или фамилию",
                              reply_markup=send_name_user_kb())
         await state.set_state(UserRegistrationState.name_get)
         return
-    if progress == 2 and user_class == "Преподаватель":
+    if progress == 2 and user_class == "Педагог":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
@@ -90,7 +90,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
         await message.answer("ссылка для родителя")
         return
-    if user_class == "Преподаватель":
+    if user_class == "Педагог":
         await message.answer("ссылка для педагога")
         return
     if user_class == "Родитель" and user_become:
@@ -102,7 +102,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
     await message.answer("Спасибо за ответ!")
     user_class = await get_user_class(session, user_id=message.from_user.id)
-    if user_class[0] == "Преподаватель":
+    if user_class[0] == "Педагог":
         await message.answer("Ссылка для педагога")
     else:
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
@@ -143,8 +143,20 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             rus_date = res2[0].strftime("%d.%m.%Y %H:%M")
             await message.answer(f"Следующий урок выйдет {rus_date}")
     except Exception as e:
-        await message.answer(f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
-        await message.answer("Скрипт для ребёнка")
+        user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
+        if user_become:
+            await message.answer(
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\n")
+            await message.answer("Скрипт для родителя")
+            return
+        if user_class == "Педагог":
+            await message.answer(
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\n")
+            await message.answer("Скрипт для педагога")
+            return
+        else:
+            await message.answer(f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+            await message.answer("Скрипт для ребёнка")
 
 
 @user_private_router.message(UserRegistrationState.start, F.text)

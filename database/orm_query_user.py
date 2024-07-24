@@ -1,5 +1,5 @@
 from database.models import Users
-from sqlalchemy import select, update
+from sqlalchemy import select, update, delete
 
 
 async def check_new_user(session, user_id: int):
@@ -149,3 +149,9 @@ async def update_last_send_block_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
+
+
+async def delete_all_user(session):
+    query = delete(Users)
+    await session.execute(query)
+    await session.commit()
