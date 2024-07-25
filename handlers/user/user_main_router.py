@@ -22,7 +22,6 @@ from middlewares.throttling import throttled, ThrottlingMiddleware
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
-# user_private_router.message.middleware(ThrottlingMiddleware)
 
 
 class UserState(StatesGroup):
@@ -61,7 +60,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Ошибка подключения")
 
 
-#@throttled(rate=3)
 @user_private_router.message(StateFilter('*'), CommandStart())
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     res = await check_new_user(session, user_id=message.from_user.id)
@@ -101,16 +99,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if user_class == "Родитель" and user_become:
         await message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block_pay())
         return
-
-
-@user_private_router.message(StateFilter('*'), F.html_text.contains("/start="))
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    print("sdsd")
-
-
-@user_private_router.message(StateFilter('*'), Command("referal"))
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    print(message.from_user.id)
 
 
 @user_callback_router.callback_query(lambda call: call.data in ["yes", "no", "skip"])

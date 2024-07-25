@@ -11,6 +11,7 @@ from dotenv import find_dotenv, load_dotenv
 import betterlogging as bl
 
 from database.config import load_config
+from middlewares.throttling import ThrottlingMiddleware
 
 from spam_def.spam_send import spam_task
 
@@ -70,7 +71,8 @@ async def main():
     dp.shutdown.register(on_shutdown)
     dp.update.middleware(DataBaseSession(session_pool=session_pool))
 
-    #task = asyncio.create_task(spam_task(bot, session_pool, engine))
+
+    task = asyncio.create_task(spam_task(bot, session_pool, engine))
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=private, scope=BotCommandScopeAllPrivateChats())
     await dp.start_polling(bot)
