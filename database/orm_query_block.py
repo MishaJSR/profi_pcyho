@@ -3,6 +3,7 @@ import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Block
 from sqlalchemy import select, update
+import pandas as pd
 
 
 async def add_block(session: AsyncSession, **kwargs):
@@ -30,7 +31,7 @@ async def get_block_for_add_task(session: AsyncSession, **kwargs):
 
 
 async def get_block_for_delete(session: AsyncSession, **kwargs):
-    query = select(Block).where((Block.is_visible == True))
+    query = select(Block).where((Block.is_visible == True)).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
 

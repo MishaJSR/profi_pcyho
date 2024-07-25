@@ -19,6 +19,7 @@ from handlers.admin.states import AdminManageBlockState
 import logging
 import uuid
 import datetime
+import pandas as pd
 
 admin_block_router = Router()
 
@@ -266,6 +267,7 @@ async def add_video_pool(session, block_id, file_id):
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
         res = await get_block_for_delete(session)
+        pass
     except Exception as e:
         await message.answer('Ошибка подключения к базе данных блоков. Возможно у вас отсутствуют блоки')
         return
