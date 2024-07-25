@@ -1,6 +1,8 @@
 import emoji
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+course_link = "https://www.google.ru/"
+
 
 def get_inline(callback_data):
     builder = InlineKeyboardBuilder()
@@ -52,6 +54,12 @@ def get_inline_is_like():
 def get_inline_pay():
     builder = InlineKeyboardBuilder()
     builder.button(text='Сслыка', callback_data='effeefwwefefe',
-                   url="https://www.google.ru/")
+                   url=course_link)
     builder.button(text='Назад', callback_data='back_from_pay')
+    return builder.as_markup()
+
+def get_inline_pay_end():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Сслыка', callback_data='effeefwwefefe',
+                   url=course_link)
     return builder.as_markup()

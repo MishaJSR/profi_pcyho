@@ -6,15 +6,16 @@ import aioschedule
 from aiogram.types import InputMediaPhoto
 
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
-    update_count_send_block_session_pool
+    update_count_send_block_session_pool, get_order_block_progress
 from database.orm_query_block_pool import get_block_pool_all_session_pool
 from database.orm_query_block_pool_media import get_photos_id_from_block_pool_session_pool, \
     get_videos_id_from_block_pool_session_pool
 from database.orm_query_media_block import get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
 from database.orm_query_task import get_task_by_block_id, get_tasks_by_block_id_session_pool
 from database.orm_query_user import get_all_users, update_last_send_block_session_pool, \
-    update_users_progress_session_pool, get_user_info_for_mom, check_new_user, check_new_user_session_pool
-from keyboards.admin.inline_admin import get_inline
+    update_users_progress_session_pool, get_user_info_for_mom, check_new_user, check_new_user_session_pool, \
+    update_stop_spam
+from keyboards.admin.inline_admin import get_inline, get_inline_pay_end
 from keyboards.user.reply_user import start_kb
 import emoji
 
@@ -22,13 +23,26 @@ import emoji
 async def send_progress_mom(session_pool, bot):
     try:
         data = await get_user_info_for_mom(session_pool)
+        blocks = await get_order_block_progress(session_pool)
+        max_progress = blocks[-1][0]
         for child in data:
             parent_id, progress, points = child
-            print(parent_id, progress, points)
+            print(parent_id, progress, points, max_progress)
             try:
                 res = await check_new_user_session_pool(session_pool, user_id=parent_id)
-                mom_id = res[0]
-                if progress < 2:
+
+                mom_id, stop_spam = res[0], res[1]
+                print(mom_id, stop_spam)
+                if stop_spam:
+                    return
+                if progress == (max_progress + 1):
+                    await bot.send_message(chat_id=mom_id,
+                                           text=f"Поздравляю!!! Ваш ребенок прошел весь курс\n"
+                                                f"На этом его бесплатное обучение завершено\n"
+                                                f"Вы можете попробовать для ребёнка наш полный курс",
+                                           reply_markup=get_inline_pay_end())
+                    await update_stop_spam(session_pool, user_id=mom_id)
+                elif progress < 2:
                     await bot.send_message(chat_id=mom_id,
                                            text=f"Ваш ребенок пока еще не проходил уроки\n"
                                                 f"Но мы верим что у него все получится " + "🥰")
@@ -50,7 +64,7 @@ async def send_progress_mom(session_pool, bot):
 
 
 async def spam_task(bot, session_pool, engine):
-    aioschedule.every().day.at("12:51").do(send_progress_mom, session_pool=session_pool, bot=bot)
+    aioschedule.every().day.at("12:00").do(send_progress_mom, session_pool=session_pool, bot=bot)
     print('start')
     await asyncio.sleep(5)
 
