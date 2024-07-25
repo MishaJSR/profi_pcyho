@@ -7,6 +7,12 @@ async def check_new_user(session, user_id: int):
     result = await session.execute(query)
     return result.all()
 
+async def check_new_user_session_pool(session_pool, user_id: int):
+    query = select(Users.user_id).where(Users.user_id == user_id)
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchone()
+
 
 async def add_user(session, user_id: int, username: str, user_class: str, is_subscribe=False, parent_id=None,
                    progress=1):
@@ -147,6 +153,12 @@ async def check_user_subscribe_new_user(session, **kwargs):
                    Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
+
+async def get_user_info_for_mom(session_pool, **kwargs):
+    query = select(Users.parent_id, Users.progress, Users.points).where((Users.user_class == "Ребёнок") and (Users.is_subscribe == True))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchall()
 
 
 async def update_last_send_block_session_pool(session_pool, **kwargs):

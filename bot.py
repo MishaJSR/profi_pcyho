@@ -1,6 +1,7 @@
 import logging
 import os
 import asyncio
+import schedule
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage

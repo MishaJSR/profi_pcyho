@@ -2,6 +2,7 @@ import asyncio
 import datetime
 import os
 
+import aioschedule
 from aiogram.types import InputMediaPhoto
 
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
@@ -12,27 +13,51 @@ from database.orm_query_block_pool_media import get_photos_id_from_block_pool_se
 from database.orm_query_media_block import get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
 from database.orm_query_task import get_task_by_block_id, get_tasks_by_block_id_session_pool
 from database.orm_query_user import get_all_users, update_last_send_block_session_pool, \
-    update_users_progress_session_pool
+    update_users_progress_session_pool, get_user_info_for_mom, check_new_user, check_new_user_session_pool
 from keyboards.admin.inline_admin import get_inline
 from keyboards.user.reply_user import start_kb
 import emoji
 
 
-async def spam_task(bot, session_pool, engine):
-    # query = "select * from users"
-    # await EaseExcel(
-    #     sqlalchemy_engine=session_pool,
-    #     SQL_query=query,
-    #     file_name='users',
-    #     file_path=os.getcwd()
-    # ).build()
+async def send_progress_mom(session_pool, bot):
+    try:
+        data = await get_user_info_for_mom(session_pool)
+        for child in data:
+            parent_id, progress, points = child
+            print(parent_id, progress, points)
+            try:
+                res = await check_new_user_session_pool(session_pool, user_id=parent_id)
+                mom_id = res[0]
+                if progress < 2:
+                    await bot.send_message(chat_id=mom_id,
+                                           text=f"Ваш ребенок пока еще не проходил уроки\n"
+                                                f"Но мы верим что у него все получится " + "🥰")
+                elif points == 0 and progress > 1:
+                    await bot.send_message(chat_id=mom_id,
+                                           text=f"Ваш ребенок большой молодец и уже прошёл {progress-1} блоков\n"
+                                                f"Мы верим что у него все получится " + "🥰")
+                else:
+                    await bot.send_message(chat_id=mom_id,
+                                           text=f"Ваш ребёнок делает большие успехи!!!\n"
+                                                f"Он заработал {points} очков и уже прошёл {progress-1} блоков\n"
+                                                f"Мы верим что у него все получится " + "🥰")
+            except Exception as e:
+                print("нет")
+    except Exception as e:
+        pass
+    finally:
+        await asyncio.sleep(60)
 
+
+async def spam_task(bot, session_pool, engine):
+    aioschedule.every().day.at("12:51").do(send_progress_mom, session_pool=session_pool, bot=bot)
     print('start')
     await asyncio.sleep(5)
 
     while True:
         # print("Task is running...")
         try:
+            await aioschedule.run_pending()
             now_time = datetime.datetime.now()
             block_to_send = {}
             users = await get_all_users(session_pool)

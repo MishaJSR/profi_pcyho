@@ -51,8 +51,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if UserRegistrationState.children_id == message.from_user.id:
             await message.answer("Эта ссылка для родителя")
             return
-        await message.answer("тут должно быть превью курса")
-        await message.answer("Разрешить вашему ребёнку пройти наш курс?", reply_markup=parent_permission())
+        await message.answer("Разрешить вашему ребёнку пройти наш бесплатный курс?\n"
+                             "Вы будете получать его прогресс по урокам", reply_markup=parent_permission())
         return
     res = await check_new_user(session, user_id=message.from_user.id)
     if not res:
