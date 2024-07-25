@@ -76,7 +76,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:
-                await bot.send_message(chat_id=user_id, text="Перейти к тесту " + emoji.emojize(':down_arrow:'),
+                await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                                        reply_markup=get_inline(callback_data=callback))
             else:
                 await update_users_progress_session_pool(session_pool)
@@ -98,7 +98,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
                 await bot.send_video(user_id, video=video_id)
         await update_count_send_block_session_pool(session_pool, block_id=block_id)
         if has_tasks:
-            await bot.send_message(chat_id=user_id, text="Перейти к тесту " + emoji.emojize(':down_arrow:'),
+            await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                                    reply_markup=get_inline(callback_data=callback))
         else:
             await update_users_progress_session_pool(session_pool)
@@ -139,6 +139,6 @@ async def send_multi_post(bot, session_pool, user_id, block_id, has_tasks, callb
 
     if not has_tasks:
         await update_users_progress_session_pool(session_pool)
-    await bot.send_message(chat_id=user_id, text="Перейти к тесту " + emoji.emojize(':down_arrow:'),
+    await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                            reply_markup=get_inline(callback_data=callback))
     await update_count_send_block_session_pool(session_pool, block_id=block_id)

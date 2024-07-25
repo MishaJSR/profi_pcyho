@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from aiogram import types, Router, F
+from aiogram.filters import callback_data
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
@@ -14,10 +15,19 @@ from database.orm_query_user import update_user_progress, update_user_points, ge
     get_progress_by_user_id, update_user_become, add_user, check_user_subscribe, check_user_subscribe_new_user
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent_all_block
+from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline
 from keyboards.user.reply_user import start_kb, answer_kb, send_contact_kb, send_name_user_kb
 
 user_callback_router = Router()
+
+
+file_id = "AgACAgIAAxkBAAJOPmah-D_XBkFY2P7AaEp7OVywR3kdAAIv3DEbZhkRSS8pzku-aKmkAQADAgADeAADNQQ"
+text_for_media = f"Поздравляю, урок позади!\n" \
+                 f"Теперь пришло время попрактиковаться и ответить на несколько увлекательных вопросов 🤔\n" \
+                 f"Покажите, что вы освоили урок и готовы к новым знаниям. 🚀\n" \
+                 f"Вопросы ниже 👇\n" \
+                 f"В ответ пишите цифры правильных ответов."
+
 
 
 class UserCallbackState(StatesGroup):
@@ -30,6 +40,7 @@ class UserCallbackState(StatesGroup):
     block_id = None
     now_task = None
     list_of_answers = []
+    callback_data = None
 
 @user_callback_router.callback_query(lambda call: call.data=="parent_want_to_be_children")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
@@ -53,14 +64,20 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await state.set_state(UserRegistrationState.parent)
 
 
-
+@user_callback_router.callback_query()
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    callback_data = call.data
+    UserCallbackState.callback_data = callback_data
+    await call.answer("Идем дальше")
+    await call.message.answer_photo(photo=file_id, caption=text_for_media,
+                                    reply_markup=get_inline(callback_data=callback_data))
 
 @user_callback_router.callback_query()
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     UserCallbackState.tasks = []
     UserCallbackState.block_id = None
     UserCallbackState.now_task = None
-    callback_data = call.data
+    callback_data = UserCallbackState.callback_data
     UserCallbackState.block_id = await get_block_id_by_callback(session, callback_button_id=callback_data)
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])
     ready_tasks = await get_task_progress_by_user_id(session, user_id=call.from_user.id,
