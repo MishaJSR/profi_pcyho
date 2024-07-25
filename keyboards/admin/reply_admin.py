@@ -3,9 +3,10 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
 type_task_actions = ['Добавить задание', 'Удалить задание']
 type_task = ['Описание изображения', 'Тест']
-spam_actions = ['Отобразить статус блоков', 'Предпросмотр', 'Изменить дату рассылки', "Выслать вебинар", "Отправить спам",
+spam_actions = ['Отобразить статус блоков', 'Предпросмотр', "Отправить спам",
                 "Выгрузка данных"]
 veb_actions = ['Обычный блок', 'Вебинар']
+excel_actions = ["Общая выгрузка", "Выгрузка данных родителей", "Выгрузка данных педагогов"]
 
 
 def start_kb(data=None):
@@ -134,6 +135,14 @@ def spam_actions_kb(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')
     for el in spam_actions:
+        test_kb.button(text=el)
+    test_kb.adjust(1, 1)
+    return test_kb.as_markup(resize_keyboard=True)
+
+def excel_actions_kb(data=None):
+    test_kb = ReplyKeyboardBuilder()
+    test_kb.button(text='Назад')
+    for el in excel_actions:
         test_kb.button(text=el)
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)

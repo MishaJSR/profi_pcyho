@@ -1,5 +1,6 @@
 from database.models import Users
 from sqlalchemy import select, update, delete
+import pandas as pd
 
 
 async def check_new_user(session, user_id: int):
@@ -82,11 +83,6 @@ async def update_user_subscribe(session, **kwargs):
     await session.execute(query)
     await session.commit()
 
-async def update_name_user(session, **kwargs):
-    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
-        name_of_user=kwargs.get("name_of_user"))
-    await session.execute(query)
-    await session.commit()
 
 
 async def update_users_progress_session_pool(session_pool, **kwargs):
@@ -177,7 +173,23 @@ async def update_stop_spam(session_pool, **kwargs):
         await session.commit()
 
 
-async def delete_all_user(session):
-    query = delete(Users)
-    await session.execute(query)
-    await session.commit()
+async def get_users_for_excel_all(session, **kwargs):
+    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+                   Users.is_subscribe, Users.parent_id,
+                   Users.user_become_children)
+    result = await session.execute(query)
+    return result.all()
+
+async def get_users_for_excel_parents(session, **kwargs):
+    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+                   Users.is_subscribe, Users.parent_id,
+                   Users.user_become_children).where(Users.user_class == "Родитель")
+    result = await session.execute(query)
+    return result.all()
+
+async def get_users_for_excel_teacher(session, **kwargs):
+    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+                   Users.is_subscribe, Users.parent_id,
+                   Users.user_become_children).where(Users.user_class == "Педагог")
+    result = await session.execute(query)
+    return result.all()

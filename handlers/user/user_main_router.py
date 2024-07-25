@@ -9,7 +9,7 @@ from aiogram.types import ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
-    update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class, update_name_user
+    update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
@@ -70,11 +70,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
                              reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
-        return
-    if not name_of_user and (not user_class == "Ребёнок") and not is_sub:
-        await message.answer("Мы также будем очень рады, если вы оставите нам своё имя или фамилию",
-                             reply_markup=send_name_user_kb())
-        await state.set_state(UserRegistrationState.name_get)
         return
     if progress == 2 and user_class == "Педагог":
         await message.answer('Урок уже выслан\n'
@@ -203,19 +198,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if message.contact:
         phone_number = "+" + message.contact.phone_number
         await update_user_phone(session, phone_number=phone_number, user_id=message.from_user.id)
-    await message.answer("Мы также будем очень рады, если вы оставите нам своё имя или фамилию",
-                         reply_markup=send_name_user_kb())
-    await state.set_state(UserRegistrationState.name_get)
-    return
-
-
-@user_private_router.message(UserRegistrationState.name_get, F.text)
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     await update_user_subscribe(session, user_id=message.from_user.id)
-    if not message.text == "Пропустить":
-        await update_name_user(session, user_id=message.from_user.id, name_of_user=message.text)
     await message.answer("Представьте себя ребенком и погрузитесь полностью в прохождение онлайн-квеста",
                          reply_markup=ReplyKeyboardRemove())
+
+    return
+
 
 
 @user_private_router.message(StateFilter('*'), Command("points"))

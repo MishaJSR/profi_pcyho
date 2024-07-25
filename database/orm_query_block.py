@@ -58,12 +58,6 @@ async def get_block_session_pool_by_id(session_pool, **kwargs):
     return result.fetchone()
 
 
-async def get_block_vebinar_session_pool_by_id(session_pool, **kwargs):
-    query = select(Block).where((Block.is_visible == True) & (Block.id == kwargs.get("block_id")))
-    async with session_pool.begin().async_session as session:
-        result = await session.execute(query)
-    return result.fetchone()
-
 
 async def get_block_all_session_pool(session_pool, **kwargs):
     query = select(Block).where(Block.is_visible == True)
