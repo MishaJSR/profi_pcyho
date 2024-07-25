@@ -185,7 +185,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             if user_become:
                 await message.answer(
                     f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
-                await message.answer("Ссылка для родителя")
+                await message.answer("Вы можете оплатить полный курс по ссылке",
+                                     reply_markup=get_inline_parent_all_block_pay())
                 return
             if user_class == "Педагог":
                 await message.answer(
@@ -204,16 +205,6 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         await prepare_test_tasks(message, state, session)
 
 
-@user_callback_router.message(UserCallbackState.user_callback, F.text)
-async def user_callback(message: types.Message, session: AsyncSession, state: FSMContext):
-    await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
-    await message.answer("Спасибо за ответ!")
-    user_class = await get_user_class(session, user_id=message.from_user.id)
-    if user_class[0] == "Педагог":
-        await message.answer("Ссылка для педагога")
-    else:
-        await message.answer("Поздравляю! Вы прошли ознакомительный урок", reply_markup=get_inline_parent_all_block())
-        await message.answer("Ссылка для родителя")
 
 
 async def prepare_test_tasks(message, state, session):

@@ -149,6 +149,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await message.answer(
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\n")
             await message.answer("Скрипт для родителя")
+            await message.answer("Вы можете оплатить полный курс по ссылке",
+                                 reply_markup=get_inline_parent_all_block_pay())
             return
         if user_class == "Педагог":
             await message.answer(
