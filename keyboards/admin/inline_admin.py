@@ -25,7 +25,9 @@ def get_inline_parent_all_block():
     return builder.as_markup()
 
 
-def get_inline_text():
+def get_inline_test():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Вперед!', callback_data='parent_want_to_be_children')
+    builder.button(text='Готов потренироваться ' + emoji.emojize("😋"), callback_data='want_to_train')
+    builder.button(text='Хочу повторить теорию ' + emoji.emojize("😌"), callback_data='back_to_theory')
+    builder.adjust(1, 1)
     return builder.as_markup()
