@@ -98,13 +98,13 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         return
 
 
-@user_callback_router.callback_query(lambda call: call.data == "yes")
+@user_callback_router.callback_query(lambda call: call.data in ["yes", "no", "skip"])
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     data = str(call.data)
     await call.message.delete()
     await update_user_callback(session, user_id=call.from_user.id, user_callback=data)
     await call.answer("Спасибо за ответ!")
-    await call.message.answer("Спасибо за ответ!")
+    await call.message.answer("Спасибо за ответ!", reply_markup=ReplyKeyboardRemove())
     user_class = await get_user_class(session, user_id=call.from_user.id)
     if user_class[0] == "Педагог":
         await call.message.answer("Ссылка для педагога")
