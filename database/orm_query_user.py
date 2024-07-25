@@ -136,6 +136,12 @@ async def check_user_subscribe(session, **kwargs):
     result = await session.execute(query)
     return result.fetchone()
 
+
+async def check_user_become_children(session, **kwargs):
+    query = select(Users.user_become_children).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()
+
 async def check_user_subscribe_new_user(session, **kwargs):
     query = select(Users.is_subscribe, Users.user_class, Users.user_callback, Users.phone_number,
                    Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))

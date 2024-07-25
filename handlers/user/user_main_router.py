@@ -14,7 +14,8 @@ from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block
+from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
+    get_inline_parent_all_block_pay
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission, \
     send_name_user_kb
 
@@ -59,11 +60,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(text="Укажи кем ты являешься", reply_markup=users_pool_kb())
         await state.set_state(UserRegistrationState.start)
         return
-    is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session, user_id=message.from_user.id)
+    is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session,
+                                                                                                        user_id=message.from_user.id)
     if user_class == "Ребёнок":
-            await message.answer(f'С возвращением {message.from_user.full_name}', reply_markup=start_kb())
-            await state.set_state(UserState.start_user)
-            return
+        await message.answer(f'С возвращением {message.from_user.full_name}', reply_markup=start_kb())
+        await state.set_state(UserState.start_user)
+        return
     if not is_sub:
         await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
                              reply_markup=send_contact_kb())
@@ -83,32 +85,31 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
     if not user_callback and not user_become:
-        await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
-        await state.set_state(UserState.user_callback)
+        await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
         return
     if user_class == "Родитель" and not user_become:
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
-        await message.answer("ссылка для родителя")
         return
     if user_class == "Педагог":
         await message.answer("ссылка для педагога")
         return
     if user_class == "Родитель" and user_become:
-        await message.answer("ссылка для родителя")
+        await message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block_pay())
         return
 
-@user_private_router.message(UserState.user_callback, F.text)
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await update_user_callback(session, user_id=message.from_user.id, user_callback=message.text)
-    await message.answer("Спасибо за ответ!")
-    user_class = await get_user_class(session, user_id=message.from_user.id)
+
+@user_callback_router.callback_query(lambda call: call.data == "yes")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    data = str(call.data)
+    await call.message.delete()
+    await update_user_callback(session, user_id=call.from_user.id, user_callback=data)
+    await call.answer("Спасибо за ответ!")
+    await call.message.answer("Спасибо за ответ!")
+    user_class = await get_user_class(session, user_id=call.from_user.id)
     if user_class[0] == "Педагог":
-        await message.answer("Ссылка для педагога")
+        await call.message.answer("Ссылка для педагога")
     else:
-        await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
-        await message.answer("Ссылка для родителя")
-
-
+        await call.message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block())
 
 
 @user_private_router.message(StateFilter('*'), F.text == "Да, я даю согласие")
@@ -155,7 +156,8 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await message.answer("Скрипт для педагога")
             return
         else:
-            await message.answer(f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+            await message.answer(
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
             await message.answer("Скрипт для ребёнка")
 
 
@@ -194,7 +196,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Ошибка регистрации")
 
 
-
 @user_private_router.message(UserRegistrationState.parent)
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     if message.contact:
@@ -215,15 +216,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                          reply_markup=ReplyKeyboardRemove())
 
 
-
-
-
 @user_private_router.message(StateFilter('*'), Command("points"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     points = await get_user_points(session, user_id=message.from_user.id)
     await message.answer(f'У Вас на счету: {points[0]} очков')
-
-
-
-
-

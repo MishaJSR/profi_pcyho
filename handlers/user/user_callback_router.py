@@ -12,10 +12,12 @@ from database.orm_query_block import get_block_id_by_callback, get_time_next_blo
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
-    get_progress_by_user_id, update_user_become, add_user, check_user_subscribe, check_user_subscribe_new_user
+    get_progress_by_user_id, update_user_become, add_user, check_user_subscribe, check_user_subscribe_new_user, \
+    check_user_become_children
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline, get_inline_test
+from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline, get_inline_test, get_inline_is_like, \
+    get_inline_pay, get_inline_parent_all_block_pay
 from keyboards.user.reply_user import start_kb, answer_kb, send_contact_kb, send_name_user_kb
 
 user_callback_router = Router()
@@ -43,9 +45,29 @@ class UserCallbackState(StatesGroup):
 
 @user_callback_router.callback_query(lambda call: call.data == "parent_want_to_be_children")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
     await update_user_become(session, user_id=call.from_user.id)
     await call.answer("Хорошо, идем дальше")
     await call.message.answer("Хорошо\nИдем дальше!")
+
+
+@user_callback_router.callback_query(lambda call: call.data == "pay")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer("Ссылка на оплату", reply_markup=get_inline_pay())
+
+
+@user_callback_router.callback_query(lambda call: call.data == "back_from_pay")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    is_become = await check_user_become_children(session, user_id=call.from_user.id)
+    if is_become[0]:
+        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+                                  reply_markup=get_inline_parent_all_block())
+    else:
+        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+                                  reply_markup=get_inline_parent_all_block_pay())
+
 
 
 @user_callback_router.callback_query(lambda call: call.data == "parent_registration")
@@ -64,12 +86,9 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await state.set_state(UserRegistrationState.parent)
 
 
-
 @user_callback_router.callback_query(lambda call: call.data == "back_to_theory")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
-
-
 
 
 @user_callback_router.callback_query(lambda call: call.data == "want_to_train")
@@ -109,7 +128,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.answer('Вы выбрали задание')
 
 
-@user_callback_router.callback_query()
+@user_callback_router.callback_query(lambda call: len(call.data) == 36)
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     callback_data = call.data
     UserCallbackState.callback_data = callback_data
@@ -158,8 +177,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         await update_user_progress(session, user_id=message.from_user.id)
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         if user_class != "Ребёнок" and not user_become:
-            await message.answer('Напишите что вам понравилось, а что нет?', reply_markup=ReplyKeyboardRemove())
-            await state.set_state(UserCallbackState.user_callback)
+            await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+            return
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
@@ -193,7 +212,7 @@ async def user_callback(message: types.Message, session: AsyncSession, state: FS
     if user_class[0] == "Педагог":
         await message.answer("Ссылка для педагога")
     else:
-        await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
+        await message.answer("Поздравляю! Вы прошли ознакомительный урок", reply_markup=get_inline_parent_all_block())
         await message.answer("Ссылка для родителя")
 
 
