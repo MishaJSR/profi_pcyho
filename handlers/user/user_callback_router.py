@@ -63,10 +63,10 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     is_become = await check_user_become_children(session, user_id=call.from_user.id)
     if is_become[0]:
         await call.message.answer("Вы можете оплатить полный курс по ссылке",
-                                  reply_markup=get_inline_parent_all_block())
+                                  reply_markup=get_inline_parent_all_block_pay())
     else:
         await call.message.answer("Вы можете оплатить полный курс по ссылке",
-                                  reply_markup=get_inline_parent_all_block_pay())
+                                  reply_markup=get_inline_parent_all_block())
 
 
 
