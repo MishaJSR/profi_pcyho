@@ -22,7 +22,7 @@ from middlewares.throttling import throttled, ThrottlingMiddleware
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
-user_private_router.message.middleware(ThrottlingMiddleware)
+# user_private_router.message.middleware(ThrottlingMiddleware)
 
 
 class UserState(StatesGroup):
@@ -61,7 +61,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Ошибка подключения")
 
 
-@throttled(rate=3)
+#@throttled(rate=3)
 @user_private_router.message(StateFilter('*'), CommandStart())
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     res = await check_new_user(session, user_id=message.from_user.id)
