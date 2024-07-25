@@ -116,7 +116,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-@admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Отправить спам')
+@admin_manage_sender_router.message(F.text == 'Отправить спам')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer("Напишите тест для рассылки всем пользователям",
                          reply_markup=back_kb())

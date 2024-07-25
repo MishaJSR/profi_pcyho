@@ -18,9 +18,11 @@ from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_al
     get_inline_parent_all_block_pay
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission, \
     send_name_user_kb
+from middlewares.throttling import throttled, ThrottlingMiddleware
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
+user_private_router.message.middleware(ThrottlingMiddleware)
 
 
 class UserState(StatesGroup):
@@ -37,23 +39,31 @@ class UserState(StatesGroup):
     }
 
 
+@user_private_router.message(StateFilter('*'), F.html_text.contains("/start "))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    try:
+        if len(message.text) > 6:
+            UserRegistrationState.children_id = int(message.text.split(' ')[1])
+            res_parent = await get_user_parent(session, user_id=UserRegistrationState.children_id)
+            if not res_parent:
+                await message.answer("Такого ребенка не найдено")
+                return
+            if res_parent[0]:
+                await message.answer("Вы уже разрешили доступ ребенку")
+                return
+            if UserRegistrationState.children_id == message.from_user.id:
+                await message.answer("Эта ссылка для родителя")
+                return
+            await message.answer("Разрешить вашему ребёнку пройти наш бесплатный курс?\n"
+                                 "Вы будете получать его прогресс по урокам", reply_markup=parent_permission())
+            return
+    except Exception as e:
+        await message.answer("Ошибка подключения")
+
+
+@throttled(rate=3)
 @user_private_router.message(StateFilter('*'), CommandStart())
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    if len(message.text) > 6:
-        UserRegistrationState.children_id = int(message.text.split(' ')[1])
-        res_parent = await get_user_parent(session, user_id=UserRegistrationState.children_id)
-        if not res_parent:
-            await message.answer("Такого ребенка не найдено")
-            return
-        if res_parent[0]:
-            await message.answer("Вы уже разрешили доступ ребенку")
-            return
-        if UserRegistrationState.children_id == message.from_user.id:
-            await message.answer("Эта ссылка для родителя")
-            return
-        await message.answer("Разрешить вашему ребёнку пройти наш бесплатный курс?\n"
-                             "Вы будете получать его прогресс по урокам", reply_markup=parent_permission())
-        return
     res = await check_new_user(session, user_id=message.from_user.id)
     if not res:
         await message.answer(f'Привет {message.from_user.full_name}')
@@ -93,6 +103,16 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         return
 
 
+@user_private_router.message(StateFilter('*'), F.html_text.contains("/start="))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    print("sdsd")
+
+
+@user_private_router.message(StateFilter('*'), Command("referal"))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    print(message.from_user.id)
+
+
 @user_callback_router.callback_query(lambda call: call.data in ["yes", "no", "skip"])
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     data = str(call.data)
@@ -104,7 +124,8 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     if user_class[0] == "Педагог":
         await call.message.answer("Ссылка для педагога")
     else:
-        await call.message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block())
+        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+                                  reply_markup=get_inline_parent_all_block())
 
 
 @user_private_router.message(StateFilter('*'), F.text == "Да, я даю согласие")
@@ -203,7 +224,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                          reply_markup=ReplyKeyboardRemove())
 
     return
-
 
 
 @user_private_router.message(StateFilter('*'), Command("points"))

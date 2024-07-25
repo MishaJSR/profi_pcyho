@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_user import get_users_for_excel_parents, get_users_for_excel_teacher, \
     get_users_for_excel_all
+from handlers.admin.states import AdminStateSpammer
 from keyboards.admin.reply_admin import spam_actions_kb, excel_actions, excel_actions_kb
 
 import pandas as pd
@@ -20,7 +21,7 @@ admin_excel_loader_router = Router()
 
 @admin_excel_loader_router.message(F.text == 'Выгрузка данных')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    print(os.getcwd())
+    await state.set_state(AdminStateSpammer.set_text_vebinar)
     await message.answer("Выберите какие данные выгружать", reply_markup=excel_actions_kb(excel_actions))
 
 @admin_excel_loader_router.message(F.text == 'Выгрузка данных родителей')
