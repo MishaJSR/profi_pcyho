@@ -46,7 +46,7 @@ async def get_all_users_id_progress(session, **kwargs):
 async def get_all_users(session_pool, **kwargs):
     query = select(Users.user_id, Users.progress,
                    Users.id_last_block_send, Users.user_class,
-                   Users.user_become_children).where(Users.is_subscribe == True)
+                   Users.user_become_children).where((Users.is_subscribe == True) and (Users.user_block_bot == False))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
@@ -91,6 +91,12 @@ async def update_users_progress_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
+
+
+async def update_user_block_bot_session_pool(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(user_block_bot=True)
+    await session.execute(query)
+    await session.commit()
 
 
 async def update_user_points(session, **kwargs):

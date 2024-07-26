@@ -2,15 +2,16 @@ import datetime
 import logging
 
 import emoji
-from aiogram.filters import Command, StateFilter, CommandStart
+from aiogram.filters import Command, StateFilter, CommandStart, ChatMemberUpdatedFilter, KICKED
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import ReplyKeyboardRemove
+from aiogram.types import ReplyKeyboardRemove, ChatMemberUpdated
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
-    update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class
+    update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class, \
+    update_user_block_bot_session_pool
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
@@ -38,6 +39,13 @@ class UserState(StatesGroup):
         'prepare': None,
     }
 
+
+@user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
+async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):
+    try:
+        await update_user_block_bot_session_pool(session, user_id=event.from_user.id)
+    except Exception as e:
+        pass
 
 @user_private_router.message(StateFilter('*'), F.html_text.contains("/start "))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
