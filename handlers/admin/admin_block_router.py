@@ -63,7 +63,6 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     previous = None
     for step in AdminManageBlockState.__all_states__:
         if step.state == current_state:
-            print(current_state)
             await state.set_state(previous)
             await message.answer(f"Вы вернулись к прошлому шагу \n{AdminManageBlockState.texts[previous.state][0]}",
                                  reply_markup=AdminManageBlockState.texts[previous.state][1]())

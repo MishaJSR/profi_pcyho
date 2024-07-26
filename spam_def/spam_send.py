@@ -28,12 +28,10 @@ async def send_progress_mom(session_pool, bot):
         max_progress = blocks[-1][0]
         for child in data:
             parent_id, progress, points = child
-            print(parent_id, progress, points, max_progress)
             try:
                 res = await check_new_user_session_pool(session_pool, user_id=parent_id)
 
                 mom_id, stop_spam = res[0], res[1]
-                print(mom_id, stop_spam)
                 if stop_spam:
                     return
                 if progress == (max_progress + 1):
@@ -66,7 +64,6 @@ async def send_progress_mom(session_pool, bot):
 
 async def spam_task(bot, session_pool, engine):
     aioschedule.every().day.at("12:00").do(send_progress_mom, session_pool=session_pool, bot=bot)
-    print('start')
     await asyncio.sleep(5)
 
     while True:
@@ -112,7 +109,6 @@ async def send_spam(bot, session_pool, user_id, block_id):
             await send_multi_post(bot, session_pool, user_id=user_id, block_id=block_id, has_tasks=has_tasks,
                                   callback=callback)
             return
-        print(block._data[0].has_media, has_tasks)
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:

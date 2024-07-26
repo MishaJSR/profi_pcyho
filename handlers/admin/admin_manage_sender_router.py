@@ -24,7 +24,6 @@ admin_manage_sender_router = Router()
 @admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
-    print(current_state)
 
     if current_state == AdminStateSpammer.start:
         AdminStateSpammer.blocks_name = []

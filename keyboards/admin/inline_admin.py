@@ -1,8 +1,12 @@
+import os
+
 import emoji
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from dotenv import find_dotenv, load_dotenv
 
-course_link = "https://www.google.ru/"
-course_referal = "https://www.google.ru/111"
+load_dotenv(find_dotenv())
+course_link = os.getenv('COURSE_LINK')
+course_referal = os.getenv('COURSE_REFERAL')
 
 
 def get_inline(callback_data):
