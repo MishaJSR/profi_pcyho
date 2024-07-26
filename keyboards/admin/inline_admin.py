@@ -37,7 +37,7 @@ def get_inline_parent_all_block():
 
 def get_inline_teacher_all_block():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Реферальная ссылка', callback_data='effeefwwefefe',
+    builder.button(text='Стать партнером', callback_data='effeefwwefefe',
                    url=course_referal)
     builder.button(text='Хочу пройти все бесплатные уроки! ' + emoji.emojize("😋"), callback_data='parent_want_to_be_children')
     builder.adjust(1, 1)
@@ -45,7 +45,7 @@ def get_inline_teacher_all_block():
 
 def get_inline_teacher_all_block_referal():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Реферальная ссылка', callback_data='effeefwwefefe',
+    builder.button(text='Стать партнером', callback_data='effeefwwefefe',
                    url=course_referal)
     builder.adjust(1, 1)
     return builder.as_markup()
