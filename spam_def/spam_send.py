@@ -3,7 +3,7 @@ import datetime
 import os
 
 import aioschedule
-from aiogram.types import InputMediaPhoto
+from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
     update_count_send_block_session_pool, get_order_block_progress
@@ -14,8 +14,9 @@ from database.orm_query_media_block import get_videos_id_from_block_session_pool
 from database.orm_query_task import get_task_by_block_id, get_tasks_by_block_id_session_pool
 from database.orm_query_user import get_all_users, update_last_send_block_session_pool, \
     update_users_progress_session_pool, get_user_info_for_mom, check_new_user, check_new_user_session_pool, \
-    update_stop_spam
-from keyboards.admin.inline_admin import get_inline, get_inline_pay_end
+    update_stop_spam, get_user_class_session_pool
+from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
+    get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
 import emoji
 
@@ -48,12 +49,12 @@ async def send_progress_mom(session_pool, bot):
                                                 f"Но мы верим что у него все получится " + "🥰")
                 elif points == 0 and progress > 1:
                     await bot.send_message(chat_id=mom_id,
-                                           text=f"Ваш ребенок большой молодец и уже прошёл {progress-1} блоков\n"
+                                           text=f"Ваш ребенок большой молодец и уже прошёл {progress - 1} блоков\n"
                                                 f"Мы верим что у него все получится " + "🥰")
                 else:
                     await bot.send_message(chat_id=mom_id,
                                            text=f"Ваш ребёнок делает большие успехи!!!\n"
-                                                f"Он заработал {points} очков и уже прошёл {progress-1} блоков\n"
+                                                f"Он заработал {points} очков и уже прошёл {progress - 1} блоков\n"
                                                 f"Мы верим что у него все получится " + "🥰")
             except Exception as e:
                 print("нет")
@@ -69,7 +70,6 @@ async def spam_task(bot, session_pool, engine):
     await asyncio.sleep(5)
 
     while True:
-        # print("Task is running...")
         try:
             await aioschedule.run_pending()
             now_time = datetime.datetime.now()
@@ -82,7 +82,7 @@ async def spam_task(bot, session_pool, engine):
             for user in users:
                 if user[1] == 2 and user[3] == "Родитель" and not (user[4]):
                     continue
-                if user[1] == 3 and user[3] == "Педагог":
+                if user[1] == 3 and user[3] == "Педагог" and not (user[4]):
                     continue
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
@@ -112,13 +112,14 @@ async def send_spam(bot, session_pool, user_id, block_id):
             await send_multi_post(bot, session_pool, user_id=user_id, block_id=block_id, has_tasks=has_tasks,
                                   callback=callback)
             return
+        print(block._data[0].has_media, has_tasks)
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:
                 await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                                        reply_markup=get_inline(callback_data=callback))
             else:
-                await update_users_progress_session_pool(session_pool)
+                await no_task_end_script(bot, session_pool, user_id)
             return
         video_content = await get_videos_id_from_block_session_pool(session_pool, block_id=block_id)
         photo_content = await get_photos_id_from_block_session_pool(session_pool, block_id=block_id)
@@ -140,7 +141,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
             await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                                    reply_markup=get_inline(callback_data=callback))
         else:
-            await update_users_progress_session_pool(session_pool)
+            await no_task_end_script(bot, session_pool, user_id)
 
     except Exception as e:
         await bot.send_message(chat_id=548349299, text=f'Ошибка при попытке подключения к базе данных {e}',
@@ -177,7 +178,31 @@ async def send_multi_post(bot, session_pool, user_id, block_id, has_tasks, callb
                     await bot.send_video(user_id, video=video_id)
 
     if not has_tasks:
-        await update_users_progress_session_pool(session_pool)
+        await no_task_end_script(bot, session_pool, user_id)
+        return
     await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
                            reply_markup=get_inline(callback_data=callback))
     await update_count_send_block_session_pool(session_pool, block_id=block_id)
+
+
+async def no_task_end_script(bot, session_pool, user_id):
+    user_class = await get_user_class_session_pool(session_pool, user_id=user_id)
+    if user_class[0] == "Ребёнок":
+        await bot.send_message(chat_id=user_id,
+                               text=f"Поздравляю!\n"
+                                    f"Ты прошел начальный уровень квеста!\n"
+                                    f"Пройди все уровни и стань героем эмоций",
+                               reply_markup=ReplyKeyboardRemove())
+    elif user_class[0] == "Родитель":
+        await bot.send_message(chat_id=user_id,
+                               text=f"Поздравляю!\n"
+                                    f"Ты прошел начальный уровень квеста!\n"
+                                    f"Вы также можете оплатить полный курс по ссылке",
+                               reply_markup=get_inline_parent_all_block_pay())
+    else:
+        await bot.send_message(chat_id=user_id,
+                               text=f"Поздравляю!\n"
+                                    f"Ты прошел начальный уровень квеста!\n"
+                                    f"Вы всегда можете стать нашим партнером",
+                               reply_markup=get_inline_teacher_all_block_referal())
+    await update_users_progress_session_pool(session_pool)

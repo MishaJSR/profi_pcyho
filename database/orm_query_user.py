@@ -157,6 +157,12 @@ async def get_user_info_for_mom(session_pool, **kwargs):
     return result.fetchall()
 
 
+async def get_user_class_session_pool(session_pool, **kwargs):
+    query = select(Users.user_class).where(Users.user_id == kwargs.get("user_id"))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchone()
+
 async def update_last_send_block_session_pool(session_pool, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         id_last_block_send=kwargs.get("block_id"))

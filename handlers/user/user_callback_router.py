@@ -17,7 +17,7 @@ from database.orm_query_user import update_user_progress, update_user_points, ge
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline, get_inline_test, get_inline_is_like, \
-    get_inline_pay, get_inline_parent_all_block_pay
+    get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb, answer_kb, send_contact_kb, send_name_user_kb
 
 user_callback_router = Router()
@@ -52,6 +52,12 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 
 @user_callback_router.callback_query(lambda call: call.data == "pay")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer("Ссылка на оплату", reply_markup=get_inline_pay())
+
+
+@user_callback_router.callback_query(lambda call: call.data == "referal_teacher")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
     await call.message.answer("Ссылка на оплату", reply_markup=get_inline_pay())
@@ -173,7 +179,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                  answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
                                  is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
-        await message.answer("Все задания пройдены", reply_markup=start_kb())
+        await message.answer("Все задания пройдены")
         await update_user_progress(session, user_id=message.from_user.id)
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         if user_class != "Ребёнок" and not user_become:
@@ -182,16 +188,19 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
-            if user_become:
+            if user_become and user_class == "Родитель":
                 await message.answer(
-                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
+                reply_markup=ReplyKeyboardRemove())
                 await message.answer("Вы можете оплатить полный курс по ссылке",
                                      reply_markup=get_inline_parent_all_block_pay())
                 return
             if user_class == "Педагог":
                 await message.answer(
-                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
-                await message.answer("Ссылка для педагога")
+                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
+                reply_markup=ReplyKeyboardRemove())
+                await message.answer("Вы всегда можете стать нашим партнером",
+                                     reply_markup=get_inline_teacher_all_block_referal())
                 return
             await message.answer("Ссылка для ребенка")
             await message.answer(

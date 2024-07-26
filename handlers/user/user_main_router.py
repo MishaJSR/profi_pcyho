@@ -1,6 +1,7 @@
 import datetime
 import logging
 
+import emoji
 from aiogram.filters import Command, StateFilter, CommandStart
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
@@ -15,7 +16,7 @@ from database.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
-    get_inline_parent_all_block_pay
+    get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission, \
     send_name_user_kb
 from middlewares.throttling import throttled, ThrottlingMiddleware
@@ -93,8 +94,11 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if user_class == "Родитель" and not user_become:
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
         return
-    if user_class == "Педагог":
-        await message.answer("ссылка для педагога")
+    if user_class == "Педагог" and not user_become:
+        await message.answer("Вы также можете стать нашим партнером", reply_markup=get_inline_teacher_all_block())
+        return
+    if user_class == "Педагог" and user_become:
+        await message.answer("Вы всегда можете стать нашим партнером", reply_markup=get_inline_teacher_all_block_referal())
         return
     if user_class == "Родитель" and user_become:
         await message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block_pay())
@@ -107,10 +111,11 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await update_user_callback(session, user_id=call.from_user.id, user_callback=data)
     await call.answer("Спасибо за ответ!")
-    await call.message.answer("Спасибо за ответ!", reply_markup=ReplyKeyboardRemove())
+    await call.message.answer("Спасибо за ответ! " + emoji.emojize('🤗'), reply_markup=ReplyKeyboardRemove())
     user_class = await get_user_class(session, user_id=call.from_user.id)
     if user_class[0] == "Педагог":
-        await call.message.answer("Ссылка для педагога")
+        await call.message.answer("Вы всегда можете стать нашим партнером",
+                                  reply_markup=get_inline_teacher_all_block())
     else:
         await call.message.answer("Вы можете оплатить полный курс по ссылке",
                                   reply_markup=get_inline_parent_all_block())
@@ -151,20 +156,20 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         if user_become:
             await message.answer(
-                f"Поздравляю!\nТы прошел начальный уровень квеста!\n")
-            await message.answer("Скрипт для родителя")
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
             await message.answer("Вы можете оплатить полный курс по ссылке",
                                  reply_markup=get_inline_parent_all_block_pay())
             return
         if user_class == "Педагог":
             await message.answer(
-                f"Поздравляю!\nТы прошел начальный уровень квеста!\n")
-            await message.answer("Скрипт для педагога")
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
+            await message.answer("Вы всегда можете стать нашим партнером",
+                                 reply_markup=get_inline_teacher_all_block_referal())
             return
         else:
             await message.answer(
-                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
-            await message.answer("Скрипт для ребёнка")
+                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
+                reply_markup=ReplyKeyboardRemove())
 
 
 @user_private_router.message(UserRegistrationState.start, F.text)

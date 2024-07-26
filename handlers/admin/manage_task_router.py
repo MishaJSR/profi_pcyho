@@ -334,7 +334,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         res = await get_task_for_delete(session, task_id=AdminManageTaskState.block_id)
         AdminManageTaskState.task_list = {}
         for task in res:
-            AdminManageTaskState.task_list[task._data[0].id] = task._data[0].description[:25]
+            AdminManageTaskState.task_list[task._data[0].id] = task._data[0].description[:19]
         await message.answer(f'Выберите задание для удаления',
                              reply_markup=list_task_to_delete(list(AdminManageTaskState.task_list.values())))
         await state.set_state(AdminManageTaskState.block_delete)
@@ -344,10 +344,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 @admin_add_task_router.message(AdminManageTaskState.block_delete, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    id_task_to_delete = get_key_by_value(AdminManageTaskState.task_list, message.text[:25])
+    id_task_to_delete = get_key_by_value(AdminManageTaskState.task_list, message.text[:20])
     if not id_task_to_delete:
         await message.answer("Ошибка ввода", reply_markup=start_kb())
         await state.set_state(AdminManageTaskState.start)
+        return
     try:
         res = await delete_task(session, task_id=id_task_to_delete)
         await message.answer("Задание успешно удалено", reply_markup=start_kb())
