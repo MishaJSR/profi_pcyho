@@ -53,9 +53,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         df.rename(columns={'user_id': 'ID пользователя', 'username': 'Имя',
                            'phone_number': 'Телефон', 'user_class': 'Принадлежность',
                            'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
-                           'user_become_children': 'Родитель прошел полный курс'}, inplace=True)
-        df.replace(True, 'Да', inplace=True)
-        df.replace(False, 'Нет', inplace=True)
+                           'user_become_children': 'Прошел полный курс',
+                           'user_callback': 'Отзыв'}, inplace=True)
+        df.replace("no", 'Негатив', inplace=True)
+        df.replace("yes", 'Позитив', inplace=True)
+        df.replace("skip", 'Пропустил', inplace=True)
         df.to_excel(name)
         file = FSInputFile(name)
         await message.answer_document(file)
@@ -74,9 +76,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         df.rename(columns={'user_id': 'ID пользователя', 'username': 'Имя',
                            'phone_number': 'Телефон', 'user_class': 'Принадлежность',
                            'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
-                           'user_become_children': 'Родитель прошел полный курс'}, inplace=True)
-        df.replace(True, 'Да', inplace=True)
-        df.replace(False, 'Нет', inplace=True)
+                           'user_become_children': 'Прошел полный курс',
+                           'user_callback': 'Отзыв'}, inplace=True)
+        df.replace("no", 'Негатив', inplace=True)
+        df.replace("yes", 'Позитив', inplace=True)
+        df.replace("skip", 'Пропустил', inplace=True)
         df.to_excel(name)
         file = FSInputFile(name)
         await message.answer_document(file)
@@ -95,9 +99,13 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         df.rename(columns={'user_id': 'ID пользователя', 'username': 'Имя',
                            'phone_number': 'Телефон', 'user_class': 'Принадлежность',
                            'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
-                           'user_become_children': 'Родитель прошел полный курс'}, inplace=True)
+                           'user_become_children': 'Прошел полный курс',
+                           'user_callback': 'Отзыв'}, inplace=True)
         df.replace(True, 'Да', inplace=True)
         df.replace(False, 'Нет', inplace=True)
+        df.replace("no", 'Негатив', inplace=True)
+        df.replace("yes", 'Позитив', inplace=True)
+        df.replace("skip", 'Пропустил', inplace=True)
         df.to_excel(name)
 
         file = FSInputFile(name)
