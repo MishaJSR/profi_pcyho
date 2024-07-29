@@ -171,7 +171,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 
 @admin_manage_sender_router.message(StateFilter(AdminStateSpammer.prepare_to_load_img),
-                                    F.text == "Подготовить вебинар к рассылке")
+                                    F.text == "Подготовить спам к рассылке")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
         if not AdminStateSpammer.media:

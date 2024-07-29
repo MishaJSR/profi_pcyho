@@ -17,56 +17,59 @@ from database.orm_query_user import get_all_users, update_last_send_block_sessio
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
+from utils.message_constant import you_should_be_partner
 
 
-async def send_progress_mom(session_pool, bot):
-    try:
-        data = await get_user_info_for_mom(session_pool)
-        blocks = await get_order_block_progress(session_pool)
-        max_progress = blocks[-1][0]
-        for child in data:
-            parent_id, progress, points = child
-            try:
-                res = await check_new_user_session_pool(session_pool, user_id=parent_id)
+async def send_progress_mom(bot, session_pool):
+    await asyncio.sleep(5)
+    while True:
+        try:
+            data = await get_user_info_for_mom(session_pool)
+            blocks = await get_order_block_progress(session_pool)
+            max_progress = blocks[-1][0]
+            for child in data:
+                parent_id, progress, points = child
+                try:
+                    res = await check_new_user_session_pool(session_pool, user_id=parent_id)
 
-                mom_id, stop_spam = res[0], res[1]
-                if stop_spam:
-                    return
-                if progress == (max_progress + 1):
-                    await bot.send_message(chat_id=mom_id,
-                                           text=f"Поздравляю!!! Ваш ребенок прошел весь курс\n"
-                                                f"На этом его бесплатное обучение завершено\n"
-                                                f"Вы можете попробовать для ребёнка наш полный курс",
-                                           reply_markup=get_inline_pay_end())
-                    await update_stop_spam(session_pool, user_id=mom_id)
-                elif progress < 2:
-                    await bot.send_message(chat_id=mom_id,
-                                           text=f"Ваш ребенок пока еще не проходил уроки\n"
-                                                f"Но мы верим что у него все получится " + "🥰")
-                elif points == 0 and progress > 1:
-                    await bot.send_message(chat_id=mom_id,
-                                           text=f"Ваш ребенок большой молодец и уже прошёл {progress - 1} блоков\n"
-                                                f"Мы верим что у него все получится " + "🥰")
-                else:
-                    await bot.send_message(chat_id=mom_id,
-                                           text=f"Ваш ребёнок делает большие успехи!!!\n"
-                                                f"Он заработал {points} очков и уже прошёл {progress - 1} блоков\n"
-                                                f"Мы верим что у него все получится " + "🥰")
-            except Exception as e:
-                print("нет")
-    except Exception as e:
-        pass
-    finally:
-        await asyncio.sleep(60)
+                    mom_id, stop_spam = res[0], res[1]
+                    if stop_spam:
+                        return
+                    if progress == (max_progress + 1):
+                        await bot.send_message(chat_id=mom_id,
+                                               text=f"Поздравляю!!! Ваш ребенок прошел весь курс\n"
+                                                    f"На этом его бесплатное обучение завершено\n"
+                                                    f"Вы можете попробовать для ребёнка наш полный курс",
+                                               reply_markup=get_inline_pay_end())
+                        await update_stop_spam(session_pool, user_id=mom_id)
+                    elif progress < 2:
+                        await bot.send_message(chat_id=mom_id,
+                                               text=f"Ваш ребенок пока еще не проходил уроки\n"
+                                                    f"Но мы верим что у него все получится " + "🥰")
+                    elif points == 0 and progress > 1:
+                        await bot.send_message(chat_id=mom_id,
+                                               text=f"Ваш ребенок большой молодец и уже прошёл {progress - 1} блоков\n"
+                                                    f"Мы верим что у него все получится " + "🥰")
+                    else:
+                        await bot.send_message(chat_id=mom_id,
+                                               text=f"Ваш ребёнок делает большие успехи!!!\n"
+                                                    f"Он заработал {points} очков и уже прошёл {progress - 1} блоков\n"
+                                                    f"Мы верим что у него все получится " + "🥰")
+                except Exception as e:
+                    print("нет")
+        except Exception as e:
+            pass
+        finally:
+            await asyncio.sleep(60)
 
 
 async def spam_task(bot, session_pool, engine):
-    aioschedule.every().day.at("12:00").do(send_progress_mom, session_pool=session_pool, bot=bot)
+    #aioschedule.every().day.at("12:00").do(send_progress_mom, session_pool=session_pool, bot=bot)
     await asyncio.sleep(5)
 
     while True:
         try:
-            await aioschedule.run_pending()
+            #await aioschedule.run_pending()
             now_time = datetime.datetime.now()
             block_to_send = {}
             users = await get_all_users(session_pool)
@@ -197,6 +200,6 @@ async def no_task_end_script(bot, session_pool, user_id):
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
                                     f"Ты прошел начальный уровень квеста!\n"
-                                    f"Вы всегда можете стать нашим партнером",
+                                    f"{you_should_be_partner}",
                                reply_markup=get_inline_teacher_all_block_referal())
     await update_users_progress_session_pool(session_pool)

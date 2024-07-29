@@ -15,15 +15,10 @@ from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_test, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb, send_contact_kb
+from utils.message_constant import file_id, text_for_media, pay_to_link, you_should_be_partner, congratulations, \
+    get_phone
 
 user_callback_router = Router()
-
-file_id = "AgACAgIAAxkBAAJOPmah-D_XBkFY2P7AaEp7OVywR3kdAAIv3DEbZhkRSS8pzku-aKmkAQADAgADeAADNQQ"
-text_for_media = f"Поздравляю, урок позади!\n" \
-                 f"Теперь пришло время попрактиковаться и ответить на несколько увлекательных вопросов 🤔\n\n" \
-                 f"Покажите, что вы освоили урок и готовы к новым знаниям. 🚀\n\n" \
-                 f"Вопросы ниже 👇\n" \
-                 f"В ответ пишите цифры правильных ответов."
 
 
 class UserCallbackState(StatesGroup):
@@ -64,12 +59,11 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     is_become = await check_user_become_children(session, user_id=call.from_user.id)
     if is_become[0]:
-        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+        await call.message.answer(pay_to_link,
                                   reply_markup=get_inline_parent_all_block_pay())
     else:
-        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+        await call.message.answer(pay_to_link,
                                   reply_markup=get_inline_parent_all_block())
-
 
 
 @user_callback_router.callback_query(lambda call: call.data == "parent_registration")
@@ -82,8 +76,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await add_user(session, user_id=call.from_user.id,
                        username=call.from_user.full_name,
                        user_class="Родитель")
-        await call.message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
-                                  reply_markup=send_contact_kb())
+        await call.message.answer(get_phone, reply_markup=send_contact_kb())
         await call.answer("Начало регистрации")
         await state.set_state(UserRegistrationState.parent)
 
@@ -185,22 +178,16 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
             if user_become and user_class == "Родитель":
-                await message.answer(
-                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
-                reply_markup=ReplyKeyboardRemove())
-                await message.answer("Вы можете оплатить полный курс по ссылке",
-                                     reply_markup=get_inline_parent_all_block_pay())
+                await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
+                await message.answer(pay_to_link, reply_markup=get_inline_parent_all_block_pay())
                 return
             if user_class == "Педагог":
-                await message.answer(
-                    f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
-                reply_markup=ReplyKeyboardRemove())
-                await message.answer("Вы всегда можете стать нашим партнером",
+                await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
+                await message.answer(you_should_be_partner,
                                      reply_markup=get_inline_teacher_all_block_referal())
                 return
             await message.answer("Ссылка для ребенка")
-            await message.answer(
-                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций")
+            await message.answer(congratulations)
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
@@ -208,8 +195,6 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         await prepare_image_task(message, state, session)
     else:
         await prepare_test_tasks(message, state, session)
-
-
 
 
 async def prepare_test_tasks(message, state, session):

@@ -20,6 +20,7 @@ from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_al
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission, \
     send_name_user_kb
 from middlewares.throttling import throttled, ThrottlingMiddleware
+from utils.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
@@ -83,8 +84,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await state.set_state(UserState.start_user)
         return
     if not is_sub:
-        await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
-                             reply_markup=send_contact_kb())
+        await message.answer(get_phone, reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
     if progress == 2 and user_class == "Педагог":
@@ -105,10 +105,10 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer("Вы также можете стать нашим партнером", reply_markup=get_inline_teacher_all_block())
         return
     if user_class == "Педагог" and user_become:
-        await message.answer("Вы всегда можете стать нашим партнером", reply_markup=get_inline_teacher_all_block_referal())
+        await message.answer(you_should_be_partner, reply_markup=get_inline_teacher_all_block_referal())
         return
     if user_class == "Родитель" and user_become:
-        await message.answer("Вы можете оплатить полный курс по ссылке", reply_markup=get_inline_parent_all_block_pay())
+        await message.answer(pay_to_link, reply_markup=get_inline_parent_all_block_pay())
         return
 
 
@@ -121,10 +121,10 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.answer("Спасибо за ответ! " + emoji.emojize('🤗'), reply_markup=ReplyKeyboardRemove())
     user_class = await get_user_class(session, user_id=call.from_user.id)
     if user_class[0] == "Педагог":
-        await call.message.answer("Вы всегда можете стать нашим партнером",
+        await call.message.answer(you_should_be_partner,
                                   reply_markup=get_inline_teacher_all_block())
     else:
-        await call.message.answer("Вы можете оплатить полный курс по ссылке",
+        await call.message.answer(pay_to_link,
                                   reply_markup=get_inline_parent_all_block())
 
 
@@ -164,19 +164,16 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if user_become:
             await message.answer(
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
-            await message.answer("Вы можете оплатить полный курс по ссылке",
+            await message.answer(pay_to_link,
                                  reply_markup=get_inline_parent_all_block_pay())
             return
         if user_class == "Педагог":
             await message.answer(
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
-            await message.answer("Вы всегда можете стать нашим партнером",
-                                 reply_markup=get_inline_teacher_all_block_referal())
+            await message.answer(you_should_be_partner, reply_markup=get_inline_teacher_all_block_referal())
             return
         else:
-            await message.answer(
-                f"Поздравляю!\nТы прошел начальный уровень квеста!\nПройди все уровни и стань героем эмоций",
-                reply_markup=ReplyKeyboardRemove())
+            await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
 
 
 @user_private_router.message(UserRegistrationState.start, F.text)
@@ -200,15 +197,13 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
                            user_class=message.text)
-            await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
-                                 reply_markup=send_contact_kb())
+            await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
         else:
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
                            user_class=message.text, progress=2)
-            await message.answer("Мы будем очень рады, если вы оставите нам свой номер телефона",
-                                 reply_markup=send_contact_kb())
+            await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
     except Exception as e:
         await message.answer("Ошибка регистрации")
