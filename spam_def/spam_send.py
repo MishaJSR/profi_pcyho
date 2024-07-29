@@ -60,7 +60,7 @@ async def send_progress_mom(bot, session_pool):
         except Exception as e:
             pass
         finally:
-            await asyncio.sleep(60)
+            await asyncio.sleep(216000)
 
 
 async def spam_task(bot, session_pool, engine):
