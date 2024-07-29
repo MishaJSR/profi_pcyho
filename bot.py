@@ -10,13 +10,13 @@ import betterlogging as bl
 
 from database.config import load_config
 
-from spam_def.spam_send import spam_task, send_progress_mom
+from utils.spam_def.spam_send import spam_task, send_progress_mom
 
 load_dotenv(find_dotenv())
 
 from handlers.user.user_main_router import user_private_router
 from handlers.admin.admin_main_router import admin_private_router
-from common.bot_cmd_list import private
+from utils.common.bot_cmd_list import private
 from middlewares.db import DataBaseSession
 from database.engine import create_engine, create_session_pool
 

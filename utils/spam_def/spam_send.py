@@ -1,7 +1,6 @@
 import asyncio
 import datetime
 
-import aioschedule
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 
 from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
@@ -17,7 +16,7 @@ from database.orm_query_user import get_all_users, update_last_send_block_sessio
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
-from utils.message_constant import you_should_be_partner
+from utils.common.message_constant import you_should_be_partner
 
 
 async def send_progress_mom(bot, session_pool):

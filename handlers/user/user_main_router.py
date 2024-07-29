@@ -17,10 +17,8 @@ from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
     get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal
-from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission, \
-    send_name_user_kb
-from middlewares.throttling import throttled, ThrottlingMiddleware
-from utils.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone
+from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission
+from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
