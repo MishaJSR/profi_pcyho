@@ -55,6 +55,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
                            'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
                            'user_become_children': 'Прошел полный курс',
                            'user_callback': 'Отзыв'}, inplace=True)
+        df.replace(True, 'Да', inplace=True)
+        df.replace(False, 'Нет', inplace=True)
         df.replace("no", 'Негатив', inplace=True)
         df.replace("yes", 'Позитив', inplace=True)
         df.replace("skip", 'Пропустил', inplace=True)
@@ -78,6 +80,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
                            'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
                            'user_become_children': 'Прошел полный курс',
                            'user_callback': 'Отзыв'}, inplace=True)
+        df.replace(True, 'Да', inplace=True)
+        df.replace(False, 'Нет', inplace=True)
         df.replace("no", 'Негатив', inplace=True)
         df.replace("yes", 'Позитив', inplace=True)
         df.replace("skip", 'Пропустил', inplace=True)
