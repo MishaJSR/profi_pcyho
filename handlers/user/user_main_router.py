@@ -13,6 +13,7 @@ from database.orm_query_user import check_new_user, add_user, update_parent_id, 
     update_user_block_bot_session_pool
 from database.orm_query_block import get_time_next_block
 from database.orm_query_user import get_progress_by_user_id, get_user_points
+from handlers.user.state import UserState
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
@@ -24,18 +25,7 @@ user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
 
 
-class UserState(StatesGroup):
-    start_user = State()
-    payment_user = State()
-    user_task = State()
-    user_callback = State()
-    data = {
-        'subj': None,
-        'module': None,
-        'under_prepare': [],
-        'under_prepare_choose': None,
-        'prepare': None,
-    }
+
 
 
 @user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
@@ -204,6 +194,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
     except Exception as e:
+        print(e)
         await message.answer("Ошибка регистрации")
 
 

@@ -10,6 +10,7 @@ from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, get_progress_by_user_id, update_user_become, add_user, check_user_subscribe_new_user, \
     check_user_become_children
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
+from handlers.user.state import UserState
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_test, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal
@@ -158,6 +159,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer(f"Поздравляю Вы заработали {UserCallbackState.now_task.points_for_task} очков")
         await update_user_points(session, user_id=message.from_user.id,
                                  points=UserCallbackState.now_task.points_for_task)
+    await state.set_state(UserState.start_user)
     await update_user_task_progress_and_go_to_next(message, session, state, is_pass)
 
 
