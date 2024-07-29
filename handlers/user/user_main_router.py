@@ -1,5 +1,4 @@
 import datetime
-import logging
 
 import emoji
 from aiogram.filters import Command, StateFilter, CommandStart, ChatMemberUpdatedFilter, KICKED

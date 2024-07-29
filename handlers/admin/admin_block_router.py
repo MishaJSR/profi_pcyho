@@ -3,7 +3,7 @@ from aiogram.filters import StateFilter
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 
-from aiogram.types import InputMediaPhoto, CallbackQuery, ReplyKeyboardRemove
+from aiogram.types import InputMediaPhoto, CallbackQuery
 from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -12,14 +12,12 @@ from database.orm_query_block import add_block, delete_block, get_order_block, \
 from database.orm_query_block_pool import add_block_pool
 from database.orm_query_block_pool_media import add_block_pool_media
 from database.orm_query_media_block import add_media
-from keyboards.admin.inline_admin import get_inline
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
     block_actions, block_pool_kb, back_kb
 from handlers.admin.states import AdminManageBlockState
 import logging
 import uuid
 import datetime
-import pandas as pd
 
 admin_block_router = Router()
 

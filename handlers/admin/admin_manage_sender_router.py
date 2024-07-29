@@ -15,7 +15,7 @@ from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import get_all_users_id, get_all_users_id_progress
 from keyboards.admin.inline_admin import get_inline_vebinar
 from keyboards.admin.reply_admin import start_kb, spam_actions_kb, block_pool_kb, back_kb, send_media_vebinar, \
-    send_media_kb, send_media_kb_veb, send_media_check_kb, send_spam, reset_kb
+    send_media_kb_veb, send_spam, reset_kb
 from handlers.admin.states import AdminStateSpammer
 
 admin_manage_sender_router = Router()

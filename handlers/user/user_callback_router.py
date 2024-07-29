@@ -1,24 +1,20 @@
-from datetime import datetime
-
 from aiogram import types, Router, F
-from aiogram.filters import callback_data
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import get_block_id_by_callback, get_time_next_block, \
-    get_block_id_by_progress
+from database.orm_query_block import get_block_id_by_callback, get_block_id_by_progress
 from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, update_user_callback, \
-    get_progress_by_user_id, update_user_become, add_user, check_user_subscribe, check_user_subscribe_new_user, \
+    get_progress_by_user_id, update_user_become, add_user, check_user_subscribe_new_user, \
     check_user_become_children
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline, get_inline_test, get_inline_is_like, \
+from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_test, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal
-from keyboards.user.reply_user import start_kb, answer_kb, send_contact_kb, send_name_user_kb
+from keyboards.user.reply_user import start_kb, send_contact_kb
 
 user_callback_router = Router()
 

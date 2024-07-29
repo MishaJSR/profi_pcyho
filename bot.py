@@ -1,7 +1,5 @@
 import logging
-import os
 import asyncio
-import schedule
 
 from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.memory import MemoryStorage
@@ -11,7 +9,6 @@ from dotenv import find_dotenv, load_dotenv
 import betterlogging as bl
 
 from database.config import load_config
-from middlewares.throttling import ThrottlingMiddleware
 
 from spam_def.spam_send import spam_task
 

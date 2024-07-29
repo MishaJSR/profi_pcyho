@@ -3,7 +3,6 @@ from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from dotenv import find_dotenv, load_dotenv
 
-from database.orm_query_user_task_progress import delete_all_user_progress
 from filters.admin_filter import AdminFilter
 from handlers.admin.admin_excel_loader_router import admin_excel_loader_router
 from handlers.admin.admin_manage_sender_router import admin_manage_sender_router
@@ -23,7 +22,7 @@ load_dotenv(find_dotenv())
 
 @admin_private_router.message(Command('admin'))
 async def fill_admin_state(message: types.Message, state: FSMContext):
-    await message.answer(text='Привет админ', reply_markup=start_kb())
+    await message.answer(text="Привет админ\n", reply_markup=start_kb())
     await state.set_state(AdminManageTaskState.start)
 
 

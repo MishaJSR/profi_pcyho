@@ -1,7 +1,5 @@
 from aiogram.fsm.state import StatesGroup, State
-from keyboards.admin.reply_admin import start_kb, back_kb, reset_kb, block_actions, send_media_kb, send_media_check_kb, \
-    block_pool_kb, \
-    test_actions, type_task_kb, spam_actions_kb
+from keyboards.admin.reply_admin import spam_actions_kb
 
 
 class UserRegistrationState(StatesGroup):

@@ -1,4 +1,3 @@
-import emoji
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext

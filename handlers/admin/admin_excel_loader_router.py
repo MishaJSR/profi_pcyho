@@ -1,16 +1,11 @@
-import asyncio
-import time
-
-import emoji
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import InputMediaPhoto, InputFile, FSInputFile
+from aiogram.types import FSInputFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_user import get_users_for_excel_parents, get_users_for_excel_teacher, \
-    get_users_for_excel_all
+from database.orm_query_user import get_users_for_excel_parents, get_users_for_excel_teacher, get_users_for_excel_all
 from handlers.admin.states import AdminStateSpammer
 from keyboards.admin.reply_admin import spam_actions_kb, excel_actions, excel_actions_kb, start_kb
 
