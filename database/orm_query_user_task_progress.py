@@ -26,7 +26,7 @@ async def get_task_progress_by_user_id(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
-async def delete_all_user_progress(session):
-    query = delete(UsersTaskProgress)
+async def delete_all_user_progress(session, **kwargs):
+    query = delete(UsersTaskProgress).where(UsersTaskProgress.user_id == kwargs.get("user_id"))
     await session.execute(query)
     await session.commit()

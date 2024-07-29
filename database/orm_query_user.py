@@ -217,7 +217,5 @@ async def get_users_for_excel_teacher(session, **kwargs):
 
 async def delete_me_user(session, **kwargs):
     query1 = delete(Users).where(Users.user_id == kwargs.get("user_id"))
-    query2 = delete(UsersTaskProgress).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query1)
-    result2 = await session.execute(query2)
     await session.commit()
