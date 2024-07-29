@@ -1,6 +1,5 @@
 from database.models import Users
-from sqlalchemy import select, update, delete
-import pandas as pd
+from sqlalchemy import select, update
 
 
 async def check_new_user(session, user_id: int):
@@ -8,8 +7,9 @@ async def check_new_user(session, user_id: int):
     result = await session.execute(query)
     return result.all()
 
+
 async def check_new_user_session_pool(session_pool, user_id: int):
-    query = select(Users.user_id, Users.stop_spam).where(Users.user_id == user_id)
+    query = select(Users.user_id, Users.stop_spam).where((Users.user_id == user_id) and (Users.user_block_bot == False))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchone()
@@ -64,11 +64,13 @@ async def update_user_progress(session, **kwargs):
     await session.execute(query)
     await session.commit()
 
+
 async def update_user_become(session, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         user_become_children=True)
     await session.execute(query)
     await session.commit()
+
 
 async def update_user_phone(session, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
@@ -82,7 +84,6 @@ async def update_user_subscribe(session, **kwargs):
         is_subscribe=True)
     await session.execute(query)
     await session.commit()
-
 
 
 async def update_users_progress_session_pool(session_pool, **kwargs):
@@ -139,7 +140,8 @@ async def get_user_class(session, **kwargs):
 
 
 async def check_user_subscribe(session, **kwargs):
-    query = select(Users.is_subscribe, Users.progress, Users.user_class, Users.user_callback, Users.user_become_children,
+    query = select(Users.is_subscribe, Users.progress, Users.user_class, Users.user_callback,
+                   Users.user_become_children,
                    Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
@@ -150,14 +152,17 @@ async def check_user_become_children(session, **kwargs):
     result = await session.execute(query)
     return result.fetchone()
 
+
 async def check_user_subscribe_new_user(session, **kwargs):
     query = select(Users.is_subscribe, Users.user_class, Users.user_callback, Users.phone_number,
                    Users.name_of_user).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
 
+
 async def get_user_info_for_mom(session_pool, **kwargs):
-    query = select(Users.parent_id, Users.progress, Users.points).where((Users.user_class == "Ребёнок") and (Users.is_subscribe == True))
+    query = select(Users.parent_id, Users.progress, Users.points).where(
+        (Users.user_class == "Ребёнок") and (Users.is_subscribe == True))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
@@ -168,6 +173,7 @@ async def get_user_class_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchone()
+
 
 async def update_last_send_block_session_pool(session_pool, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
@@ -192,12 +198,14 @@ async def get_users_for_excel_all(session, **kwargs):
     result = await session.execute(query)
     return result.all()
 
+
 async def get_users_for_excel_parents(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children).where(Users.user_class == "Родитель")
     result = await session.execute(query)
     return result.all()
+
 
 async def get_users_for_excel_teacher(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
