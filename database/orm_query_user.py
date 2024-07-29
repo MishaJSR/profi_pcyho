@@ -38,7 +38,7 @@ async def get_all_users_id(session, **kwargs):
 
 
 async def get_all_users_id_progress(session, **kwargs):
-    query = select(Users.user_id, Users.progress)
+    query = select(Users.user_id, Users.progress).where(Users.user_block_bot == False)
     result = await session.execute(query)
     return result.fetchall()
 

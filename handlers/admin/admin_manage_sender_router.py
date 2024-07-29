@@ -114,29 +114,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.spam_actions)
         return
 
-
-@admin_manage_sender_router.message(F.text == 'Отправить спам')
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer("Напишите тест для рассылки всем пользователям",
-                         reply_markup=back_kb())
-    await state.set_state(AdminStateSpammer.set_text_spam)
-
-
-@admin_manage_sender_router.message(AdminStateSpammer.set_text_spam, F.text)
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    try:
-        await message.answer("Начало рассылки")
-        users = await get_all_users_id(session)
-        for user in users:
-            await message.bot.send_message(chat_id=user._data[0], text=message.text)
-        await message.answer("Рассылка завершена", reply_markup=start_kb())
-
-    except Exception as e:
-        await message.answer('Ошибка при попытке подключения к базе данных', reply_markup=start_kb())
-        await state.set_state(AdminStateSpammer.spam_actions)
-        return
-
-
 @admin_manage_sender_router.message(AdminStateSpammer.choose_block, F.text)
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
@@ -155,7 +132,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
 
 
-@admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Выслать вебинар')
+@admin_manage_sender_router.message(StateFilter(AdminStateSpammer), F.text == 'Отправить спам')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
     AdminStateSpammer.discription_vebinar = None
     await message.answer("Введите описание рассылки", reply_markup=back_kb())
@@ -211,33 +188,16 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
 
 @admin_manage_sender_router.message(AdminStateSpammer.set_veb_vebinar, F.text == "Подтвердить")
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer("Отправьте ссылку на вебинар", reply_markup=back_kb())
-    await state.set_state(AdminStateSpammer.send_vebinar)
-
-
-@admin_manage_sender_router.message(AdminStateSpammer.send_vebinar, F.text)
-async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    is_url = validators.url(message.text)
-    if not is_url:
-        await message.answer("Ссылка не действительна", reply_markup=back_kb())
-        await message.answer("Попробуйте заново")
-        return
-    AdminStateSpammer.web_vebinar = message.text
     count_send = 0
     try:
         await message.answer("Начало рассылки")
-        next_block_progress = await get_next_block_progress(session)
         users = await get_all_users_id_progress(session)
         for user in users:
-            if user[1] == next_block_progress[0]:
-                if AdminStateSpammer.media:
-                    await message.bot.send_media_group(chat_id=user._data[0], media=AdminStateSpammer.media)
-                    await message.bot.send_message(chat_id=user._data[0], text="Вебинар",
-                                                   reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
-                else:
-                    await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar,
-                                                   reply_markup=get_inline_vebinar(AdminStateSpammer.web_vebinar))
-                count_send += 1
+            if AdminStateSpammer.media:
+                await message.bot.send_media_group(chat_id=user._data[0], media=AdminStateSpammer.media)
+            else:
+                await message.bot.send_message(chat_id=user._data[0], text=AdminStateSpammer.discription_vebinar)
+            count_send += 1
         await message.answer(f"Успешная рассылка. Выслано {count_send} пользователям", reply_markup=spam_actions_kb())
         await state.set_state(AdminStateSpammer.spam_actions)
     except Exception as e:
@@ -245,6 +205,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.spam_actions)
         return
     await state.set_state(AdminStateSpammer.start)
+
+
+
 
 
 @admin_manage_sender_router.callback_query(SimpleCalendarCallback.filter(), StateFilter(AdminStateSpammer))

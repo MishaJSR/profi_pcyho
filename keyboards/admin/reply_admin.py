@@ -85,7 +85,7 @@ def send_media_check_kb(data=None):
 def send_media_vebinar(data=None):
     test_kb = ReplyKeyboardBuilder()
     test_kb.button(text='Назад')
-    test_kb.button(text='Подготовить вебинар к рассылке')
+    test_kb.button(text='Подготовить спам к рассылке')
     test_kb.adjust(1, 1)
     return test_kb.as_markup(resize_keyboard=True)
 
