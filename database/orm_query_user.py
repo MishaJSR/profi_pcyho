@@ -1,5 +1,5 @@
-from database.models import Users
-from sqlalchemy import select, update
+from database.models import Users, UsersTaskProgress
+from sqlalchemy import select, update, delete
 
 
 async def check_new_user(session, user_id: int):
@@ -213,3 +213,11 @@ async def get_users_for_excel_teacher(session, **kwargs):
                    Users.user_become_children).where(Users.user_class == "Педагог")
     result = await session.execute(query)
     return result.all()
+
+
+async def delete_me_user(session, **kwargs):
+    query1 = delete(Users).where(Users.user_id == kwargs.get("user_id"))
+    query2 = delete(UsersTaskProgress).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query1)
+    result2 = await session.execute(query2)
+    await session.commit()
