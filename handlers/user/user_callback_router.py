@@ -9,7 +9,7 @@ from database.orm_query_media_task import get_media_task_by_task_id
 from database.orm_query_task import get_task_by_block_id
 from database.orm_query_user import update_user_progress, update_user_points, get_user_class, get_progress_by_user_id, \
     update_user_become, add_user, check_user_subscribe_new_user, \
-    check_user_become_children, get_user_progress
+    check_user_become_children, get_user_progress, get_user_points
 from database.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
 from handlers.user.state import UserState
 from handlers.user.user_states import UserRegistrationState
@@ -157,8 +157,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     is_pass = False
     if answer_user == answer_right:
         is_pass = True
-        await message.answer(f"Поздравляю! Ты получаешь награду - {UserCallbackState.now_task.points_for_task} "
-                             f"е-коинов 💰")
         await update_user_points(session, user_id=message.from_user.id,
                                  points=UserCallbackState.now_task.points_for_task)
     await state.set_state(UserState.start_user)
@@ -175,12 +173,19 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         await message.answer(f" {progress[0]} эпизод пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         if user_class == "Ребёнок":
+            points = await get_user_points(session, user_id=message.from_user.id)
+            await message.answer(f"Поздравляю! На твоем счету - {points[0]} "
+                                 f"е-коинов 💰\n"
+                                 f"Узнай на что можно их потратить\n\n"
+                                 f"https://studio-emotions.ru/")
             await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
             return
         if user_class != "Ребёнок" and not user_become:
             await update_user_progress(session, user_id=message.from_user.id)
             await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
             return
+        if user_class != "Ребёнок":
+            await update_user_progress(session, user_id=message.from_user.id)
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:

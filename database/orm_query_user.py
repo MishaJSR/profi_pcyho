@@ -225,3 +225,9 @@ async def get_user_progress(session, **kwargs):
     query = select(Users.progress).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
+
+
+async def get_user_points(session, **kwargs):
+    query = select(Users.points).where(Users.user_id == kwargs.get("user_id")).where(Users.points > 0)
+    result = await session.execute(query)
+    return result.fetchone()

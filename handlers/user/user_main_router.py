@@ -68,7 +68,9 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session,
                                                                                                         user_id=message.from_user.id)
     if user_class == "Ребёнок":
-        await message.answer(f'С возвращением {message.from_user.full_name}')
+        await message.answer(f'Привет {message.from_user.full_name}!')
+        await message.answer('Урок уже выслан\n'
+                             'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
     if not is_sub:
         await message.answer(get_phone, reply_markup=send_contact_kb())
@@ -209,7 +211,9 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     return
 
 
-@user_private_router.message(StateFilter('*'), Command("points"))
+@user_private_router.message(StateFilter('*'), Command("coins"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     points = await get_user_points(session, user_id=message.from_user.id)
-    await message.answer(f'У Вас на счету: {points[0]} очков')
+    await message.answer(f'У Вас на счету: {points[0]} e-коинов')
+    await message.answer(f"Узнай на что можно их потратить\n\n"
+                                 f"https://studio-emotions.ru/")

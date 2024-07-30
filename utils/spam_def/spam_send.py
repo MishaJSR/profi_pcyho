@@ -193,13 +193,13 @@ async def no_task_end_script(bot, session_pool, user_id):
     elif user_class[0] == "Родитель":
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
-                                    f" Первая глава квеста завершена🔥\n"
+                                    f"Первая глава квеста завершена🔥\n"
                                     f"Вы также можете оплатить полный курс по ссылке",
                                reply_markup=get_inline_parent_all_block_pay())
     else:
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
-                                    f" Первая глава квеста завершена🔥\n"
+                                    f"Первая глава квеста завершена🔥\n"
                                     f"{you_should_be_partner}",
                                reply_markup=get_inline_teacher_all_block_referal())
     await update_users_progress_session_pool(session_pool)
