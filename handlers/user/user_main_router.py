@@ -25,8 +25,16 @@ user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
 
 
+@user_private_router.message(StateFilter('*'), Command("coins"))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    points = await get_user_points(session, user_id=message.from_user.id)
+    await message.answer(f'У Вас на счету: {points[0]} e-коинов 💰')
+    await message.answer(f"Узнай для чего они нужны "
+                         f"/coins_avail")
 
-
+@user_private_router.message(StateFilter('*'), Command("coins_avail"))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    await message.answer(f'Описание коинов')
 
 @user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
 async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):
@@ -34,6 +42,7 @@ async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):
         await update_user_block_bot_session_pool(session, user_id=event.from_user.id)
     except Exception as e:
         pass
+
 
 @user_private_router.message(StateFilter('*'), F.html_text.contains("/start "))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
@@ -209,11 +218,3 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                          reply_markup=ReplyKeyboardRemove())
 
     return
-
-
-@user_private_router.message(StateFilter('*'), Command("coins"))
-async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    points = await get_user_points(session, user_id=message.from_user.id)
-    await message.answer(f'У Вас на счету: {points[0]} e-коинов')
-    await message.answer(f"Узнай на что можно их потратить\n\n"
-                                 f"https://studio-emotions.ru/")

@@ -15,7 +15,9 @@ class Config(BaseModel):
 
     @classmethod
     def load_config(cls):
-        return cls(redis_user=os.getenv(""))
+        return cls(redis_user=os.getenv("REDISUSERNAME"),
+                   redis_host=os.getenv("REDISHOST"),
+                   )
 
 
 configuration = Config.load_config()

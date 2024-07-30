@@ -176,8 +176,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             points = await get_user_points(session, user_id=message.from_user.id)
             await message.answer(f"Поздравляю! На твоем счету - {points[0]} "
                                  f"е-коинов 💰\n"
-                                 f"Узнай на что можно их потратить\n\n"
-                                 f"https://studio-emotions.ru/")
+                                 f"Узнай для чего они нужны "
+                                 f"/coins_avail")
             await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
             return
         if user_class != "Ребёнок" and not user_become:
