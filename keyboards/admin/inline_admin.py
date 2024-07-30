@@ -11,8 +11,10 @@ course_referal = os.getenv('COURSE_REFERAL')
 
 def get_inline(callback_data):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да, мне всё понятно ' + emoji.emojize('🤗'), callback_data=callback_data)
+    builder.button(text='Да 💪', callback_data=callback_data)
+    builder.adjust(1, 1)
     return builder.as_markup()
+
 
 def get_inline_vebinar(url):
     builder = InlineKeyboardBuilder()
@@ -26,11 +28,13 @@ def get_inline_parent():
     builder.button(text='Перейти к регистрации', callback_data='parent_registration')
     return builder.as_markup()
 
+
 def get_inline_parent_all_block():
     builder = InlineKeyboardBuilder()
     builder.button(text='Оплатить', callback_data='effeefwwefefe',
                    url=course_link)
-    builder.button(text='Хочу пройти все бесплатные уроки! ' + emoji.emojize("😋"), callback_data='parent_want_to_be_children')
+    builder.button(text='Хочу пройти все бесплатные уроки! ' + emoji.emojize("😋"),
+                   callback_data='parent_want_to_be_children')
     builder.adjust(1, 1)
     return builder.as_markup()
 
@@ -39,9 +43,11 @@ def get_inline_teacher_all_block():
     builder = InlineKeyboardBuilder()
     builder.button(text='Стать партнером', callback_data='effeefwwefefe',
                    url=course_referal)
-    builder.button(text='Хочу пройти все бесплатные уроки! ' + emoji.emojize("😋"), callback_data='parent_want_to_be_children')
+    builder.button(text='Хочу пройти все бесплатные уроки! ' + emoji.emojize("😋"),
+                   callback_data='parent_want_to_be_children')
     builder.adjust(1, 1)
     return builder.as_markup()
+
 
 def get_inline_teacher_all_block_referal():
     builder = InlineKeyboardBuilder()
@@ -57,6 +63,7 @@ def get_inline_parent_all_block_pay():
                    url=course_link)
     builder.adjust(1, 1)
     return builder.as_markup()
+
 
 def get_inline_test():
     builder = InlineKeyboardBuilder()
@@ -74,6 +81,7 @@ def get_inline_is_like():
     builder.adjust(2, 1)
     return builder.as_markup()
 
+
 def get_inline_pay():
     builder = InlineKeyboardBuilder()
     builder.button(text='Сслыка', callback_data='effeefwwefefe',
@@ -89,8 +97,15 @@ def get_inline_referal():
     builder.button(text='Назад', callback_data='back_from_pay')
     return builder.as_markup()
 
+
 def get_inline_pay_end():
     builder = InlineKeyboardBuilder()
     builder.button(text='Сслыка', callback_data='effeefwwefefe',
                    url=course_link)
+    return builder.as_markup()
+
+
+def get_inline_next_block():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍' , callback_data='next_block_children')
     return builder.as_markup()

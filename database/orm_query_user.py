@@ -219,3 +219,9 @@ async def delete_me_user(session, **kwargs):
     query1 = delete(Users).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query1)
     await session.commit()
+
+
+async def get_user_progress(session, **kwargs):
+    query = select(Users.progress).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
+    return result.fetchone()

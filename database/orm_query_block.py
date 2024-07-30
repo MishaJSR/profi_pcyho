@@ -27,6 +27,8 @@ async def get_block_for_add_task(session: AsyncSession, **kwargs):
     query = select(Block).where((Block.is_visible == True) & (Block.is_vebinar == False)).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
+
+
 #
 
 
@@ -40,7 +42,6 @@ async def get_block_active(session: AsyncSession, **kwargs):
     query = select(Block).where(Block.is_visible == True).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
-
 
 
 async def get_block_id_by_callback(session: AsyncSession, **kwargs):
@@ -58,7 +59,6 @@ async def get_block_session_pool_by_id(session_pool, **kwargs):
     return result.fetchone()
 
 
-
 async def get_block_all_session_pool(session_pool, **kwargs):
     query = select(Block).where(Block.is_visible == True)
     async with session_pool.begin().async_session as session:
@@ -71,7 +71,6 @@ async def get_block_names_all_not_past(session: AsyncSession, **kwargs):
                                            (Block.date_to_post > datetime.datetime.now())).order_by(Block.date_to_post)
     result = await session.execute(query)
     return result.fetchall()
-
 
 
 async def get_order_block(session: AsyncSession, **kwargs):
@@ -103,15 +102,17 @@ async def get_time_next_block(session: AsyncSession, **kwargs):
 
 
 async def get_next_block_progress(session: AsyncSession, **kwargs):
-    query = select(Block.progress_block).where\
+    query = select(Block.progress_block).where \
         (Block.date_to_post >= datetime.datetime.now()).order_by(Block.date_to_post).limit(1)
     result = await session.execute(query)
     return result.fetchone()
+
 
 async def get_date_post_block_by_name(session: AsyncSession, **kwargs):
     query = select(Block.date_to_post).where(Block.block_name == kwargs.get("block_name"))
     result = await session.execute(query)
     return result.fetchone()
+
 
 async def set_date_post_block_by_name(session: AsyncSession, **kwargs):
     query = update(Block).where((Block.is_visible == True) & (Block.block_name == kwargs.get("block_name"))).values(
@@ -135,6 +136,12 @@ async def get_block_by_block_name(session: AsyncSession, **kwargs):
 
 async def get_block_id_by_progress(session: AsyncSession, **kwargs):
     query = select(Block.id).where(Block.progress_block == kwargs.get("progress_block"))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
+async def get_block_progress_by_id(session: AsyncSession, **kwargs):
+    query = select(Block.progress_block).where(Block.id == kwargs.get("block_id"))
     result = await session.execute(query)
     return result.fetchone()
 

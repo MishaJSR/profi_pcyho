@@ -16,7 +16,7 @@ from database.orm_query_user import get_all_users, update_last_send_block_sessio
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
-from utils.common.message_constant import you_should_be_partner
+from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, congratulations
 
 
 async def send_progress_mom(bot, session_pool):
@@ -112,8 +112,10 @@ async def send_spam(bot, session_pool, user_id, block_id):
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:
-                await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
+                await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
+                await bot.send_message(chat_id=user_id, text=ready_to_task,
                                        reply_markup=get_inline(callback_data=callback))
+
             else:
                 await no_task_end_script(bot, session_pool, user_id)
             return
@@ -134,7 +136,8 @@ async def send_spam(bot, session_pool, user_id, block_id):
                 await bot.send_video(user_id, video=video_id)
         await update_count_send_block_session_pool(session_pool, block_id=block_id)
         if has_tasks:
-            await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
+            await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
+            await bot.send_message(chat_id=user_id, text=ready_to_task,
                                    reply_markup=get_inline(callback_data=callback))
         else:
             await no_task_end_script(bot, session_pool, user_id)
@@ -176,7 +179,7 @@ async def send_multi_post(bot, session_pool, user_id, block_id, has_tasks, callb
     if not has_tasks:
         await no_task_end_script(bot, session_pool, user_id)
         return
-    await bot.send_message(chat_id=user_id, text="Ты готов пойти с Хэппи дальше?",
+    await bot.send_message(chat_id=user_id, text=ready_to_task,
                            reply_markup=get_inline(callback_data=callback))
     await update_count_send_block_session_pool(session_pool, block_id=block_id)
 
@@ -185,20 +188,18 @@ async def no_task_end_script(bot, session_pool, user_id):
     user_class = await get_user_class_session_pool(session_pool, user_id=user_id)
     if user_class[0] == "Ребёнок":
         await bot.send_message(chat_id=user_id,
-                               text=f"Поздравляю!\n"
-                                    f"Ты прошел начальный уровень квеста!\n"
-                                    f"Пройди все уровни и стань героем эмоций",
+                               text=congratulations,
                                reply_markup=ReplyKeyboardRemove())
     elif user_class[0] == "Родитель":
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
-                                    f"Ты прошел начальный уровень квеста!\n"
+                                    f" Первая глава квеста завершена🔥\n"
                                     f"Вы также можете оплатить полный курс по ссылке",
                                reply_markup=get_inline_parent_all_block_pay())
     else:
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
-                                    f"Ты прошел начальный уровень квеста!\n"
+                                    f" Первая глава квеста завершена🔥\n"
                                     f"{you_should_be_partner}",
                                reply_markup=get_inline_teacher_all_block_referal())
     await update_users_progress_session_pool(session_pool)

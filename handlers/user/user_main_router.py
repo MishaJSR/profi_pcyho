@@ -68,8 +68,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session,
                                                                                                         user_id=message.from_user.id)
     if user_class == "Ребёнок":
-        await message.answer(f'С возвращением {message.from_user.full_name}', reply_markup=start_kb())
-        await state.set_state(UserState.start_user)
+        await message.answer(f'С возвращением {message.from_user.full_name}')
         return
     if not is_sub:
         await message.answer(get_phone, reply_markup=send_contact_kb())
@@ -175,10 +174,10 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                            username=message.from_user.full_name,
                            user_class=message.text)
             link = f"https://t.me/train_chiildren_psychology_bot?start={message.from_user.id}"
-            await message.answer(f"Для продолжения обучения необходимо разрешение родителя\n"
-                                 f"Если он согласится на твое обучение, Хэппи отправит тебе твой первый урок",
+            await message.answer(f"Для прохождения квеста необходимо разрешение родителя✨\n"
+                                 f"Когда он согласится, Хэппи отправит тебе первое задание🤓",
                                  reply_markup=ReplyKeyboardRemove())
-            await message.answer("Отправь эту ссылку своему родителю")
+            await message.answer("Отправь эту ссылку родителю👇")
             await message.answer(link)
             await state.set_state(UserRegistrationState.children)
         elif message.text == "Родитель":
