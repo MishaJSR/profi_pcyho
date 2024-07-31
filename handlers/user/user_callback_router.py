@@ -130,7 +130,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await update_user_progress(session, user_id=call.from_user.id)
     await call.answer("Идем дальше")
-    await call.message.answer("Хэппи сейчас пришлет тебе новый урок")
+    await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
 
 
 
@@ -179,15 +179,6 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                  f"е-коинов 💰\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
-        if user_class == "Ребёнок":
-            await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
-            return
-        if user_class != "Ребёнок" and not user_become:
-            await update_user_progress(session, user_id=message.from_user.id)
-            await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
-            return
-        if user_class != "Ребёнок":
-            await update_user_progress(session, user_id=message.from_user.id)
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
@@ -202,6 +193,17 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                 await message.answer(f'У вас остались вопросы ❓', reply_markup=questions_kb())
                 return
             await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
+        else:
+            if user_class == "Ребёнок":
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+                return
+            if user_class != "Ребёнок" and not user_become:
+                await update_user_progress(session, user_id=message.from_user.id)
+                await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+                return
+            if user_class != "Ребёнок":
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+                return
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
