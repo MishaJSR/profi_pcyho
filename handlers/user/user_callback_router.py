@@ -209,7 +209,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     else:
         await prepare_test_tasks(message, state, session)
 
-
+#dfsdf
 async def prepare_test_tasks(message, state, session):
     media_group = []
     caption_text = UserCallbackState.now_task.description + "\n\n" + UserCallbackState.now_task.answers + \
