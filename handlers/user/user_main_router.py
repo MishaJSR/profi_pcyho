@@ -19,7 +19,7 @@ from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_al
     get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal, questions_kb
 from keyboards.user.reply_user import send_contact_kb, users_pool_kb, users_pool, parent_permission
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone, \
-    messsage_coints_avail, questions_link
+    message_coints_avail, questions_link
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
@@ -39,7 +39,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
 
 @user_private_router.message(StateFilter('*'), Command("coins_avail"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer(f'{messsage_coints_avail}')
+    await message.answer(f'{message_coints_avail}')
 
 @user_private_router.message(StateFilter('*'), Command("questions"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
