@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 import emoji
 from aiogram.filters import Command, StateFilter, CommandStart, ChatMemberUpdatedFilter, KICKED
@@ -72,6 +73,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             return
     except Exception as e:
         await message.answer("Ошибка подключения")
+        logging.info(e)
 
 
 @user_private_router.message(StateFilter('*'), CommandStart())
