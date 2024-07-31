@@ -77,6 +77,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     except Exception as e:
         await add_user(session, user_id=call.from_user.id,
                        username=call.from_user.full_name,
+                        user_tag=call.from_user.username,
                        user_class="Родитель")
         await call.message.answer(get_phone, reply_markup=send_contact_kb())
         await call.answer("Начало регистрации")

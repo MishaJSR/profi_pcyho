@@ -201,6 +201,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if message.text == "Ребёнок":
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
+                           user_tag=message.from_user.username,
                            user_class=message.text)
             link = f"https://t.me/train_chiildren_psychology_bot?start={message.from_user.id}"
             await message.answer(f"Для прохождения квеста необходимо разрешение родителя✨\n"
@@ -212,12 +213,14 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         elif message.text == "Родитель":
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
+                           user_tag=message.from_user.username,
                            user_class=message.text)
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
         else:
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
+                           user_tag=message.from_user.username,
                            user_class=message.text, progress=1)
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)

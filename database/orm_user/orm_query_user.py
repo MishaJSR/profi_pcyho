@@ -15,14 +15,17 @@ async def check_new_user_session_pool(session_pool, user_id):
     return result.fetchone()
 
 
-async def add_user(session, user_id: int, username: str, user_class: str, is_subscribe=False, parent_id=None,
+async def add_user(session, user_id: int, username: str, user_tag: str, user_class: str, is_subscribe=False, parent_id=None,
                    progress=1):
-    if not username:
-        username = ')'
+    if not user_tag:
+        user_tag = '@'
+    else:
+        user_tag = '@' + user_tag
     obj = Users(
         user_id=user_id,
         username=username,
         user_class=user_class,
+        user_tag = user_tag,
         parent_id=parent_id,
         is_subscribe=is_subscribe,
         progress=progress
@@ -192,7 +195,7 @@ async def update_stop_spam(session_pool, **kwargs):
 
 
 async def get_users_for_excel_all(session, **kwargs):
-    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+    query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
                    Users.points)
@@ -201,7 +204,7 @@ async def get_users_for_excel_all(session, **kwargs):
 
 
 async def get_users_for_excel_parents(session, **kwargs):
-    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+    query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
                    Users.points).where(Users.user_class == "Родитель")
@@ -210,7 +213,7 @@ async def get_users_for_excel_parents(session, **kwargs):
 
 
 async def get_users_for_excel_teacher(session, **kwargs):
-    query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
+    query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
                    Users.points).where(Users.user_class == "Педагог")

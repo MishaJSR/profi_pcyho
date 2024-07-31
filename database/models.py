@@ -69,6 +69,7 @@ class Users(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
+    user_tag: Mapped[str] = mapped_column(Text, nullable=True)
     user_class: Mapped[str] = mapped_column(Text, nullable=False)
     user_become_children: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     parent_id: Mapped[int] = mapped_column(Integer, nullable=True)
