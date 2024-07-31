@@ -83,12 +83,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
             await state.set_state(AdminStatePreShow.start)
             return
         content = block._data[0].content
-        callback = block._data[0].callback_button_id
         block_id = block._data[0].id
-        tasks = await get_task_for_delete(session, task_id=block_id)
-        has_tasks = True
-        if len(tasks) == 0:
-            has_tasks = False
         if block._data[0].is_sub_block:
             await send_multi_post_test(message.bot, session, user_id=user_id, block_id=block_id)
             return

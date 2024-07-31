@@ -273,8 +273,8 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         return
     AdminManageBlockState.block_list = []
     for block in res:
-        AdminManageBlockState.block_list.append(block._data[0].block_name)
-        AdminManageBlockState.block_dict_id[block._data[0].block_name] = block._data[0].id
+        AdminManageBlockState.block_list.append(block.block_name)
+        AdminManageBlockState.block_dict_id[block.block_name] = block.id
     await message.answer(text='Выберите какой из блоков вы хотите удалить',
                          reply_markup=block_pool_kb(AdminManageBlockState.block_list))
     await state.set_state(AdminManageBlockState.choose_block_to_delete)

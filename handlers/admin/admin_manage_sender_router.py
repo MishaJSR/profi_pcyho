@@ -77,10 +77,10 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         res = await get_block_active(session)
 
         for row in res:
-            rus_date = row._data[0].date_to_post.strftime("%d.%m.%Y %H:%M")
-            tasks = await get_task_by_block_id(session, block_id=row._data[0].id)
-            await message.answer(f"{row._data[0].block_name}\n"
-                                 f"Выслано {row._data[0].count_send} раз\n"
+            rus_date = row.date_to_post.strftime("%d.%m.%Y %H:%M")
+            tasks = await get_task_by_block_id(session, block_id=row.id)
+            await message.answer(f"{row.block_name}\n"
+                                 f"Выслано {row.count_send} раз\n"
                                  f"Дата постинга: {rus_date}\n"
                                  f"Заданий добавлено: {len(tasks)}\n")
     except Exception as e:
