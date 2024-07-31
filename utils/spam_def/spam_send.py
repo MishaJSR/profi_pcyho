@@ -23,9 +23,11 @@ async def send_progress_mom(bot, session_pool):
     await asyncio.sleep(5)
     while True:
         try:
+            print("mom_work1")
             data = await get_user_info_for_mom(session_pool)
             blocks = await get_order_block_progress(session_pool)
             max_progress = blocks[-1][0]
+            print("mom_work2")
             for child in data:
                 parent_id, progress, points = child
                 try:
@@ -59,16 +61,15 @@ async def send_progress_mom(bot, session_pool):
         except Exception as e:
             pass
         finally:
-            await asyncio.sleep(216000)
+            await asyncio.sleep(3)
 
 
 async def spam_task(bot, session_pool, engine):
-    #aioschedule.every().day.at("12:00").do(send_progress_mom, session_pool=session_pool, bot=bot)
     await asyncio.sleep(5)
 
     while True:
         try:
-            #await aioschedule.run_pending()
+            print("spam_work1")
             now_time = datetime.datetime.now()
             block_to_send = {}
             users = await get_all_users(session_pool)
@@ -76,10 +77,11 @@ async def spam_task(bot, session_pool, engine):
             for block in active_blocks:
                 if block._data[0].date_to_post <= now_time:
                     block_to_send[block._data[0].progress_block] = block._data[0].id
+            print("spam_work2")
             for user in users:
                 if user[1] == 2 and user[3] == "Родитель" and not (user[4]):
                     continue
-                if user[1] == 3 and user[3] == "Педагог" and not (user[4]):
+                if user[1] == 2 and user[3] == "Педагог" and not (user[4]):
                     continue
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
@@ -89,7 +91,7 @@ async def spam_task(bot, session_pool, engine):
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
         except Exception as e:
             print('error', e)
-        await asyncio.sleep(10)
+        await asyncio.sleep(3)
 
 
 async def send_spam(bot, session_pool, user_id, block_id):

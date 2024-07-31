@@ -200,7 +200,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         else:
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
-                           user_class=message.text, progress=2)
+                           user_class=message.text, progress=1)
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
     except Exception as e:
