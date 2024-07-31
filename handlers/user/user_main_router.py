@@ -63,7 +63,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                 await message.answer("Такого ребенка не найдено")
                 return
             if res_parent[0]:
-                await message.answer("Вы уже разрешили доступ ребенку")
+                await message.answer("Эта ссылка уже использована")
                 return
             if UserRegistrationState.children_id == message.from_user.id:
                 await message.answer("Эта ссылка для родителя")

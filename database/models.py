@@ -1,5 +1,5 @@
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import String, Text, DateTime, func, Integer, Boolean
+from sqlalchemy import String, Text, DateTime, func, Integer, Boolean, BigInteger
 
 
 class Base(DeclarativeBase):
@@ -67,7 +67,7 @@ class MediaTask(Base):
 class Users(Base):
     __tablename__ = 'users'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
     user_class: Mapped[str] = mapped_column(Text, nullable=False)
     user_become_children: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)

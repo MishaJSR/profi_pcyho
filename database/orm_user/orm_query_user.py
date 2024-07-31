@@ -2,13 +2,13 @@ from database.models import Users, UsersTaskProgress
 from sqlalchemy import select, update, delete
 
 
-async def check_new_user(session, user_id: int):
+async def check_new_user(session, user_id):
     query = select(Users.user_id).where(Users.user_id == user_id)
     result = await session.execute(query)
-    return result.all()
+    return result.fetchone()
 
 
-async def check_new_user_session_pool(session_pool, user_id: int):
+async def check_new_user_session_pool(session_pool, user_id):
     query = select(Users.user_id, Users.stop_spam).where((Users.user_id == user_id) and (Users.user_block_bot == False))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
