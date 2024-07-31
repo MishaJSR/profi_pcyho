@@ -88,7 +88,7 @@ class Users(Base):
 class UsersTaskProgress(Base):
     __tablename__ = 'users_task_progress'
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
     block_id: Mapped[int] = mapped_column(Integer,  nullable=False)
     task_id: Mapped[int] = mapped_column(Integer,  nullable=False)
