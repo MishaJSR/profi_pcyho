@@ -15,6 +15,7 @@ from handlers.admin.states import AdminStatePreShow, AdminStateSpammer
 
 admin_show_block_router = Router()
 
+
 @admin_show_block_router.message(StateFilter(AdminStatePreShow), F.text.casefold() == "назад")
 async def back_step_handler(message: types.Message, state: FSMContext) -> None:
     current_state = await state.get_state()
@@ -92,8 +93,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
             return
         video_content = await get_videos_id_from_block(session, block_id=block_id)
         photo_content = await get_photos_id_from_block(session, block_id=block_id)
-        video_content = [video._data[0] for video in video_content]
-        photo_content = [photo._data[0] for photo in photo_content]
+        photo_content, video_content = gen_media_content(photo_content, video_content)
         media_group = []
         for index, photo_id in enumerate(photo_content):
             if index == 0:
@@ -165,8 +165,7 @@ async def send_multi_post_test(bot, session, user_id, block_id):
             media_group = []
             photo_ids = await get_photos_id_from_block_pool(session, block_pool_id=block_pool_id)
             videos_ids = await get_videos_id_from_block_pool(session, block_pool_id=block_pool_id)
-            video_content = [video._data[0] for video in videos_ids]
-            photo_content = [photo._data[0] for photo in photo_ids]
+            photo_content, video_content = gen_media_content(photo_ids, videos_ids)
             if photo_ids:
                 for index, photo_id in enumerate(photo_content):
                     if index == 0:
@@ -180,3 +179,9 @@ async def send_multi_post_test(bot, session, user_id, block_id):
             if videos_ids:
                 for video_id in video_content:
                     await bot.send_video(user_id, video=video_id)
+
+
+def gen_media_content(photo_content, video_content):
+    video_content = [video._data[0] for video in video_content]
+    photo_content = [photo._data[0] for photo in photo_content]
+    return photo_content, video_content
