@@ -172,12 +172,13 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         progress = await get_user_progress(session, user_id=message.from_user.id)
         await message.answer(f" {progress[0]} эпизод пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
-        if user_class == "Ребёнок":
-            points = await get_user_points(session, user_id=message.from_user.id)
+        points = await get_user_points(session, user_id=message.from_user.id)
+        if points:
             await message.answer(f"Поздравляю! На твоем счету - {points[0]} "
                                  f"е-коинов 💰\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
+        if user_class == "Ребёнок":
             await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
             return
         if user_class != "Ребёнок" and not user_become:

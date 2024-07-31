@@ -19,7 +19,8 @@ from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
     get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission
-from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone
+from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone, \
+    messsage_coints_avail, questions_link
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
@@ -27,14 +28,23 @@ user_private_router.include_routers(user_callback_router)
 
 @user_private_router.message(StateFilter('*'), Command("coins"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    points = await get_user_points(session, user_id=message.from_user.id)
-    await message.answer(f'У Вас на счету: {points[0]} e-коинов 💰')
-    await message.answer(f"Узнай для чего они нужны "
-                         f"/coins_avail")
+    try:
+        points = await get_user_points(session, user_id=message.from_user.id)
+        await message.answer(f'У Вас на счету: {points[0]} e-коинов 💰')
+        await message.answer(f"Узнай для чего они нужны "
+                             f"/coins_avail")
+    except Exception as e:
+        await message.answer(f'У Вас на счету пока нет e-коинов 💰')
+        await message.answer(f"Узнай для чего они нужны "
+                             f"/coins_avail")
 
 @user_private_router.message(StateFilter('*'), Command("coins_avail"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer(f'Описание коинов')
+    await message.answer(f'{messsage_coints_avail}')
+
+@user_private_router.message(StateFilter('*'), Command("questions"))
+async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
+    await message.answer(f'{questions_link}')
 
 @user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
 async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):
@@ -85,7 +95,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(get_phone, reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
-    if progress == 2 and user_class == "Педагог":
+    if progress == 1 and user_class == "Педагог":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
@@ -164,11 +174,13 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
             await message.answer(pay_to_link,
                                  reply_markup=get_inline_parent_all_block_pay())
+            await message.answer("Остались вопросы? Используй команду /questions")
             return
         if user_class == "Педагог":
             await message.answer(
                 f"Поздравляю!\nТы прошел начальный уровень квеста!\n", reply_markup=ReplyKeyboardRemove())
             await message.answer(you_should_be_partner, reply_markup=get_inline_teacher_all_block_referal())
+            await message.answer("Остались вопросы? Используй команду /questions")
             return
         else:
             await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())

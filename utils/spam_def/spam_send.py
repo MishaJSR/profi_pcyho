@@ -16,18 +16,17 @@ from database.orm_query_user import get_all_users, update_last_send_block_sessio
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
-from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, congratulations
+from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, \
+    congratulations, question_answer
 
 
 async def send_progress_mom(bot, session_pool):
     await asyncio.sleep(5)
     while True:
         try:
-            print("mom_work1")
             data = await get_user_info_for_mom(session_pool)
             blocks = await get_order_block_progress(session_pool)
             max_progress = blocks[-1][0]
-            print("mom_work2")
             for child in data:
                 parent_id, progress, points = child
                 try:
@@ -61,7 +60,7 @@ async def send_progress_mom(bot, session_pool):
         except Exception as e:
             pass
         finally:
-            await asyncio.sleep(3)
+            await asyncio.sleep(216000)
 
 
 async def spam_task(bot, session_pool, engine):
@@ -69,7 +68,6 @@ async def spam_task(bot, session_pool, engine):
 
     while True:
         try:
-            print("spam_work1")
             now_time = datetime.datetime.now()
             block_to_send = {}
             users = await get_all_users(session_pool)
@@ -77,11 +75,8 @@ async def spam_task(bot, session_pool, engine):
             for block in active_blocks:
                 if block._data[0].date_to_post <= now_time:
                     block_to_send[block._data[0].progress_block] = block._data[0].id
-            print("spam_work2")
             for user in users:
-                if user[1] == 2 and user[3] == "Родитель" and not (user[4]):
-                    continue
-                if user[1] == 2 and user[3] == "Педагог" and not (user[4]):
+                if user[1] == 2 and user[3] != "Ребёнок" and not (user[4]):
                     continue
                 block_id_to_send = block_to_send.get(user[1])
                 if not block_id_to_send:
@@ -91,7 +86,7 @@ async def spam_task(bot, session_pool, engine):
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
         except Exception as e:
             print('error', e)
-        await asyncio.sleep(3)
+        await asyncio.sleep(10)
 
 
 async def send_spam(bot, session_pool, user_id, block_id):
@@ -192,16 +187,19 @@ async def no_task_end_script(bot, session_pool, user_id):
         await bot.send_message(chat_id=user_id,
                                text=congratulations,
                                reply_markup=ReplyKeyboardRemove())
+        await bot.send_message(chat_id=user_id, text=question_answer)
     elif user_class[0] == "Родитель":
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
                                     f"Первая глава квеста завершена🔥\n"
                                     f"Вы также можете оплатить полный курс по ссылке",
                                reply_markup=get_inline_parent_all_block_pay())
+        await bot.send_message(chat_id=user_id, text=question_answer)
     else:
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
                                     f"Первая глава квеста завершена🔥\n"
                                     f"{you_should_be_partner}",
                                reply_markup=get_inline_teacher_all_block_referal())
+        await bot.send_message(chat_id=user_id, text=question_answer)
     await update_users_progress_session_pool(session_pool)

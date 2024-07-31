@@ -3,10 +3,11 @@ import os
 import emoji
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import find_dotenv, load_dotenv
+from utils.common.message_constant import referal_link, course_link
 
 load_dotenv(find_dotenv())
-course_link = os.getenv('COURSE_LINK')
-course_referal = os.getenv('COURSE_REFERAL')
+course_link = course_link
+course_referal = referal_link
 
 
 def get_inline(callback_data):

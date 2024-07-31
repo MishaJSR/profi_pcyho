@@ -194,7 +194,8 @@ async def update_stop_spam(session_pool, **kwargs):
 async def get_users_for_excel_all(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
-                   Users.user_become_children, Users.user_callback)
+                   Users.user_become_children, Users.user_callback,
+                   Users.points)
     result = await session.execute(query)
     return result.all()
 
@@ -202,7 +203,8 @@ async def get_users_for_excel_all(session, **kwargs):
 async def get_users_for_excel_parents(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
-                   Users.user_become_children, Users.user_callback).where(Users.user_class == "Родитель")
+                   Users.user_become_children, Users.user_callback,
+                   Users.points).where(Users.user_class == "Родитель")
     result = await session.execute(query)
     return result.all()
 
@@ -210,7 +212,8 @@ async def get_users_for_excel_parents(session, **kwargs):
 async def get_users_for_excel_teacher(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
-                   Users.user_become_children, Users.user_callback).where(Users.user_class == "Педагог")
+                   Users.user_become_children, Users.user_callback,
+                   Users.points).where(Users.user_class == "Педагог")
     result = await session.execute(query)
     return result.all()
 
