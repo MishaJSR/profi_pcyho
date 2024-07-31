@@ -138,17 +138,23 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 @user_private_router.message(StateFilter('*'), F.text == "Да, я даю согласие")
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await update_parent_id(session, user_id=UserRegistrationState.children_id, parent_id=message.from_user.id)
-    await message.answer("Спасибо Вам за доверие", reply_markup=ReplyKeyboardRemove())
-    res = await check_new_user(session, user_id=message.from_user.id)
-    if not res:
-        await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
+    try:
+        await update_parent_id(session, user_id=UserRegistrationState.children_id, parent_id=message.from_user.id)
+        await message.answer("Спасибо Вам за доверие", reply_markup=ReplyKeyboardRemove())
+        res = await check_new_user(session, user_id=message.from_user.id)
+        if not res:
+            await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
+    except Exception as e:
+        await message.answer("Ошибка подключения")
 
 
 @user_private_router.message(StateFilter('*'), F.text == "Нет, я против")
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer("Нам очень жаль, напишите что вам не понравилось", reply_markup=ReplyKeyboardRemove())
-    await message.answer("Возможно вы сами хотите попробовать пройти курс?", reply_markup=get_inline_parent())
+    res = await check_new_user(session, user_id=message.from_user.id)
+    if not res:
+        await message.answer("Возможно вы сами хотите попробовать пройти курс?", reply_markup=get_inline_parent())
+
 
 
 @user_private_router.message(StateFilter('*'), F.text == 'Когда будет следующий блок?')
