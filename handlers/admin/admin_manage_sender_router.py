@@ -1,5 +1,4 @@
 import datetime
-import validators
 
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
@@ -9,11 +8,10 @@ from aiogram.types import CallbackQuery, InputMediaPhoto
 from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import get_block_active, get_block_names_all_not_past, get_date_post_block_by_name, \
-    set_date_post_block_by_name, get_next_block_progress
-from database.orm_query_task import get_task_by_block_id
-from database.orm_query_user import get_all_users_id, get_all_users_id_progress
-from keyboards.admin.inline_admin import get_inline_vebinar
+from database.orm_block.orm_query_block import get_block_active, get_block_names_all_not_past, get_date_post_block_by_name, \
+    set_date_post_block_by_name
+from database.orm_task.orm_query_task import get_task_by_block_id
+from database.orm_user.orm_query_user import get_all_users_id_progress
 from keyboards.admin.reply_admin import start_kb, spam_actions_kb, block_pool_kb, back_kb, send_media_vebinar, \
     send_media_kb_veb, send_spam, reset_kb
 from handlers.admin.states import AdminStateSpammer

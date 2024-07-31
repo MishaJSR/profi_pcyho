@@ -1,4 +1,3 @@
-import asyncio
 import time
 
 from aiogram import types, Router, F
@@ -10,11 +9,11 @@ from aiogram.types import InputMediaPhoto, CallbackQuery
 from aiogram_calendar import SimpleCalendar, get_user_locale, SimpleCalendarCallback
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import add_block, delete_block, get_order_block, \
+from database.orm_block.orm_query_block import add_block, delete_block, get_order_block, \
     set_progres_block, get_block_for_delete
-from database.orm_query_block_pool import add_block_pool
-from database.orm_query_block_pool_media import add_block_pool_media
-from database.orm_query_media_block import add_media
+from database.orm_block.orm_query_block_pool import add_block_pool
+from database.orm_block.orm_query_block_pool_media import add_block_pool_media
+from database.orm_block.orm_query_block_media import add_media
 from keyboards.admin.reply_admin import reset_kb, prepare_to_spam, send_media_kb, send_media_check_kb, start_kb, \
     block_actions, block_pool_kb, back_kb
 from handlers.admin.states import AdminManageBlockState

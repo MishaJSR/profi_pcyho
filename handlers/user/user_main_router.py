@@ -4,21 +4,19 @@ import emoji
 from aiogram.filters import Command, StateFilter, CommandStart, ChatMemberUpdatedFilter, KICKED
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import ReplyKeyboardRemove, ChatMemberUpdated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
+from database.orm_user.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
     update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class, \
     update_user_block_bot_session_pool
-from database.orm_query_block import get_time_next_block
-from database.orm_query_user import get_progress_by_user_id, get_user_points
-from handlers.user.state import UserState
+from database.orm_block.orm_query_block import get_time_next_block
+from database.orm_user.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
     get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal
-from keyboards.user.reply_user import start_kb, send_contact_kb, users_pool_kb, users_pool, parent_permission
+from keyboards.user.reply_user import send_contact_kb, users_pool_kb, users_pool, parent_permission
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone, \
     messsage_coints_avail, questions_link
 

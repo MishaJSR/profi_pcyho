@@ -1,9 +1,31 @@
 import os
+from abc import ABC, abstractmethod
+
+from aiogram.fsm.state import StatesGroup, State
 from dotenv import find_dotenv, load_dotenv
 
 from pydantic import StrictStr, ConfigDict, StrictInt, BaseModel, validator, field_validator
 
 load_dotenv(find_dotenv())
+
+
+class CustomTreeState(ABC, StatesGroup):
+    @abstractmethod
+    def calculate_area(self):
+        pass
+
+
+class UserCallbackState(CustomTreeState):
+    start_callback = State()
+    image_callback = State()
+    test_callback = State()
+    user_callback = State()
+    tasks = []
+    count_tasks = None
+    block_id = None
+    now_task = None
+    list_of_answers = []
+    callback_data = None
 
 
 class Config(BaseModel):

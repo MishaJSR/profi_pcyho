@@ -3,3 +3,5 @@
 pycache
 venv/
 .env
+alembic.ini
+/migrations

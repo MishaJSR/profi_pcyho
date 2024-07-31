@@ -3,14 +3,14 @@ import datetime
 
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 
-from database.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
+from database.orm_block.orm_query_block import get_block_session_pool_by_id, get_block_all_session_pool, \
     update_count_send_block_session_pool, get_order_block_progress
-from database.orm_query_block_pool import get_block_pool_all_session_pool
-from database.orm_query_block_pool_media import get_photos_id_from_block_pool_session_pool, \
+from database.orm_block.orm_query_block_pool import get_block_pool_all_session_pool
+from database.orm_block.orm_query_block_pool_media import get_photos_id_from_block_pool_session_pool, \
     get_videos_id_from_block_pool_session_pool
-from database.orm_query_media_block import get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
-from database.orm_query_task import get_tasks_by_block_id_session_pool
-from database.orm_query_user import get_all_users, update_last_send_block_session_pool, \
+from database.orm_block.orm_query_block_media import get_videos_id_from_block_session_pool, get_photos_id_from_block_session_pool
+from database.orm_task.orm_query_task import get_tasks_by_block_id_session_pool
+from database.orm_user.orm_query_user import get_all_users, update_last_send_block_session_pool, \
     update_users_progress_session_pool, get_user_info_for_mom, check_new_user_session_pool, \
     update_stop_spam, get_user_class_session_pool
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \

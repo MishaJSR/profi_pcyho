@@ -4,13 +4,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import InputMediaPhoto
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_query_block import get_block_for_add_task, get_block_by_block_name
-from database.orm_query_block_pool import get_block_pool_all
-from database.orm_query_block_pool_media import get_videos_id_from_block_pool, get_photos_id_from_block_pool
-from database.orm_query_media_block import get_videos_id_from_block, get_photos_id_from_block
-from database.orm_query_media_task import get_media_task_by_task_id
-from database.orm_query_task import get_task_for_delete, get_task_by_block_id
-from keyboards.admin.reply_admin import start_kb, block_pool_kb, show_block_or_test, spam_actions_kb
+from database.orm_block.orm_query_block import get_block_for_add_task, get_block_by_block_name
+from database.orm_block.orm_query_block_pool import get_block_pool_all
+from database.orm_block.orm_query_block_pool_media import get_videos_id_from_block_pool, get_photos_id_from_block_pool
+from database.orm_block.orm_query_block_media import get_videos_id_from_block, get_photos_id_from_block
+from database.orm_task.orm_query_task_media import get_media_task_by_task_id
+from database.orm_task.orm_query_task import get_task_for_delete, get_task_by_block_id
+from keyboards.admin.reply_admin import start_kb, block_pool_kb, show_block_or_test
 from handlers.admin.states import AdminStatePreShow, AdminStateSpammer
 
 admin_show_block_router = Router()
