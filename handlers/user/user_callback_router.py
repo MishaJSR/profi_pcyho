@@ -14,7 +14,8 @@ from database.orm_user.orm_query_user_task_progress import set_user_task_progres
 from handlers.user.state import UserState
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_is_like, \
-    get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block
+    get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block, \
+    questions_kb
 from keyboards.user.reply_user import start_kb, send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
     get_phone
@@ -193,14 +194,14 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             if user_become and user_class == "Родитель":
                 await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
                 await message.answer(pay_to_link, reply_markup=get_inline_parent_all_block_pay())
+                await message.answer(f'У вас остались вопросы ❓', reply_markup=questions_kb())
                 return
             if user_class == "Педагог":
                 await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
-                await message.answer(you_should_be_partner,
-                                     reply_markup=get_inline_teacher_all_block_referal())
+                await message.answer(you_should_be_partner, reply_markup=get_inline_teacher_all_block_referal())
+                await message.answer(f'У вас остались вопросы ❓', reply_markup=questions_kb())
                 return
-            await message.answer("Ссылка для ребенка")
-            await message.answer(congratulations)
+            await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
     UserCallbackState.tasks = UserCallbackState.tasks[1:]

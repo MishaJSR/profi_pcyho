@@ -15,7 +15,7 @@ from database.orm_user.orm_query_user import get_progress_by_user_id, get_user_p
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
-    get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal
+    get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal, questions_kb
 from keyboards.user.reply_user import send_contact_kb, users_pool_kb, users_pool, parent_permission
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone, \
     messsage_coints_avail, questions_link
@@ -42,7 +42,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
 
 @user_private_router.message(StateFilter('*'), Command("questions"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer(f'{questions_link}')
+    await message.answer(f'У вас остались вопросы ❓', reply_markup=questions_kb())
 
 @user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
 async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):

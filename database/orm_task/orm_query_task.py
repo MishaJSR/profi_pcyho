@@ -4,7 +4,6 @@ from sqlalchemy import select, update
 
 
 async def get_task_by_block_id(session: AsyncSession, **kwargs):
-    pass
     query = select(Task).where((Task.is_visible == True) & (Task.block_id == kwargs.get('block_id'))).order_by(Task.updated)
     result = await session.execute(query)
     return result.fetchall()

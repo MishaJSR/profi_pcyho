@@ -110,3 +110,13 @@ def get_inline_next_block():
     builder = InlineKeyboardBuilder()
     builder.button(text='Да 👍' , callback_data='next_block_children')
     return builder.as_markup()
+
+
+def questions_kb():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='По вопросам квеста 🤓',
+                   url='https://t.me/Happy_studio_emotions')
+    builder.button(text='Не работает бот 🛠',
+                   url='https://t.me/mshsor')
+    builder.adjust(1, 1)
+    return builder.as_markup()
