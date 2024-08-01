@@ -1,28 +1,15 @@
 import os
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
-from database.config import DbConfig, load_config
-from database.models import Base
+from database.config import load_config
 
 config = load_config()
 engine = create_async_engine(config.db.construct_sqlalchemy_url())
-session_pool = async_sessionmaker(bind=engine, expire_on_commit=False)
-
-def create_engine(db: DbConfig, echo=False):
-    engine = create_async_engine(
-        db.construct_sqlalchemy_url(),
-        query_cache_size=1200,
-        pool_size=20,
-        max_overflow=200,
-        future=True,
-        echo=echo,
-    )
-    return engine
+async_session_maker = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
-def create_session_pool(engine):
-    session_pool = async_sessionmaker(bind=engine, expire_on_commit=False)
-    return session_pool
-
+async def get_async_session_maker():
+    async with async_session_maker() as session:
+        yield session
 

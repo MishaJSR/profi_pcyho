@@ -18,7 +18,7 @@ from handlers.user.user_main_router import user_private_router
 from handlers.admin.admin_main_router import admin_private_router
 from utils.common.bot_cmd_list import private
 from middlewares.db import DataBaseSession
-from database.engine import create_engine, create_session_pool, engine
+from database.engine import engine, async_session_maker
 
 
 def get_storage(config):
@@ -62,14 +62,13 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.include_routers(admin_private_router, user_private_router)
 
-    session_pool = create_session_pool(engine)
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)
-    dp.update.middleware(DataBaseSession(session_pool=session_pool))
+    dp.update.middleware(DataBaseSession(session_pool=async_session_maker))
 
 
-    asyncio.create_task(spam_task(bot, session_pool, engine))
-    asyncio.create_task(send_progress_mom(bot, session_pool))
+    #asyncio.create_task(spam_task(bot, async_session_maker, engine))
+    #asyncio.create_task(send_progress_mom(bot, async_session_maker))
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=private, scope=BotCommandScopeAllPrivateChats())
     await dp.start_polling(bot)
