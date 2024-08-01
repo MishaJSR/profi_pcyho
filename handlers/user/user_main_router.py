@@ -16,10 +16,11 @@ from database.orm_user.orm_query_user import get_progress_by_user_id, get_user_p
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
-    get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal, questions_kb
+    get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal, questions_kb, \
+    get_inline_first_video
 from keyboards.user.reply_user import send_contact_kb, users_pool_kb, users_pool, parent_permission
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, get_phone, \
-    message_coints_avail, questions_link
+    message_coints_avail, questions_link, first_video_id, first_photo_id, happy_photo_id
 
 user_private_router = Router()
 user_private_router.include_routers(user_callback_router)
@@ -68,8 +69,13 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             if UserRegistrationState.children_id == message.from_user.id:
                 await message.answer("Эта ссылка для родителя")
                 return
-            await message.answer("Разрешить вашему ребёнку пройти наш бесплатный курс?\n"
-                                 "Вы будете получать его прогресс по урокам", reply_markup=parent_permission())
+            await message.answer(f"Привет!\n\nВаш ребенок хочет улучшить навыки "
+                                 f"живого общения и научиться управлять своими эмоциями в “Студии эмоций”\n\n"
+                                 f"{message.from_user.full_name}, вы разрешаете "
+                                 f"ребенку пройти бесплатный уровень "
+                                 f"онлайн-квеста “Герой эмоций”?\n\n"
+                                 f"Я пришлю вам результаты прохождения по каждому уроку."
+                                 f"", reply_markup=parent_permission())
             return
     except Exception as e:
         await message.answer("Ошибка подключения")
@@ -80,8 +86,9 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     res = await check_new_user(session, user_id=message.from_user.id)
     if not res:
-        await message.answer(f'Привет {message.from_user.full_name}')
-        await message.answer(text="Укажи кем ты являешься", reply_markup=users_pool_kb())
+        await message.answer_photo(photo=happy_photo_id, caption=f'{message.from_user.full_name}, '
+                                                                 f'добро пожаловать на квест!\n\n'
+                                                                 f'Я - робот-помощник, а ты?', reply_markup=users_pool_kb())
         await state.set_state(UserRegistrationState.start)
         return
     is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session,
@@ -139,12 +146,26 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 @user_private_router.message(StateFilter('*'), F.text == "Да, я даю согласие")
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     try:
+        progress_children = await get_progress_by_user_id(session, user_id=UserRegistrationState.children_id)
+        if progress_children[0] != 0:
+            await message.answer("Вы уже дали согласие")
+            return
         await update_parent_id(session, user_id=UserRegistrationState.children_id, parent_id=message.from_user.id)
         await message.answer("Спасибо Вам за доверие", reply_markup=ReplyKeyboardRemove())
+        await message.bot.send_photo(chat_id=UserRegistrationState.children_id, photo=first_photo_id,
+            caption=f"Ура, доступ разблокирован!\n\n"
+                 f"На связи Хэппи 😊 и я рада приветствовать тебя на интерактивном квесте “Герой эмоций”! 🎉\n"
+            f"Сначала посмотри видеоинструкцию о том, как устроен квест в чат-боте 👇",
+            reply_markup=ReplyKeyboardRemove())
+        await message.bot.send_video(chat_id=UserRegistrationState.children_id,
+                                     video=first_video_id)
+        await message.bot.send_message(chat_id=UserRegistrationState.children_id, text="Ты готов отправиться со мной ?",
+                                       reply_markup=get_inline_first_video())
         res = await check_new_user(session, user_id=message.from_user.id)
         if not res:
             await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
     except Exception as e:
+        print(e)
         await message.answer("Ошибка подключения")
 
 
@@ -204,10 +225,10 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                            user_tag=message.from_user.username,
                            user_class=message.text)
             link = f"https://t.me/train_chiildren_psychology_bot?start={message.from_user.id}"
-            await message.answer(f"Для прохождения квеста необходимо разрешение родителя✨\n"
-                                 f"Когда он согласится, Хэппи отправит тебе первое задание🤓",
+            await message.answer(f"Для прохождения квеста мне необходимо получить разрешение от твоего родителя ✨\n"
+                                 f"Когда он согласится, я пришлю тебе первое задание 🤓",
                                  reply_markup=ReplyKeyboardRemove())
-            await message.answer("Отправь эту ссылку родителю👇")
+            await message.answer("Отправь эту ссылку родителю 👇")
             await message.answer(link)
             await state.set_state(UserRegistrationState.children)
         elif message.text == "Родитель":
@@ -221,7 +242,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await add_user(session, user_id=message.from_user.id,
                            username=message.from_user.full_name,
                            user_tag=message.from_user.username,
-                           user_class=message.text, progress=1)
+                           user_class=message.text)
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
     except Exception as e:
@@ -235,7 +256,12 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         phone_number = "+" + message.contact.phone_number
         await update_user_phone(session, phone_number=phone_number, user_id=message.from_user.id)
     await update_user_subscribe(session, user_id=message.from_user.id)
-    await message.answer("Представьте себя ребенком и погрузитесь полностью в прохождение онлайн-квеста",
-                         reply_markup=ReplyKeyboardRemove())
+    await message.answer_photo(photo=first_photo_id,
+                               caption=f"На связи Хэппи 😊  и я рада приветствовать "
+                                       f"тебя на интерактивном квесте “Герой эмоций”! 🎉\n"
+                                       f"Сначала посмотри видеоинструкцию о том, как устроен квест в чат-боте 👇",
+                               reply_markup=ReplyKeyboardRemove())
+    await message.answer_video(video=first_video_id)
+    await message.answer(text="Ты готов отправиться со мной ?", reply_markup=get_inline_first_video())
 
     return

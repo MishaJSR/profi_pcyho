@@ -7,7 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from database.orm_block.orm_query_block import get_block_id_by_callback, get_block_id_by_progress
 from database.orm_task.orm_query_task_media import get_media_task_by_task_id
 from database.orm_task.orm_query_task import get_task_by_block_id
-from database.orm_user.orm_query_user import update_user_progress, update_user_points, get_user_class, get_progress_by_user_id, \
+from database.orm_user.orm_query_user import update_user_progress, update_user_points, get_user_class, \
+    get_progress_by_user_id, \
     update_user_become, add_user, check_user_subscribe_new_user, \
     check_user_become_children, get_user_progress, get_user_points
 from database.orm_user.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id
@@ -77,7 +78,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     except Exception as e:
         await add_user(session, user_id=call.from_user.id,
                        username=call.from_user.full_name,
-                        user_tag=call.from_user.username,
+                       user_tag=call.from_user.username,
                        user_class="Родитель")
         await call.message.answer(get_phone, reply_markup=send_contact_kb())
         await call.answer("Начало регистрации")
@@ -133,6 +134,13 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.answer("Идем дальше")
     await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
 
+
+@user_callback_router.callback_query(lambda call: call.data == "go_to_quest")
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    await update_user_progress(session, user_id=call.from_user.id)
+    await call.answer("Идем дальше")
+    await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
 
 
 # @user_callback_router.message(UserCallbackState.image_callback, F.text)
@@ -213,7 +221,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
     else:
         await prepare_test_tasks(message, state, session)
 
-#dfsdf
+
+# dfsdf
 async def prepare_test_tasks(message, state, session):
     media_group = []
     caption_text = UserCallbackState.now_task.description + "\n\n" + UserCallbackState.now_task.answers + \

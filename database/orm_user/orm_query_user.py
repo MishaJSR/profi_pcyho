@@ -16,7 +16,7 @@ async def check_new_user_session_pool(session_pool, user_id):
 
 
 async def add_user(session, user_id: int, username: str, user_tag: str, user_class: str, is_subscribe=False, parent_id=None,
-                   progress=1):
+                   progress=0):
     if not user_tag:
         user_tag = '@'
     else:
@@ -56,7 +56,7 @@ async def get_all_users(session_pool, **kwargs):
 
 
 async def get_progress_by_user_id(session, **kwargs):
-    query = select(Users.progress).where(Users.user_id == kwargs.get("user_id"))
+    query = select(Users.progress).where((Users.user_id == kwargs.get("user_id") and (Users.user_block_bot == False)))
     result = await session.execute(query)
     return result.fetchone()
 

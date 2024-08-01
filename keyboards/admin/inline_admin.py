@@ -120,3 +120,9 @@ def questions_kb():
                    url='https://t.me/mshsor')
     builder.adjust(1, 1)
     return builder.as_markup()
+
+def get_inline_first_video():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Хочу пройти квест ' + emoji.emojize("😋"), callback_data='go_to_quest')
+    builder.adjust(1, 1)
+    return builder.as_markup()
