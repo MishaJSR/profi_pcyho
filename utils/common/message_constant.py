@@ -14,7 +14,7 @@ course_link = "https://studio-emotions.ru/#we"
 questions_link = "https://studio-emotions.ru/"
 first_video_id = 'BAACAgIAAxkBAAJNMGah8jdDgWMJLckNQuv1ldm4eC4LAAL1SwACZhkRSbCZvIl6KIPnNQQ'
 first_photo_id = 'AgACAgIAAxkBAAJNL2ah8jcoZsHxD8QKlMKQfOpIJ22nAAJF4TEbR1wAAUkBeb9H7bw22AEAAwIAA3kAAzUE'
-happy_photo_id = 'AgACAgIAAxkBAAJNL2ah8jcoZsHxD8QKlMKQfOpIJ22nAAJF4TEbR1wAAUkBeb9H7bw22AEAAwIAA3kAAzUE'
+happy_photo_id = 'AgACAgIAAxkBAAJt9GarhXtbFUBl2h21r8HToEWtJW10AAKX7DEb2jZhSUKiZMWOhzsYAQADAgADeAADNQQ'
 question_answer = "Остались вопросы ❓\nИспользуй команду /questions"
 message_coints_avail = f"У тебя уже есть е-коины, которые ты заработал на нашем курсе?" \
                         f" Отлично! Давай узнаем, на что ты можешь их потратить. 😉\n\n" \
