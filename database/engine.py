@@ -2,9 +2,12 @@ import os
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from database.config import DbConfig
+from database.config import DbConfig, load_config
 from database.models import Base
 
+config = load_config()
+engine = create_async_engine(config.db.construct_sqlalchemy_url())
+session_pool = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 def create_engine(db: DbConfig, echo=False):
     engine = create_async_engine(

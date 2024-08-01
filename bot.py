@@ -18,7 +18,7 @@ from handlers.user.user_main_router import user_private_router
 from handlers.admin.admin_main_router import admin_private_router
 from utils.common.bot_cmd_list import private
 from middlewares.db import DataBaseSession
-from database.engine import create_engine, create_session_pool
+from database.engine import create_engine, create_session_pool, engine
 
 
 def get_storage(config):
@@ -62,7 +62,6 @@ async def main():
     dp = Dispatcher(storage=storage)
     dp.include_routers(admin_private_router, user_private_router)
 
-    engine = create_engine(config.db)
     session_pool = create_session_pool(engine)
     dp.startup.register(on_startup)
     dp.shutdown.register(on_shutdown)

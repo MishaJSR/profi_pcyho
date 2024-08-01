@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import String, Text, DateTime, func, Integer, Boolean, BigInteger
 
@@ -12,6 +14,7 @@ class BlockPool(Base):
     block_main_id: Mapped[int] = mapped_column(Integer, nullable=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     has_media: Mapped[bool] = mapped_column(Boolean, nullable=False)
+
 
 class Task(Base):
     __tablename__ = 'task'
@@ -48,6 +51,7 @@ class MediaBlock(Base):
     block_id: Mapped[int] = mapped_column(Integer, nullable=False)
     photo_id: Mapped[str] = mapped_column(Text, nullable=True)
     video_id: Mapped[str] = mapped_column(Text, nullable=True)
+
 
 class MediaBlockPool(Base):
     __tablename__ = 'media_block_pool'
@@ -91,8 +95,8 @@ class UsersTaskProgress(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
     username: Mapped[str] = mapped_column(Text, nullable=False)
-    block_id: Mapped[int] = mapped_column(Integer,  nullable=False)
-    task_id: Mapped[int] = mapped_column(Integer,  nullable=False)
+    block_id: Mapped[int] = mapped_column(Integer, nullable=False)
+    task_id: Mapped[int] = mapped_column(Integer, nullable=False)
     answer_mode: Mapped[str] = mapped_column(String(20), nullable=False)
     result: Mapped[str] = mapped_column(Text, nullable=False)
     is_pass: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
