@@ -287,7 +287,8 @@ CREATE TABLE public.users (
     user_become_children boolean NOT NULL,
     name_of_user text,
     stop_spam boolean NOT NULL,
-    user_block_bot boolean NOT NULL
+    user_block_bot boolean NOT NULL,
+    user_tag text
 );
 
 
@@ -321,7 +322,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 CREATE TABLE public.users_task_progress (
     id integer NOT NULL,
-    user_id integer NOT NULL,
+    user_id bigint NOT NULL,
     username text NOT NULL,
     task_id integer NOT NULL,
     answer_mode character varying(20) NOT NULL,
@@ -417,6 +418,7 @@ ALTER TABLE ONLY public.users_task_progress ALTER COLUMN id SET DEFAULT nextval(
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
+e2423e3f8f0c
 \.
 
 
@@ -499,7 +501,7 @@ COPY public.task (id, block_id, description, answer_mode, answers, answer, about
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-COPY public.users (id, user_id, username, progress, is_subscribe, day_start_subscribe, day_end_subscribe, points, updated, id_last_block_send, user_class, parent_id, phone_number, user_callback, user_become_children, name_of_user, stop_spam, user_block_bot) FROM stdin;
+COPY public.users (id, user_id, username, progress, is_subscribe, day_start_subscribe, day_end_subscribe, points, updated, id_last_block_send, user_class, parent_id, phone_number, user_callback, user_become_children, name_of_user, stop_spam, user_block_bot, user_tag) FROM stdin;
 \.
 
 
