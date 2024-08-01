@@ -417,7 +417,6 @@ ALTER TABLE ONLY public.users_task_progress ALTER COLUMN id SET DEFAULT nextval(
 --
 
 COPY public.alembic_version (version_num) FROM stdin;
-35902ff5600a
 \.
 
 
@@ -558,7 +557,7 @@ SELECT pg_catalog.setval('public.task_id_seq', 88, true);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 252, true);
+SELECT pg_catalog.setval('public.users_id_seq', 254, true);
 
 
 --
