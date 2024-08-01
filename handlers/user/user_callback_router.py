@@ -84,7 +84,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.answer("Начало регистрации")
         await state.set_state(UserRegistrationState.parent)
 
-
+#
 @user_callback_router.callback_query(lambda call: call.data == "back_to_theory")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
