@@ -44,6 +44,7 @@ class UserCallbackState(StatesGroup):
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
     await update_user_become(session, user_id=call.from_user.id)
+    await update_user_progress(session, user_id=call.from_user.id)
     await call.answer("Хорошо, идем дальше")
     await call.message.answer("Хорошо\nИдем дальше!")
 
@@ -143,6 +144,12 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 @user_callback_router.callback_query(lambda call: call.data == "next_block_children")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    user_class, user_become = await get_user_class(session, user_id=call.from_user.id)
+    if user_class != "Ребёнок" and not user_become:
+        await call.message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+        await call.answer("Вам понравилось?")
+        return
     await update_user_progress(session, user_id=call.from_user.id)
     await call.answer("Идем дальше")
     await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
@@ -158,15 +165,6 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.answer("Идем дальше")
     await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
 
-
-# @user_callback_router.message(UserCallbackState.image_callback, F.text)
-# async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-#     is_pass = is_part_in_list(message.text, UserCallbackState.now_task.answer.split(" "))
-#     if is_pass:
-#         await message.answer(f"Поздравляем !!!\nВы получили {UserCallbackState.now_task.points_for_task} очков")
-#         await update_user_points(session, user_id=message.from_user.id,
-#                                  points=UserCallbackState.now_task.points_for_task)
-#     await update_user_task_progress_and_go_to_next(message, session, state, is_pass)
 
 
 @user_callback_router.message(UserCallbackState.test_callback, F.text)
@@ -205,25 +203,42 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             photo = achive2
         await message.answer_photo(photo=photo, caption=f"{progress[0]} эпизод пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
+        res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id, user_id=message.from_user.id)
+        return_callback = UserCallbackState.callback_data + "return"
+        callback = 'next_block_children'
+        is_pass = 0
+        for el in res:
+            if not el[0]:
+                is_pass += 1
+        if is_pass != 0:
+            await message.answer("Хочешь пройти испытание повторно и получить награду?  💰",
+                                 reply_markup=skip_task_kb(return_callback, callback))
+        if is_pass == 0 and UserCallbackState.is_return:
+            await message.answer("Награда за усердие")
+            await update_user_points(session, user_id=message.from_user.id,
+                                     points=100)
+
         points = await get_user_points(session, user_id=message.from_user.id)
         if points:
             await message.answer(f"Поздравляю! На твоем счету - {points[0]} "
                                  f"е-коинов 💰\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
-        res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id, user_id=message.from_user.id)
-        return_callback = UserCallbackState.callback_data + "return"
-        callback = 'next_block_children'
-        if user_class != "Ребёнок":
-            callback = 'go_to_quest'
-        is_pass = 0
-        for el in res:
-            if not el[0]:
-                is_pass += 1
-        if (progress[0] == 1) and is_pass != 0:
-            await message.answer("Хочешь пройти задания еще раз?", reply_markup=skip_task_kb(return_callback, callback))
-        if (progress[0] == 2) and is_pass != 0:
-            await message.answer("Хочешь пройти задания еще раз?", reply_markup=skip_task_kb(return_callback, callback))
+        if is_pass == 0 and UserCallbackState.is_return:
+            if user_class != "Ребёнок" and not user_become:
+                await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+            elif user_class != "Ребёнок" and not user_become:
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+            else:
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+        if is_pass == 0 and not UserCallbackState.is_return:
+            if user_class != "Ребёнок" and not user_become:
+                await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+            elif user_class != "Ребёнок" and not user_become:
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+            else:
+                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
         if not res:
@@ -257,18 +272,6 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                                         f"Мы верим что у него все получится " + "🥰")
                     except Exception as e:
                         pass
-
-                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
-                return
-            if user_class != "Ребёнок" and not user_become:
-                if not UserCallbackState.is_return:
-                    print(UserCallbackState.is_return)
-                    print("update")
-                    await update_user_progress(session, user_id=message.from_user.id)
-                await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
-                return
-            if user_class != "Ребёнок":
-                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
                 return
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]

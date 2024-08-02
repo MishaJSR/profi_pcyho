@@ -131,7 +131,7 @@ def get_inline_first_video():
 
 def skip_task_kb(return_callback, callback_data):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да ' + emoji.emojize("😋"), callback_data=return_callback)
-    builder.button(text='Продолжить', callback_data=callback_data)
+    builder.button(text='Да', callback_data=return_callback)
+    builder.button(text='Нет', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()

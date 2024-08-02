@@ -254,13 +254,16 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if message.contact:
         phone_number = "+" + message.contact.phone_number
         await update_user_phone(session, phone_number=phone_number, user_id=message.from_user.id)
-    if message.text != "Пропустить":
-        return
-    await update_user_subscribe(session, user_id=message.from_user.id)
-    await message.answer_photo(photo=first_photo_id,
-                               caption=f"На связи Хэппи 😊  и я рада приветствовать "
-                                       f"тебя на интерактивном квесте “Герой эмоций”! 🎉\n",
-                               reply_markup=ReplyKeyboardRemove())
-    await message.answer(text="Ты готов отправиться со мной ?", reply_markup=get_inline_first_video())
-
-    return
+        await update_user_subscribe(session, user_id=message.from_user.id)
+        await message.answer_photo(photo=first_photo_id,
+                                   caption=f"На связи Хэппи 😊  и я рада приветствовать "
+                                           f"тебя на интерактивном квесте “Герой эмоций”! 🎉\n",
+                                   reply_markup=ReplyKeyboardRemove())
+        await message.answer(text="Ты готов отправиться со мной ?", reply_markup=get_inline_first_video())
+    if message.text == "Пропустить":
+        await update_user_subscribe(session, user_id=message.from_user.id)
+        await message.answer_photo(photo=first_photo_id,
+                                   caption=f"На связи Хэппи 😊  и я рада приветствовать "
+                                           f"тебя на интерактивном квесте “Герой эмоций”! 🎉\n",
+                                   reply_markup=ReplyKeyboardRemove())
+        await message.answer(text="Ты готов отправиться со мной ?", reply_markup=get_inline_first_video())
