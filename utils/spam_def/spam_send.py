@@ -12,7 +12,8 @@ from database.orm_block.orm_query_block_media import get_videos_id_from_block_se
 from database.orm_task.orm_query_task import get_tasks_by_block_id_session_pool
 from database.orm_user.orm_query_user import get_all_users, update_last_send_block_session_pool, \
     update_users_progress_session_pool, get_user_info_for_mom, check_new_user_session_pool, \
-    update_stop_spam, get_user_class_session_pool, get_all_users_updated, update_datetime
+    update_stop_spam, get_user_class_session_pool, get_all_users_updated, update_datetime, get_parent_by_id, \
+    get_parent_by_session
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
@@ -205,6 +206,17 @@ async def no_task_end_script(bot, session_pool, user_id):
                                text=congratulations,
                                reply_markup=ReplyKeyboardRemove())
         await bot.send_message(chat_id=user_id, text=question_answer)
+        parents = await get_parent_by_session(session_pool, user_id=user_id)
+        for parent in parents:
+            mom_id = parent[0]
+            try:
+                await bot.send_message(chat_id=mom_id,
+                                               text=f"Поздравляю!!! Ваш ребенок прошел весь курс\n"
+                                                    f"На этом его бесплатное обучение завершено\n"
+                                                    f"Вы можете попробовать для ребёнка наш полный курс",
+                                               reply_markup=get_inline_pay_end())
+            except Exception as e:
+                pass
     elif user_class[0] == "Родитель":
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"

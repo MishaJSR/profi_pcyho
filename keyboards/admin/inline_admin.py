@@ -108,7 +108,7 @@ def get_inline_pay_end():
 
 def get_inline_next_block():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 👍' , callback_data='next_block_children')
+    builder.button(text='Да 👍', callback_data='next_block_children')
     return builder.as_markup()
 
 
@@ -121,8 +121,17 @@ def questions_kb():
     builder.adjust(1, 1)
     return builder.as_markup()
 
+
 def get_inline_first_video():
     builder = InlineKeyboardBuilder()
     builder.button(text='Хочу пройти квест ' + emoji.emojize("😋"), callback_data='go_to_quest')
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def skip_task_kb(return_callback, callback_data):
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да ' + emoji.emojize("😋"), callback_data=return_callback)
+    builder.button(text='Продолжить', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()
