@@ -12,12 +12,12 @@ from database.orm_block.orm_query_block_media import get_videos_id_from_block_se
 from database.orm_task.orm_query_task import get_tasks_by_block_id_session_pool
 from database.orm_user.orm_query_user import get_all_users, update_last_send_block_session_pool, \
     update_users_progress_session_pool, get_user_info_for_mom, check_new_user_session_pool, \
-    update_stop_spam, get_user_class_session_pool
+    update_stop_spam, get_user_class_session_pool, get_all_users_updated, update_datetime
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
 from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, \
-    congratulations, question_answer
+    congratulations, question_answer, remind_message
 
 
 async def send_progress_mom(bot, session_pool):
@@ -61,6 +61,23 @@ async def send_progress_mom(bot, session_pool):
             pass
         finally:
             await asyncio.sleep(216000)
+
+
+async def send_remind(bot, session_pool):
+    await asyncio.sleep(5)
+    while True:
+        try:
+            users = await get_all_users_updated(session_pool)
+            for user in users:
+                user_data = user._data
+                seconds = (datetime.datetime.now() - user_data[1]).total_seconds()
+                if seconds > 216000:
+                    await bot.send_message(chat_id=user_data[0], text=remind_message)
+                    await update_datetime(session_pool, user_id=user_data[0])
+        except Exception as e:
+            pass
+        finally:
+            await asyncio.sleep(3600)
 
 
 async def spam_task(bot, session_pool, engine):

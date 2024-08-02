@@ -10,7 +10,7 @@ import betterlogging as bl
 
 from database.config import load_config
 
-from utils.spam_def.spam_send import spam_task, send_progress_mom
+from utils.spam_def.spam_send import spam_task, send_progress_mom, send_remind
 
 load_dotenv(find_dotenv())
 
@@ -71,6 +71,7 @@ async def main():
 
     asyncio.create_task(spam_task(bot, session_pool, engine))
     asyncio.create_task(send_progress_mom(bot, session_pool))
+    asyncio.create_task(send_remind(bot, session_pool))
     await bot.delete_webhook(drop_pending_updates=True)
     await bot.set_my_commands(commands=private, scope=BotCommandScopeAllPrivateChats())
     await dp.start_polling(bot)

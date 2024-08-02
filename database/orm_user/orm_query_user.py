@@ -1,3 +1,5 @@
+import datetime
+
 from database.models import Users, UsersTaskProgress
 from sqlalchemy import select, update, delete
 
@@ -54,6 +56,12 @@ async def get_all_users(session_pool, **kwargs):
         result = await session.execute(query)
     return result.fetchall()
 
+async def get_all_users_updated(session_pool, **kwargs):
+    query = select(Users.user_id, Users.updated).where((Users.user_block_bot == False))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchall()
+
 
 async def get_progress_by_user_id(session, **kwargs):
     query = select(Users.progress).where((Users.user_id == kwargs.get("user_id") and (Users.user_block_bot == False)))
@@ -92,6 +100,14 @@ async def update_user_subscribe(session, **kwargs):
 async def update_users_progress_session_pool(session_pool, **kwargs):
     query = update(Users).values(
         progress=Users.progress + 1)
+    async with session_pool.begin().async_session as session:
+        await session.execute(query)
+        await session.commit()
+
+
+async def update_datetime(session_pool, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        updated=datetime.datetime.now())
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
