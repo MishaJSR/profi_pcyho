@@ -200,12 +200,11 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         AdminManageBlockState.date_to_posting = AdminManageBlockState.date_to_posting.replace(hour=hour_to_post,
                                                                                               minute=minute_to_post)
         await message.answer('Укажите уникальное название блока. Это название будет видно только вам',
-                                            reply_markup=reset_kb())
+                             reply_markup=reset_kb())
         await state.set_state(AdminManageBlockState.name_block)
     except Exception as e:
         await message.answer("Ошибка, неправильный формат даты\nПовторите ввод")
         return
-
 
     await state.set_state(AdminManageBlockState.name_block)
 
@@ -232,7 +231,8 @@ async def get_photo(message: types.Message, session: AsyncSession, state: FSMCon
                                        is_sub_block=True)
             for post in AdminManageBlockState.posts:
                 content, has_media, photos, videos = post
-                block_pool_id = await add_block_pool(session, content=content, has_media=has_media, block_main_id=block_id)
+                block_pool_id = await add_block_pool(session, content=content, has_media=has_media,
+                                                     block_main_id=block_id)
                 for photo in photos:
                     await add_block_pool_media(session, block_pool_id=block_pool_id, photo_id=photo.media)
                 for video_id in videos:
