@@ -48,11 +48,9 @@ async def fill_admin_state(message: types.Message, session: AsyncSession,  state
         "is_subscribe": True
     }
     user_fields = ["username", 'is_subscribe']
-    res1 = await UsersRepository().get_one_by_filed(data="user_id", field_filter=field_filter1)
-    res2 = await UsersRepository().get_all_by_filed(data="user_id", field_filter=field_filter2)
-    res3 = await UsersRepository().get_one_by_fileds(data=user_fields, field_filter=field_filter1)
+    res1 = await UsersRepository().get_one_by_fields(data=user_fields, field_filter=field_filter1)
+    res2 = await UsersRepository().get_all_by_fields(data=user_fields, field_filter=field_filter2)
     print(res1)
     print(res2)
-    print(res3)
 
 
