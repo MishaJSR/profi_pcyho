@@ -64,13 +64,14 @@ async def fill_admin_state(message: types.Message, session: AsyncSession,  state
                                  user_class="sdsdds",
                                  user_tag=message.from_user.username
                                  ).get_dictionary_add()
+        res3 = await UserRepository().add_object(data=dictionary)
     except ValidationError as e:
         logging.info(e)
+    except Exception as e:
+        pass
     res1 = await UserRepository().get_one_by_fields(data=user_fields)
     res2 = await UserRepository().get_all_by_fields(data=user_fields, field_filter=field_filter2)
-    res3 = await UserRepository().add_object(data=add_ob)
-    print(res1)
-    print(res2)
+
     print(res3)
 
 

@@ -20,5 +20,5 @@ class GetDictUser(BaseModel):
     user_callback: Optional[str] = None
     points: Optional[int] = 0
 
-    def get_dictionary_add(self):
+    def get_dictionary_add(self) -> dict:
         return self.dict()
