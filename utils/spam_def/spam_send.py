@@ -18,7 +18,7 @@ from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inl
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
 from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, \
-    congratulations, question_answer, remind_message
+    congratulations, question_answer, remind_message, message_third_block
 
 
 async def send_progress_mom(bot, session_pool):
@@ -211,10 +211,8 @@ async def no_task_end_script(bot, session_pool, user_id):
             mom_id = parent[0]
             try:
                 await bot.send_message(chat_id=mom_id,
-                                               text=f"Поздравляю!!! Ваш ребенок прошел весь курс\n"
-                                                    f"На этом его бесплатное обучение завершено\n"
-                                                    f"Вы можете попробовать для ребёнка наш полный курс",
-                                               reply_markup=get_inline_pay_end())
+                                       text=message_third_block,
+                                       reply_markup=get_inline_pay_end())
             except Exception as e:
                 pass
     elif user_class[0] == "Родитель":

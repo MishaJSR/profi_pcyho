@@ -3,7 +3,7 @@ import os
 import emoji
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import find_dotenv, load_dotenv
-from utils.common.message_constant import referal_link, course_link
+from utils.common.message_constant import referal_link, course_link, happy_link
 
 load_dotenv(find_dotenv())
 course_link = course_link
@@ -93,7 +93,7 @@ def get_inline_pay():
 
 def get_inline_referal():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Сслыка', callback_data='effeefwwefefe',
+    builder.button(text='Сслыка', callback_data='effeefwwefe44fe',
                    url=course_referal)
     builder.button(text='Назад', callback_data='back_from_pay')
     return builder.as_markup()
@@ -101,8 +101,15 @@ def get_inline_referal():
 
 def get_inline_pay_end():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Сслыка', callback_data='effeefwwefefe',
+    builder.button(text='Оплата курса', callback_data='effeefwwefefe',
                    url=course_link)
+    return builder.as_markup()
+
+
+def get_inline_support():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
+                   url=happy_link)
     return builder.as_markup()
 
 
@@ -115,7 +122,7 @@ def get_inline_next_block():
 def questions_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text='По вопросам квеста 🤓',
-                   url='https://t.me/Happy_studio_emotions')
+                   url=happy_link)
     builder.button(text='Не работает бот 🛠',
                    url='https://t.me/mshsor')
     builder.adjust(1, 1)

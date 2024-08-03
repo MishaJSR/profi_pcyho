@@ -18,10 +18,10 @@ from handlers.user.state import UserState
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block, \
-    questions_kb, get_inline_pay_end, skip_task_kb
+    questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support
 from keyboards.user.reply_user import start_kb, send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
-    get_phone, achive1, achive2
+    get_phone, achive1, achive2, message_first_block, message_second_block
 
 user_callback_router = Router()
 
@@ -224,20 +224,20 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                  f"е-коинов 💰\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
-        if is_pass == 0 and UserCallbackState.is_return:
+        if is_pass == 0:
             if user_class != "Ребёнок" and not user_become:
                 await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
             elif user_class != "Ребёнок" and not user_become:
                 await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
             else:
                 await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
-        if is_pass == 0 and not UserCallbackState.is_return:
-            if user_class != "Ребёнок" and not user_become:
-                await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
-            elif user_class != "Ребёнок" and not user_become:
-                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
-            else:
-                await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+        # if is_pass == 0 and not UserCallbackState.is_return:
+        #     if user_class != "Ребёнок" and not user_become:
+        #         await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+        #     elif user_class != "Ребёнок" and not user_become:
+        #         await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
+        #     else:
+        #         await message.answer('Перейдем к следующему эпизоду? 🤩', reply_markup=get_inline_next_block())
 
         progress = await get_progress_by_user_id(session, user_id=message.from_user.id)
         res = await get_block_id_by_progress(session, progress_block=progress[0])
@@ -254,22 +254,20 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                 return
             await message.answer(congratulations, reply_markup=ReplyKeyboardRemove())
         else:
-            if user_class == "Ребёнок":
+            if user_class == "Ребёнок" and not UserCallbackState.is_return:
                 parents = await get_parent_by_id(session, user_id=message.from_user.id)
                 for parent in parents:
                     mom_id = parent[0]
                     child_progress = parent[1]
-                    child_points = parent[2]
                     try:
-                        if child_points == 0:
+                        if child_progress == 1:
                             await message.bot.send_message(chat_id=mom_id,
-                                                   text=f"Ваш ребенок большой молодец и уже прошёл {child_progress} урока\n"
-                                                        f"Мы верим что у него все получится " + "🥰")
-                        else:
+                                                           text=message_first_block,
+                                                           reply_markup=get_inline_support())
+                        if child_progress == 2:
                             await message.bot.send_message(chat_id=mom_id,
-                                                   text=f"Ваш ребёнок делает большие успехи!!!\n"
-                                                        f"Он заработал {child_points} очков и уже прошёл {child_progress} урока\n"
-                                                        f"Мы верим что у него все получится " + "🥰")
+                                                           text=message_second_block,
+                                                           reply_markup=get_inline_support())
                     except Exception as e:
                         pass
                 return

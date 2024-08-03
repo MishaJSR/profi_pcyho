@@ -8,7 +8,8 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import ReplyKeyboardRemove, ChatMemberUpdated
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_user.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, update_user_phone, \
+from database.orm_user.orm_query_user import check_new_user, add_user, update_parent_id, get_user_parent, \
+    update_user_phone, \
     update_user_subscribe, check_user_subscribe, update_user_callback, get_user_class, \
     update_user_block_bot_session_pool
 from database.orm_block.orm_query_block import get_time_next_block
@@ -38,13 +39,16 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(f"Узнай для чего они нужны "
                              f"/coins_avail")
 
+
 @user_private_router.message(StateFilter('*'), Command("coins_avail"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer(f'{message_coints_avail}')
 
+
 @user_private_router.message(StateFilter('*'), Command("questions"))
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
     await message.answer(f'У вас остались вопросы ❓', reply_markup=questions_kb())
+
 
 @user_private_router.my_chat_member(ChatMemberUpdatedFilter(member_status_changed=KICKED))
 async def user_blocked_bot(event: ChatMemberUpdated, session: AsyncSession):
@@ -89,12 +93,17 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if not res:
         await message.answer_photo(photo=happy_photo_id, caption=f'{message.from_user.full_name}, '
                                                                  f'добро пожаловать на квест!\n\n'
-                                                                 f'Я - робот-помощник, а ты?', reply_markup=users_pool_kb())
+                                                                 f'Я - робот-помощник, а ты?',
+                                   reply_markup=users_pool_kb())
         await state.set_state(UserRegistrationState.start)
         return
     is_sub, progress, user_class, user_callback, user_become, name_of_user = await check_user_subscribe(session,
                                                                                                         user_id=message.from_user.id)
     if user_class == "Ребёнок":
+        if not is_sub:
+            await message.answer(f'Привет {message.from_user.full_name}!')
+            await message.answer('Родитель еще не подтвердил доступ')
+            return
         await message.answer(f'Привет {message.from_user.full_name}!')
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
@@ -103,6 +112,9 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(get_phone, reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
+    if not user_callback and not user_become:
+        await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
+        return
     if progress == 1 and user_class == "Педагог":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
@@ -110,9 +122,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
     if progress == 1 and user_class == "Родитель":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
-        return
-    if not user_callback and not user_become:
-        await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
         return
     if user_class == "Родитель" and not user_become:
         await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
@@ -155,9 +164,9 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await update_parent_id(session, user_id=UserRegistrationState.children_id, parent_id=message.from_user.id)
         await message.answer("Спасибо Вам за доверие", reply_markup=ReplyKeyboardRemove())
         await message.bot.send_photo(chat_id=UserRegistrationState.children_id, photo=first_photo_id,
-            caption=f"Ура, доступ разблокирован!\n\n"
-                 f"На связи Хэппи 😊 и я рада приветствовать тебя на интерактивном квесте “Герой эмоций”! 🎉\n",
-            reply_markup=ReplyKeyboardRemove())
+                                     caption=f"Ура, доступ разблокирован!\n\n"
+                                             f"На связи Хэппи 😊 и я рада приветствовать тебя на интерактивном квесте “Герой эмоций”! 🎉\n",
+                                     reply_markup=ReplyKeyboardRemove())
         await message.bot.send_message(chat_id=UserRegistrationState.children_id, text="Ты готов отправиться со мной ?",
                                        reply_markup=get_inline_first_video())
         res = await check_new_user(session, user_id=message.from_user.id)
@@ -170,11 +179,10 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
 
 @user_private_router.message(StateFilter('*'), F.text == "Нет, я против")
 async def start_cmd(message: types.Message, session: AsyncSession, state: FSMContext):
-    await message.answer("Нам очень жаль, напишите что вам не понравилось", reply_markup=ReplyKeyboardRemove())
+    await message.answer("Нам очень жаль 😔", reply_markup=ReplyKeyboardRemove())
     res = await check_new_user(session, user_id=message.from_user.id)
     if not res:
         await message.answer("Возможно вы сами хотите попробовать пройти курс?", reply_markup=get_inline_parent())
-
 
 
 @user_private_router.message(StateFilter('*'), F.text == 'Когда будет следующий блок?')
