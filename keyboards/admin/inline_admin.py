@@ -103,6 +103,9 @@ def get_inline_pay_end():
     builder = InlineKeyboardBuilder()
     builder.button(text='Оплата курса', callback_data='effeefwwefefe',
                    url=course_link)
+    builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
+                   url=happy_link)
+    builder.adjust(1, 1)
     return builder.as_markup()
 
 
