@@ -212,9 +212,6 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         for el in res:
             if not el[0]:
                 is_pass += 1
-        if is_pass != 0:
-            await message.answer("Хочешь пройти испытание повторно и получить награду?  💰",
-                                 reply_markup=skip_task_kb(return_callback, callback))
         if is_pass == 0 and UserCallbackState.is_return:
             await message.answer_photo(photo=photo, caption="Награда за усердие\n"
                                                             "Двигайся дальше и получай новые награды.\n")
@@ -227,6 +224,9 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                  f"е-коинов 💰\nДвигайся дальше и получай новые награды.\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
+        if is_pass != 0:
+            await message.answer("Хочешь пройти испытание повторно и получить награду?  💰",
+                                 reply_markup=skip_task_kb(return_callback, callback))
         if is_pass == 0:
             if user_class != "Ребёнок" and not user_become:
                 await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
