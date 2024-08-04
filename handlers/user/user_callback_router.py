@@ -38,6 +38,7 @@ class UserCallbackState(StatesGroup):
     list_of_answers = []
     callback_data = None
     is_return = False
+    index = 1
 
 
 @user_callback_router.callback_query(lambda call: call.data == "parent_want_to_be_children")
@@ -195,13 +196,14 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                                  answer_mode=UserCallbackState.now_task.answer_mode, result=message.text,
                                  is_pass=is_pass)
     if len(UserCallbackState.tasks) == 0:
+        UserCallbackState.index = 1
         progress = await get_user_progress(session, user_id=message.from_user.id)
         photo = None
         if progress[0] == 1:
             photo = achive1
         if progress[0] == 2:
             photo = achive2
-        await message.answer_photo(photo=photo, caption=f"{progress[0]} эпизод пройден ✅")
+        await message.answer(f"{progress[0]} эпизод пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id, user_id=message.from_user.id)
         return_callback = UserCallbackState.callback_data + "return"
@@ -214,14 +216,15 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             await message.answer("Хочешь пройти испытание повторно и получить награду?  💰",
                                  reply_markup=skip_task_kb(return_callback, callback))
         if is_pass == 0 and UserCallbackState.is_return:
-            await message.answer("Награда за усердие")
+            await message.answer_photo(photo=photo, caption="Награда за усердие\n"
+                                                            "Двигайся дальше и получай новые награды.\n")
             await update_user_points(session, user_id=message.from_user.id,
                                      points=100)
 
         points = await get_user_points(session, user_id=message.from_user.id)
         if points:
-            await message.answer(f"Поздравляю! На твоем счету - {points[0]} "
-                                 f"е-коинов 💰\n"
+            await message.answer_photo(photo=photo, caption=f"Поздравляю! На твоем счету - {points[0]} "
+                                 f"е-коинов 💰\nДвигайся дальше и получай новые награды.\n"
                                  f"Узнай для чего они нужны "
                                  f"/coins_avail")
         if is_pass == 0:
@@ -273,6 +276,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
                 return
         return
     UserCallbackState.now_task = UserCallbackState.tasks[0]
+    UserCallbackState.index += 1
     UserCallbackState.tasks = UserCallbackState.tasks[1:]
     if UserCallbackState.now_task.answer_mode == 'Описание изображения':
         await prepare_image_task(message, state, session)
@@ -283,7 +287,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
 # dfsdf
 async def prepare_test_tasks(message, state, session):
     media_group = []
-    caption_text = UserCallbackState.now_task.description + "\n\n" + UserCallbackState.now_task.answers + \
+    answers = UserCallbackState.now_task.answers.replace("\n", "\n\n")
+    caption_text = str(UserCallbackState.index) + ". " + UserCallbackState.now_task.description + "\n\n" + answers + \
                    '\n\n' + UserCallbackState.now_task.addition
     photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
     if len(photos) > 0:
