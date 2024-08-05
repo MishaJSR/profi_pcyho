@@ -18,7 +18,7 @@ from handlers.user.state import UserState
 from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block, \
-    questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support
+    questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support, get_inline_to_tasks
 from keyboards.user.reply_user import start_kb, send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
     get_phone, achive1, achive2, message_first_block, message_second_block, list_number_smile, file_id, text_for_media
@@ -95,8 +95,14 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
 
+@user_callback_router.callback_query(lambda call: len(call.data) == 36)
+async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
+    await call.message.delete()
+    await call.message.answer_photo(photo=file_id, caption=text_for_media, reply_markup=get_inline_to_tasks())
+    UserCallbackState.callback_data = call.data
 
-@user_callback_router.callback_query(lambda call: len(call.data) > 35)
+
+@user_callback_router.callback_query(lambda call: call.data == "start_task")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
     if not UserCallbackState.is_return:
@@ -109,10 +115,6 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     UserCallbackState.tasks = []
     UserCallbackState.block_id = None
     UserCallbackState.now_task = None
-    if UserCallbackState.is_return:
-        UserCallbackState.callback_data = call.data[:-6]
-    else:
-        UserCallbackState.callback_data = call.data
     callback_data = UserCallbackState.callback_data
     UserCallbackState.block_id = await get_block_id_by_callback(session, callback_button_id=callback_data)
     tasks = await get_task_by_block_id(session, block_id=UserCallbackState.block_id[0])

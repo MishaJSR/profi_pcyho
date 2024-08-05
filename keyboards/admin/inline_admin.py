@@ -20,6 +20,12 @@ def get_inline(is_second=False, callback_data=None):
     return builder.as_markup()
 
 
+def get_inline_to_tasks():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Перейти к заданиям 💪', callback_data="start_task")
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
 def get_inline_vebinar(url):
     builder = InlineKeyboardBuilder()
     builder.button(text='Перейти на вебинар', callback_data='asdsaafafadasdasdafaac',
