@@ -65,7 +65,7 @@ async def get_all_users(session_pool, **kwargs):
 
 
 async def get_all_users_updated(session_pool, **kwargs):
-    query = select(Users.user_id, Users.updated).where((Users.user_block_bot == False))
+    query = select(Users.user_id, Users.updated, Users.progress).where((Users.user_block_bot == False))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()

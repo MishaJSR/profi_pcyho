@@ -15,8 +15,8 @@ course_link = "https://studio-emotions.ru/#we"
 happy_link = 'https://t.me/Happy_studio_emotions'
 first_photo_id = 'AgACAgIAAxkBAAJv_2as0UKxZxvBh88DWlh7JuwloYpoAAIe3DEb_61hSczznRle6I90AQADAgADeQADNQQ'
 happy_photo_id = 'AgACAgIAAxkBAAJt9GarhXtbFUBl2h21r8HToEWtJW10AAKX7DEb2jZhSUKiZMWOhzsYAQADAgADeAADNQQ'
-achive1 = 'AgACAgIAAxkBAAJt9GarhXtbFUBl2h21r8HToEWtJW10AAKX7DEb2jZhSUKiZMWOhzsYAQADAgADeAADNQQ'
-achive2 = 'AgACAgIAAxkBAAJv_2as0UKxZxvBh88DWlh7JuwloYpoAAIe3DEb_61hSczznRle6I90AQADAgADeQADNQQ'
+achive1 = 'AgACAgIAAxkBAAJ7LGawcoadhdqgJqEXz6IzdiQdWeZyAAIa5DEbmsiBSbEPG3bFtYjZAQADAgADeQADNQQ'
+achive2 = 'AgACAgIAAxkBAAJ7LGawcoadhdqgJqEXz6IzdiQdWeZyAAIa5DEbmsiBSbEPG3bFtYjZAQADAgADeQADNQQ'
 question_answer = "Остались вопросы ❓\nИспользуй команду /questions"
 message_coints_avail = f"У тебя уже есть е-коины, которые ты заработал на нашем курсе?" \
                         f" Отлично! Давай узнаем, на что ты можешь их потратить. 😉\n\n" \

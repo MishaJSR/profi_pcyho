@@ -72,7 +72,7 @@ async def send_remind(bot, session_pool):
             for user in users:
                 user_data = user._data
                 seconds = (datetime.datetime.now() - user_data[1]).total_seconds()
-                if seconds > 216000:
+                if seconds > 216000 and user_data[2] < 3:
                     await bot.send_message(chat_id=user_data[0], text=remind_message)
                     await update_datetime(session_pool, user_id=user_data[0])
         except Exception as e:
