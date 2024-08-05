@@ -72,7 +72,7 @@ class Users(Base):
     user_tag: Mapped[str] = mapped_column(Text, nullable=True)
     user_class: Mapped[str] = mapped_column(Text, nullable=False)
     user_become_children: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
-    parent_id: Mapped[int] = mapped_column(Integer, nullable=True)
+    parent_id: Mapped[int] = mapped_column(BigInteger, nullable=True)
     progress: Mapped[int] = mapped_column(Integer, default=0)
     name_of_user: Mapped[str] = mapped_column(Text, nullable=True)
     stop_spam: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
