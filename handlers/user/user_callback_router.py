@@ -213,7 +213,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             if not el[0]:
                 is_pass += 1
         if is_pass == 0 and UserCallbackState.is_return:
-            await message.answer_photo(photo=photo, caption="Награда за усердие\n"
+            await message.answer_photo(photo=photo, caption="Награда за усердие - 100 e-коинов\n"
                                                             "Двигайся дальше и получай новые награды.\n")
             await update_user_points(session, user_id=message.from_user.id,
                                      points=100)
