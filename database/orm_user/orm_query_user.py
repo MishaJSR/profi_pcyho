@@ -1,3 +1,5 @@
+import datetime
+
 from database.models import Users, UsersTaskProgress
 from sqlalchemy import select, update, delete
 
@@ -15,8 +17,15 @@ async def check_new_user_session_pool(session_pool, user_id):
     return result.fetchone()
 
 
-async def add_user(session, user_id: int, username: str, user_tag: str, user_class: str, is_subscribe=False, parent_id=None,
-                   progress=1):
+async def check_new_user_session(session, user_id):
+    query = select(Users.user_id).where((Users.user_id == user_id) and (Users.user_block_bot == False))
+    result = await session.execute(query)
+    return result.fetchone()
+
+
+async def add_user(session, user_id: int, username: str, user_tag: str, user_class: str, is_subscribe=False,
+                   parent_id=None,
+                   progress=0):
     if not user_tag:
         user_tag = '@'
     else:
@@ -25,7 +34,7 @@ async def add_user(session, user_id: int, username: str, user_tag: str, user_cla
         user_id=user_id,
         username=username,
         user_class=user_class,
-        user_tag = user_tag,
+        user_tag=user_tag,
         parent_id=parent_id,
         is_subscribe=is_subscribe,
         progress=progress
@@ -55,8 +64,15 @@ async def get_all_users(session_pool, **kwargs):
     return result.fetchall()
 
 
+async def get_all_users_updated(session_pool, **kwargs):
+    query = select(Users.user_id, Users.updated, Users.progress).where((Users.user_block_bot == False))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchall()
+
+
 async def get_progress_by_user_id(session, **kwargs):
-    query = select(Users.progress).where(Users.user_id == kwargs.get("user_id"))
+    query = select(Users.progress).where((Users.user_id == kwargs.get("user_id") and (Users.user_block_bot == False)))
     result = await session.execute(query)
     return result.fetchone()
 
@@ -92,6 +108,14 @@ async def update_user_subscribe(session, **kwargs):
 async def update_users_progress_session_pool(session_pool, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         progress=Users.progress + 1)
+    async with session_pool.begin().async_session as session:
+        await session.execute(query)
+        await session.commit()
+
+
+async def update_datetime(session_pool, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        updated=datetime.datetime.now())
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
@@ -171,6 +195,21 @@ async def get_user_info_for_mom(session_pool, **kwargs):
     return result.fetchall()
 
 
+async def get_parent_by_id(session, user_id):
+    query = select(Users.parent_id, Users.progress, Users.points).where(
+        (Users.user_id == user_id) and (Users.is_subscribe == True))
+    result = await session.execute(query)
+    return result.fetchall()
+
+
+async def get_parent_by_session(session_pool, user_id):
+    query = select(Users.parent_id, Users.progress, Users.points).where(
+        (Users.user_id == user_id) and (Users.is_subscribe == True))
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.fetchall()
+
+
 async def get_user_class_session_pool(session_pool, **kwargs):
     query = select(Users.user_class).where(Users.user_id == kwargs.get("user_id"))
     async with session_pool.begin().async_session as session:
@@ -228,7 +267,7 @@ async def delete_me_user(session, **kwargs):
 
 
 async def get_user_progress(session, **kwargs):
-    query = select(Users.progress).where(Users.user_id == kwargs.get("user_id"))
+    query = select(Users.progress, Users.points).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchone()
 

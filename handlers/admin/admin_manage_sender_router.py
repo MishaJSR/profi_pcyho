@@ -1,4 +1,5 @@
 import datetime
+import logging
 
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
@@ -105,7 +106,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await state.set_state(AdminStateSpammer.choose_block)
 
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer(f'Ошибка при попытке подключения к базе данных\n'
                              f'Возможно у вас отсутствуют блоки с возможностью редактирования даты',
                              reply_markup=start_kb())

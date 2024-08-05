@@ -151,3 +151,8 @@ async def get_order_block_progress(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
     return result.fetchall()
+
+async def get_order_block_progress_session(session):
+    query = select(Block.progress_block).where(Block.is_visible == True).order_by(Block.date_to_post)
+    result = await session.execute(query)
+    return result.fetchall()

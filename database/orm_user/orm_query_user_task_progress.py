@@ -26,6 +26,13 @@ async def get_task_progress_by_user_id(session: AsyncSession, **kwargs):
     return result.fetchall()
 
 
+async def get_is_pass_by_id(session: AsyncSession, block_id, user_id):
+    query = select(UsersTaskProgress.is_pass).where((UsersTaskProgress.user_id == user_id) &
+                                            (UsersTaskProgress.block_id == block_id))
+    result = await session.execute(query)
+    return result.fetchall()
+
+
 async def delete_all_user_progress(session, **kwargs):
     query = delete(UsersTaskProgress).where(UsersTaskProgress.user_id == kwargs.get("user_id"))
     await session.execute(query)

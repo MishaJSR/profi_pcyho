@@ -3,19 +3,28 @@ import os
 import emoji
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from dotenv import find_dotenv, load_dotenv
-from utils.common.message_constant import referal_link, course_link
+from utils.common.message_constant import referal_link, course_link, happy_link
 
 load_dotenv(find_dotenv())
 course_link = course_link
 course_referal = referal_link
 
 
-def get_inline(callback_data):
+def get_inline(is_second=False, callback_data=None):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 💪', callback_data=callback_data)
+    if is_second:
+        builder.button(text='Перейти к заданиям 💪', callback_data=callback_data)
+    else:
+        builder.button(text='Да 💪', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()
 
+
+def get_inline_to_tasks():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Перейти к заданиям 💪', callback_data="start_task")
+    builder.adjust(1, 1)
+    return builder.as_markup()
 
 def get_inline_vebinar(url):
     builder = InlineKeyboardBuilder()
@@ -93,7 +102,7 @@ def get_inline_pay():
 
 def get_inline_referal():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Сслыка', callback_data='effeefwwefefe',
+    builder.button(text='Сслыка', callback_data='effeefwwefe44fe',
                    url=course_referal)
     builder.button(text='Назад', callback_data='back_from_pay')
     return builder.as_markup()
@@ -101,22 +110,47 @@ def get_inline_referal():
 
 def get_inline_pay_end():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Сслыка', callback_data='effeefwwefefe',
+    builder.button(text='Оплата курса', callback_data='effeefwwefefe',
                    url=course_link)
+    builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
+                   url=happy_link)
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def get_inline_support():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
+                   url=happy_link)
     return builder.as_markup()
 
 
 def get_inline_next_block():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 👍' , callback_data='next_block_children')
+    builder.button(text='Да 👍', callback_data='next_block_children')
     return builder.as_markup()
 
 
 def questions_kb():
     builder = InlineKeyboardBuilder()
     builder.button(text='По вопросам квеста 🤓',
-                   url='https://t.me/Happy_studio_emotions')
+                   url=happy_link)
     builder.button(text='Не работает бот 🛠',
                    url='https://t.me/mshsor')
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def get_inline_first_video():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Хочу пройти квест ' + emoji.emojize("😋"), callback_data='go_to_quest')
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def skip_task_kb(return_callback, callback_data):
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да', callback_data=return_callback)
+    builder.button(text='Нет', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()

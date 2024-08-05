@@ -43,4 +43,3 @@ class Config(BaseModel):
 
 
 configuration = Config.load_config()
-print(configuration.redis_user)

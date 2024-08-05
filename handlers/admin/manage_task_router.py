@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import types, Router, F
 from aiogram.filters import StateFilter
 from aiogram.fsm.context import FSMContext
@@ -167,7 +169,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         await message.answer('Задание загружено', reply_markup=start_kb())
         await state.set_state(AdminManageTaskState.start)
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer('Ошибка загрузки', reply_markup=start_kb())
 
 
@@ -297,7 +299,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
             await add_photo_pool_task(session, task_id, photo.media)
         await message.answer('Успешная загрузка', reply_markup=start_kb())
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer('Ошибка загрузки', reply_markup=start_kb())
     finally:
         await state.set_state(AdminManageTaskState.start)
@@ -353,7 +355,7 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
         res = await delete_task(session, task_id=id_task_to_delete)
         await message.answer("Задание успешно удалено", reply_markup=start_kb())
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer("Ошибка удаления", reply_markup=start_kb())
     finally:
         await state.set_state(AdminManageTaskState.start)

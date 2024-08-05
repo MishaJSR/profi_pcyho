@@ -178,7 +178,7 @@ async def send_multi_post_test(bot, session, user_id, block_id):
                 await bot.send_message(chat_id=user_id, text=content)
             if videos_ids:
                 for video_id in video_content:
-                    await bot.send_video(user_id, video=video_id)
+                    await bot.send_video(chat_id=user_id, video=video_id)
 
 
 def gen_media_content(photo_content, video_content):

@@ -18,7 +18,6 @@ if config.config_file_name is not None:
 env = Env()
 env.read_env('.env')
 
-print(env)
 
 url = URL.create(
     drivername=f"postgresql+asyncpg",

@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 
@@ -12,12 +13,13 @@ from database.orm_block.orm_query_block_media import get_videos_id_from_block_se
 from database.orm_task.orm_query_task import get_tasks_by_block_id_session_pool
 from database.orm_user.orm_query_user import get_all_users, update_last_send_block_session_pool, \
     update_users_progress_session_pool, get_user_info_for_mom, check_new_user_session_pool, \
-    update_stop_spam, get_user_class_session_pool
+    update_stop_spam, get_user_class_session_pool, get_all_users_updated, update_datetime, get_parent_by_id, \
+    get_parent_by_session
 from keyboards.admin.inline_admin import get_inline, get_inline_pay_end, get_inline_parent_all_block_pay, \
     get_inline_teacher_all_block_referal
 from keyboards.user.reply_user import start_kb
 from utils.common.message_constant import you_should_be_partner, ready_to_task, text_for_media, file_id, \
-    congratulations, question_answer
+    congratulations, question_answer, remind_message, message_third_block
 
 
 async def send_progress_mom(bot, session_pool):
@@ -56,11 +58,28 @@ async def send_progress_mom(bot, session_pool):
                                                     f"Он заработал {points} очков и уже прошёл {progress - 1} блоков\n"
                                                     f"Мы верим что у него все получится " + "🥰")
                 except Exception as e:
-                    print("нет")
+                    logging.info(e)
         except Exception as e:
             pass
         finally:
             await asyncio.sleep(216000)
+
+
+async def send_remind(bot, session_pool):
+    await asyncio.sleep(5)
+    while True:
+        try:
+            users = await get_all_users_updated(session_pool)
+            for user in users:
+                user_data = user._data
+                seconds = (datetime.datetime.now() - user_data[1]).total_seconds()
+                if seconds > 216000 and user_data[2] < 3:
+                    await bot.send_message(chat_id=user_data[0], text=remind_message)
+                    await update_datetime(session_pool, user_id=user_data[0])
+        except Exception as e:
+            pass
+        finally:
+            await asyncio.sleep(3600)
 
 
 async def spam_task(bot, session_pool, engine):
@@ -85,7 +104,7 @@ async def spam_task(bot, session_pool, engine):
                     await send_spam(bot, session_pool, user[0], block_id_to_send)
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
         except Exception as e:
-            print('error', e)
+            logging.info(e)
         await asyncio.sleep(10)
 
 
@@ -109,9 +128,12 @@ async def send_spam(bot, session_pool, user_id, block_id):
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:
-                await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
-                await bot.send_message(chat_id=user_id, text=ready_to_task,
-                                       reply_markup=get_inline(callback_data=callback))
+                if block._data[0].progress_block == 1:
+                    await bot.send_message(chat_id=user_id, text=ready_to_task,
+                                           reply_markup=get_inline(callback_data=callback))
+                if block._data[0].progress_block == 2:
+                    await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                                           reply_markup=get_inline(is_second=True, callback_data=callback))
 
             else:
                 await no_task_end_script(bot, session_pool, user_id)
@@ -133,9 +155,12 @@ async def send_spam(bot, session_pool, user_id, block_id):
                 await bot.send_video(user_id, video=video_id)
         await update_count_send_block_session_pool(session_pool, block_id=block_id)
         if has_tasks:
-            await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
-            await bot.send_message(chat_id=user_id, text=ready_to_task,
-                                   reply_markup=get_inline(callback_data=callback))
+            if block._data[0].progress_block == 1:
+                await bot.send_message(chat_id=user_id, text=ready_to_task,
+                                       reply_markup=get_inline(callback_data=callback))
+            if block._data[0].progress_block == 2:
+                await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                                       reply_markup=get_inline(is_second=True, callback_data=callback))
         else:
             await no_task_end_script(bot, session_pool, user_id)
 
@@ -188,6 +213,15 @@ async def no_task_end_script(bot, session_pool, user_id):
                                text=congratulations,
                                reply_markup=ReplyKeyboardRemove())
         await bot.send_message(chat_id=user_id, text=question_answer)
+        parents = await get_parent_by_session(session_pool, user_id=user_id)
+        for parent in parents:
+            mom_id = parent[0]
+            try:
+                await bot.send_message(chat_id=mom_id,
+                                       text=message_third_block,
+                                       reply_markup=get_inline_pay_end())
+            except Exception as e:
+                pass
     elif user_class[0] == "Родитель":
         await bot.send_message(chat_id=user_id,
                                text=f"Поздравляю!\n"
