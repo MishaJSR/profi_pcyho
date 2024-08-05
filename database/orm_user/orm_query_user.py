@@ -90,7 +90,7 @@ async def update_user_subscribe(session, **kwargs):
 
 
 async def update_users_progress_session_pool(session_pool, **kwargs):
-    query = update(Users).values(
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         progress=Users.progress + 1)
     async with session_pool.begin().async_session as session:
         await session.execute(query)

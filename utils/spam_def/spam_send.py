@@ -202,4 +202,4 @@ async def no_task_end_script(bot, session_pool, user_id):
                                     f"{you_should_be_partner}",
                                reply_markup=get_inline_teacher_all_block_referal())
         await bot.send_message(chat_id=user_id, text=question_answer)
-    await update_users_progress_session_pool(session_pool)
+    await update_users_progress_session_pool(session_pool, user_id=user_id)
