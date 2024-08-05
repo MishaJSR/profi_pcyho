@@ -212,7 +212,10 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
         if is_pass == 0 and UserCallbackState.is_return:
             await message.answer_photo(photo=photo, caption=f"Поздравляю! На твоем счету 100 е-коинов💰\n"
                                                             f"Это твоя награда за упорство💪\n"
-                                                            f"Двигайся дальше и получай новые награды🏆")
+                                                            f"Двигайся дальше и получай новые награды🏆"
+                                                            f"Узнай для чего они нужны вот тут 👉 "
+                                                            f"/coins_avail"
+                                       )
             await update_user_points(session, user_id=message.from_user.id,
                                      points=100)
 
@@ -221,7 +224,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             await message.answer_photo(photo=photo, caption=f"Поздравляю 👏\n"
                                                             f"Ты заработал 100 е-коинов 💰\n"
                                                             f"Двигайся дальше и получай новые награды.\n"
-                                                            f"Узнай для чего они нужны "
+                                                            f"Узнай для чего они нужны вот тут 👉 "
                                                             f"/coins_avail")
             await update_user_points(session, user_id=message.from_user.id,
                                      points=100)
