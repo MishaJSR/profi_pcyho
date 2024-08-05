@@ -281,7 +281,7 @@ CREATE TABLE public.users (
     updated timestamp without time zone NOT NULL,
     id_last_block_send integer NOT NULL,
     user_class text NOT NULL,
-    parent_id integer,
+    parent_id bigint,
     phone_number text,
     user_callback text,
     user_become_children boolean NOT NULL,
@@ -528,7 +528,7 @@ COPY public.users_task_progress (id, user_id, username, task_id, answer_mode, re
 -- Name: block_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.block_id_seq', 80, true);
+SELECT pg_catalog.setval('public.block_id_seq', 81, true);
 
 
 --
@@ -542,7 +542,7 @@ SELECT pg_catalog.setval('public.block_pool_id_seq', 10, true);
 -- Name: media_block_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.media_block_id_seq', 112, true);
+SELECT pg_catalog.setval('public.media_block_id_seq', 113, true);
 
 
 --
