@@ -1,6 +1,8 @@
+import emoji
+
 file_id = "AgACAgIAAxkBAAJwOWas0jH8hAO9d1OeemtOBTxINgh9AAIi3DEb_61hSVa2lYnskmHsAQADAgADeQADNQQ"
-text_for_media = f"Пришло время первого испытания 🤔\n" \
-                 f"Ответь на вопросы и заработай свои первые e-коины.\n\n" \
+text_for_media = f"Пришло время испытания 🤔\n" \
+                 f"Ответь на вопросы и заработай 100 e-коинов 💰\n\n" \
                  f"Инструкция: внимательно прочитай вопросы и напиши цифры правильных ответов.\n\n" \
                  f"Подсказка: правильных ответов может быть несколько.\n\n" \
                  f"Формат ответа: если правильных ответов несколько, например  1 и 2, напиши их в формате 12"
@@ -11,8 +13,9 @@ get_phone = "Мы будем очень рады, если вы оставите
 remind_message = "Что то тебя давно не было, я соскучилась 😔"
 ready_to_task = "Начинаем испытание? 😉"
 referal_link = "https://forms.gle/SF1Te8TANsCavVe38"
-course_link = "https://studio-emotions.ru/#we"
+course_link = "https://studio-emotions.ru/#order:%D0%97%D0%B0%D0%BF%D0%B8%D1%81%D0%B0%D1%82%D1%8C%D1%81%D1%8F%20%D0%B2%20%D0%BC%D0%B8%D0%BD%D0%B8-%D0%B3%D1%80%D1%83%D0%BF%D0%BF%D1%83%20%D0%BD%D0%B0%20%D0%BA%D0%B2%D0%B5%D1%81%D1%82=37500"
 happy_link = 'https://t.me/Happy_studio_emotions'
+list_number_smile = ['1⃣', '2⃣', '3⃣', '4⃣', '5⃣', '6⃣', '7⃣']
 first_photo_id = 'AgACAgIAAxkBAAJv_2as0UKxZxvBh88DWlh7JuwloYpoAAIe3DEb_61hSczznRle6I90AQADAgADeQADNQQ'
 happy_photo_id = 'AgACAgIAAxkBAAJt9GarhXtbFUBl2h21r8HToEWtJW10AAKX7DEb2jZhSUKiZMWOhzsYAQADAgADeAADNQQ'
 achive1 = 'AgACAgIAAxkBAAJ7LGawcoadhdqgJqEXz6IzdiQdWeZyAAIa5DEbmsiBSbEPG3bFtYjZAQADAgADeQADNQQ'

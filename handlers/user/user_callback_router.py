@@ -21,7 +21,7 @@ from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline
     questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support
 from keyboards.user.reply_user import start_kb, send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
-    get_phone, achive1, achive2, message_first_block, message_second_block
+    get_phone, achive1, achive2, message_first_block, message_second_block, list_number_smile, file_id, text_for_media
 
 user_callback_router = Router()
 
@@ -89,6 +89,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.answer("Начало регистрации")
         await state.set_state(UserRegistrationState.parent)
 
+
 #
 @user_callback_router.callback_query(lambda call: call.data == "back_to_theory")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
@@ -97,11 +98,11 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 @user_callback_router.callback_query(lambda call: len(call.data) > 35)
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
-    print(UserCallbackState.is_return)
     await call.message.delete()
+    if not UserCallbackState.is_return:
+        await call.message.answer_photo(photo=file_id, caption=text_for_media)
     UserCallbackState.is_return = False
     if "return" in call.data:
-        print("return")
         UserCallbackState.is_return = True
         await delete_all_user_progress(session, user_id=call.from_user.id)
 
@@ -153,7 +154,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         return
     await update_user_progress(session, user_id=call.from_user.id)
     await call.answer("Идем дальше")
-    await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
+    await call.message.answer("Отправляю тебе новый урок ...")
 
 
 @user_callback_router.callback_query(lambda call: call.data == "go_to_quest")
@@ -164,8 +165,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     else:
         UserCallbackState.is_return = False
     await call.answer("Идем дальше")
-    await call.message.answer("Хэппи отправляет тебе новый урок ☺️")
-
+    await call.message.answer("Отправляю тебе новый урок ...")
 
 
 @user_callback_router.message(UserCallbackState.test_callback, F.text)
@@ -182,10 +182,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     is_pass = False
     if answer_user == answer_right:
         is_pass = True
-        print(UserCallbackState.is_return)
-        if not UserCallbackState.is_return:
-            await update_user_points(session, user_id=message.from_user.id,
-                                     points=UserCallbackState.now_task.points_for_task)
     await state.set_state(UserState.start_user)
     await update_user_task_progress_and_go_to_next(message, session, state, is_pass)
 
@@ -203,9 +199,10 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             photo = achive1
         if progress[0] == 2:
             photo = achive2
-        await message.answer(f"{progress[0]} эпизод пройден ✅")
+        await message.answer(f"Эпизод #{progress[0]} пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
-        res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id, user_id=message.from_user.id)
+        res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id,
+                                      user_id=message.from_user.id)
         return_callback = UserCallbackState.callback_data + "return"
         callback = 'next_block_children'
         is_pass = 0
@@ -213,17 +210,21 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             if not el[0]:
                 is_pass += 1
         if is_pass == 0 and UserCallbackState.is_return:
-            await message.answer_photo(photo=photo, caption="Награда за усердие - 100 e-коинов\n"
-                                                            "Двигайся дальше и получай новые награды.\n")
+            await message.answer_photo(photo=photo, caption=f"Поздравляю! На твоем счету 100 е-коинов💰\n"
+                                                            f"Это твоя награда за упорство💪\n"
+                                                            f"Двигайся дальше и получай новые награды🏆")
             await update_user_points(session, user_id=message.from_user.id,
                                      points=100)
 
         points = await get_user_points(session, user_id=message.from_user.id)
-        if points:
-            await message.answer_photo(photo=photo, caption=f"Поздравляю! На твоем счету - {points[0]} "
-                                 f"е-коинов 💰\nДвигайся дальше и получай новые награды.\n"
-                                 f"Узнай для чего они нужны "
-                                 f"/coins_avail")
+        if points and not UserCallbackState.is_return:
+            await message.answer_photo(photo=photo, caption=f"Поздравляю 👏\n"
+                                                            f"Ты заработал 100 е-коинов 💰\n"
+                                                            f"Двигайся дальше и получай новые награды.\n"
+                                                            f"Узнай для чего они нужны "
+                                                            f"/coins_avail")
+            await update_user_points(session, user_id=message.from_user.id,
+                                     points=100)
         if is_pass != 0:
             await message.answer("Хочешь пройти испытание повторно и получить награду?  💰",
                                  reply_markup=skip_task_kb(return_callback, callback))
@@ -288,7 +289,8 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
 async def prepare_test_tasks(message, state, session):
     media_group = []
     answers = UserCallbackState.now_task.answers.replace("\n", "\n\n")
-    caption_text = str(UserCallbackState.index) + ". " + UserCallbackState.now_task.description + "\n\n" + answers + \
+    caption_text = list_number_smile[
+                       UserCallbackState.index - 1] + " " + UserCallbackState.now_task.description + "\n\n" + answers + \
                    '\n\n' + UserCallbackState.now_task.addition
     photos = await get_media_task_by_task_id(session, task_id=UserCallbackState.now_task.id)
     if len(photos) > 0:

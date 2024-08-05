@@ -10,9 +10,12 @@ course_link = course_link
 course_referal = referal_link
 
 
-def get_inline(callback_data):
+def get_inline(is_second=False, callback_data=None):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 💪', callback_data=callback_data)
+    if is_second:
+        builder.button(text='Перейти к заданиям 💪', callback_data=callback_data)
+    else:
+        builder.button(text='Да 💪', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()
 

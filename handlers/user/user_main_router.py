@@ -173,7 +173,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         if not res:
             await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer("Ошибка подключения")
 
 
@@ -253,7 +253,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             await message.answer(get_phone, reply_markup=send_contact_kb())
             await state.set_state(UserRegistrationState.parent)
     except Exception as e:
-        print(e)
+        logging.info(e)
         await message.answer("Ошибка регистрации")
 
 

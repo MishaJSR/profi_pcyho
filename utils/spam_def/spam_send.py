@@ -1,5 +1,6 @@
 import asyncio
 import datetime
+import logging
 
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 
@@ -57,7 +58,7 @@ async def send_progress_mom(bot, session_pool):
                                                     f"Он заработал {points} очков и уже прошёл {progress - 1} блоков\n"
                                                     f"Мы верим что у него все получится " + "🥰")
                 except Exception as e:
-                    print("нет")
+                    logging.info(e)
         except Exception as e:
             pass
         finally:
@@ -103,7 +104,7 @@ async def spam_task(bot, session_pool, engine):
                     await send_spam(bot, session_pool, user[0], block_id_to_send)
                     await update_last_send_block_session_pool(session_pool, user_id=user[0], block_id=block_id_to_send)
         except Exception as e:
-            print('error', e)
+            logging.info(e)
         await asyncio.sleep(10)
 
 
@@ -127,9 +128,12 @@ async def send_spam(bot, session_pool, user_id, block_id):
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
             if has_tasks:
-                await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
-                await bot.send_message(chat_id=user_id, text=ready_to_task,
-                                       reply_markup=get_inline(callback_data=callback))
+                if block._data[0].progress_block == 1:
+                    await bot.send_message(chat_id=user_id, text=ready_to_task,
+                                           reply_markup=get_inline(callback_data=callback))
+                if block._data[0].progress_block == 2:
+                    await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                                           reply_markup=get_inline(is_second=True, callback_data=callback))
 
             else:
                 await no_task_end_script(bot, session_pool, user_id)
@@ -151,9 +155,12 @@ async def send_spam(bot, session_pool, user_id, block_id):
                 await bot.send_video(user_id, video=video_id)
         await update_count_send_block_session_pool(session_pool, block_id=block_id)
         if has_tasks:
-            await bot.send_photo(chat_id=user_id, photo=file_id, caption=text_for_media)
-            await bot.send_message(chat_id=user_id, text=ready_to_task,
-                                   reply_markup=get_inline(callback_data=callback))
+            if block._data[0].progress_block == 1:
+                await bot.send_message(chat_id=user_id, text=ready_to_task,
+                                       reply_markup=get_inline(callback_data=callback))
+            if block._data[0].progress_block == 2:
+                await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                                       reply_markup=get_inline(is_second=True, callback_data=callback))
         else:
             await no_task_end_script(bot, session_pool, user_id)
 

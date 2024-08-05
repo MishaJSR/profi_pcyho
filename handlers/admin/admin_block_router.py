@@ -264,7 +264,6 @@ async def add_video_pool(session, block_id, file_id):
 
 @admin_block_router.message(AdminManageBlockState.choose_block_actions, F.text == 'Удалить блок')
 async def fill_admin_state(message: types.Message, session: AsyncSession, state: FSMContext):
-    st_time = time.time()
     try:
         res = await get_block_for_delete(session)
         pass
@@ -278,8 +277,6 @@ async def fill_admin_state(message: types.Message, session: AsyncSession, state:
     await message.answer(text='Выберите какой из блоков вы хотите удалить',
                          reply_markup=block_pool_kb(AdminManageBlockState.block_list))
     await state.set_state(AdminManageBlockState.choose_block_to_delete)
-    en_time = time.time()
-    print(en_time - st_time)
 
 
 @admin_block_router.message(AdminManageBlockState.choose_block_to_delete, F.text)
