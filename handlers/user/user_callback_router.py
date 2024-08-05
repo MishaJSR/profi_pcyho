@@ -199,7 +199,7 @@ async def update_user_task_progress_and_go_to_next(message, session, state, is_p
             photo = achive1
         if progress[0] == 2:
             photo = achive2
-        await message.answer(f"Эпизод #{progress[0]} пройден ✅")
+        await message.answer(f"Эпизод №{progress[0]} пройден ✅")
         user_class, user_become = await get_user_class(session, user_id=message.from_user.id)
         res = await get_is_pass_by_id(session, block_id=UserCallbackState.now_task.block_id,
                                       user_id=message.from_user.id)
