@@ -1,6 +1,7 @@
 import asyncio
 
 from aiogram import types, Router, F
+from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
@@ -82,7 +83,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.message.answer_photo(photo=achive3,
                                   caption=f"Поздравляю!\n"
                                   f"Первая глава квеста завершена🔥\n"
-                                  f"Вы также можете оплатить полный курс по ссылке",
+                                  f"Вы также можете забронировать полный курс по ссылке",
                                   reply_markup=get_inline_parent_all_block_pay())
         await call.message.answer(text=question_answer)
     else:
@@ -155,7 +156,8 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 @user_callback_router.callback_query(lambda call: len(call.data) == 36)
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
-    await call.message.answer_photo(photo=file_id, caption=text_for_media, reply_markup=get_inline_to_tasks())
+    await call.message.answer_photo(photo=file_id, caption=text_for_media, reply_markup=get_inline_to_tasks(),
+                                    parse_mode="HTML")
     UserCallbackState.callback_data = call.data
 
 
