@@ -75,11 +75,11 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                 return
             await message.answer(f"Привет!\n\nВаш ребенок хочет улучшить навыки "
                                  f"живого общения и научиться управлять своими эмоциями в “Студии эмоций”\n\n"
-                                 f"{message.from_user.full_name}, вы разрешаете "
+                                 f"{message.from_user.full_name}, Вы разрешаете "
                                  f"ребенку пройти бесплатный уровень "
                                  f"онлайн-квеста “Герой эмоций”?\n\n"
-                                 f"Если вы пройдете регистрацию, "
-                                 f"я пришлю вам результаты прохождения по каждому уроку."
+                                 f"Если Вы пройдете регистрацию, "
+                                 f"я пришлю Вам результаты прохождения по каждому уроку."
                                  f"", reply_markup=parent_permission())
             return
     except Exception as e:

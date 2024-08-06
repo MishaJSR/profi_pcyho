@@ -21,8 +21,10 @@ from utils.common.message_constant import ready_to_task, remind_message
 
 
 async def send_remind(bot, session_pool):
+    logging.info("I start")
     await asyncio.sleep(5)
     while True:
+        logging.info("I circle")
         try:
             users = await get_all_users_updated(session_pool)
             for user in users:
@@ -42,6 +44,7 @@ async def send_remind(bot, session_pool):
         except Exception as e:
             pass
         finally:
+            logging.info("I wait")
             await asyncio.sleep(3600)
 
 

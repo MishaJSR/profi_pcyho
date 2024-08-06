@@ -68,7 +68,7 @@ async def back_step_handler(message: types.Message, state: FSMContext) -> None:
         AdminManageTaskState.photo_counter = 0
         await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
                              f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
-                             f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
+                             f'13\n\nВыбери правильные ответы и напиши их номера', reply_markup=back_kb())
         await state.set_state(AdminManageTaskState.description_test)
         return
 
@@ -194,7 +194,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
     AdminManageTaskState.photo_counter = 0
     await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
                          f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
-                         f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
+                         f'13\n\nВыбери правильные ответы и напиши их номера', reply_markup=back_kb())
     await state.set_state(AdminManageTaskState.description_test)
 
 
@@ -232,7 +232,7 @@ async def fill_admin_state(message: types.Message, state: FSMContext):
         await message.answer(f'Ошибка прочтения\n')
         await message.answer(f'Напишите тест в формате\nОписание задания\n\n'
                              f'1. Вариант1\n2: Вариант2\n3: Вариант3\n\n'
-                             f'13\n\nВыбери правильные ответы и напиши их цифры', reply_markup=back_kb())
+                             f'13\n\nВыбери правильные ответы и напиши их номера', reply_markup=back_kb())
 
 
 @admin_add_task_router.message(AdminManageTaskState.image_test)

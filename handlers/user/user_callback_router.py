@@ -27,7 +27,8 @@ from keyboards.user.reply_user import send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
     get_phone, message_first_block, message_second_block, list_number_smile, file_id, text_for_media, \
     question_answer, message_third_block, achive3, photo_media11, photo_media12, photo_media13, photo_media14, \
-    photo_media21, photo_media22, photo_media23, photo_media24, photo_media25, photo3, photo4
+    photo_media21, photo_media22, photo_media23, photo_media24, photo_media25, photo3, photo4, online_quest_1, \
+    online_quest_2, online_quest_3, online_quest_4
 from utils.spam_def.spam_send import spam_task_user
 
 user_callback_router = Router()
@@ -68,7 +69,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    media2 = [InputMediaPhoto(type='photo', media=photo_media21),
+    media2 = [InputMediaPhoto(type='photo', media=photo_media21, caption=online_quest_1),
               InputMediaPhoto(type='photo', media=photo_media22),
               InputMediaPhoto(type='photo', media=photo_media23),
               InputMediaPhoto(type='photo', media=photo_media24),
@@ -83,7 +84,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    await call.message.bot.send_photo(chat_id=mom_id, photo=photo3, )
+    await call.message.bot.send_photo(chat_id=mom_id, photo=photo3, caption=online_quest_2)
     await call.message.bot.send_message(chat_id=mom_id, text="Как Вам?",
                                         reply_markup=get_inline_is_like_end2())
 
@@ -93,8 +94,9 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    await call.message.bot.send_photo(chat_id=mom_id, photo=photo4,
+    await call.message.bot.send_photo(chat_id=mom_id, photo=photo4, caption=online_quest_3,
                                       reply_markup=get_inline_parent_all_block_pay())
+    await call.message.bot.send_message(chat_id=mom_id, text=online_quest_4, reply_markup=get_inline_support())
 
 
 
@@ -127,7 +129,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.message.answer_photo(photo=achive3,
                                   caption=f"Поздравляю!\n"
                                   f"Первая глава квеста завершена🔥\n"
-                                  f"Вы также можете забронировать полный курс по ссылке",
+                                  f"Вы также можете забронировать полный курс по ссылке ⬇️",
                                   reply_markup=get_inline_parent_all_block_pay())
         await call.message.answer(text=question_answer)
     else:
