@@ -69,7 +69,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    media2 = [InputMediaPhoto(type='photo', media=photo_media21, caption=online_quest_1),
+    media2 = [InputMediaPhoto(type='photo', media=photo_media21, caption=online_quest_2),
               InputMediaPhoto(type='photo', media=photo_media22),
               InputMediaPhoto(type='photo', media=photo_media23),
               InputMediaPhoto(type='photo', media=photo_media24),
@@ -84,7 +84,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    await call.message.bot.send_photo(chat_id=mom_id, photo=photo3, caption=online_quest_2)
+    await call.message.bot.send_photo(chat_id=mom_id, photo=photo3, caption=online_quest_3)
     await call.message.bot.send_message(chat_id=mom_id, text="Как Вам?",
                                         reply_markup=get_inline_is_like_end2())
 
@@ -94,7 +94,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     await call.answer("принято")
     mom_id = call.from_user.id
-    await call.message.bot.send_photo(chat_id=mom_id, photo=photo4, caption=online_quest_3,
+    await call.message.bot.send_photo(chat_id=mom_id, photo=photo4,
                                       reply_markup=get_inline_parent_all_block_pay())
     await call.message.bot.send_message(chat_id=mom_id, text=online_quest_4, reply_markup=get_inline_support())
 
@@ -113,10 +113,9 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
             mom_id = parent[0]
             try:
                 await call.message.bot.send_message(chat_id=mom_id,
-                                                    text=message_third_block,
-                                                    reply_markup=get_inline_pay_end())
+                                                    text=message_third_block)
                 await asyncio.sleep(3)
-                media1 = [InputMediaPhoto(type='photo', media=photo_media11),
+                media1 = [InputMediaPhoto(type='photo', media=photo_media11, caption=online_quest_1),
                          InputMediaPhoto(type='photo', media=photo_media12),
                          InputMediaPhoto(type='photo', media=photo_media13),
                          InputMediaPhoto(type='photo', media=photo_media14)]
