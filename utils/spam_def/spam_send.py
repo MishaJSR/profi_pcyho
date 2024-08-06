@@ -221,13 +221,13 @@ async def spam_task_user(bot, session, user_id):
         now_time = datetime.datetime.now()
         block_to_send = {}
         users = await get_all_users_session(session, user_id=user_id)
+        if not users[0]._data[5]:
+            return
         active_blocks = await get_block_all_session(session)
         for block in active_blocks:
             if block._data[0].date_to_post <= now_time:
                 block_to_send[block._data[0].progress_block] = block._data[0].id
         for user in users:
-            if user[0] != user_id:
-                continue
             if user[1] == 2 and user[3] != "Ребёнок" and not (user[4]):
                 continue
             block_id_to_send = block_to_send.get(user[1])
@@ -307,6 +307,7 @@ async def send_multi_post_user(bot, session, user_id, block_id, has_tasks, callb
         content = block._data[0].content
         if content == "**":
             content = None
+
         has_media = block._data[0].has_media
         block_pool_id = block._data[0].id
         if not has_media:
@@ -325,6 +326,7 @@ async def send_multi_post_user(bot, session, user_id, block_id, has_tasks, callb
                         media_group.append(InputMediaPhoto(type='photo', media=photo_id))
             if media_group:
                 await bot.send_media_group(user_id, media=media_group)
+                await asyncio.sleep(5)
             else:
                 await bot.send_message(chat_id=user_id, text=content)
             if videos_ids:

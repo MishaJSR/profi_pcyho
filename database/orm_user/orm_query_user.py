@@ -66,7 +66,7 @@ async def get_all_users(session_pool, **kwargs):
 async def get_all_users_session(session, **kwargs):
     query = select(Users.user_id, Users.progress,
                    Users.id_last_block_send, Users.user_class,
-                   Users.user_become_children).where((Users.is_subscribe == True) and (Users.user_id == kwargs.get("user_id")) and (Users.user_block_bot == False))
+                   Users.user_become_children, Users.is_subscribe).where(Users.user_id == kwargs.get("user_id"))
     result = await session.execute(query)
     return result.fetchall()
 
