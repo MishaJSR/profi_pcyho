@@ -338,8 +338,7 @@ async def update_user_task_progress_and_go_to_next(call, message, session):
                 try:
                     if child_progress == 1:
                         await message.bot.send_message(chat_id=mom_id,
-                                                       text=message_first_block,
-                                                       reply_markup=get_inline_support())
+                                                       text=message_first_block)
                     if child_progress == 2:
                         await message.bot.send_message(chat_id=mom_id,
                                                        text=message_second_block,
