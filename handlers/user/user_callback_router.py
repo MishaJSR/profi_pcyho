@@ -248,6 +248,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 @user_callback_router.callback_query(lambda call: call.data == "next_block_children")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
     await call.message.delete()
+    await call.answer("Идем дальше")
     user_class, user_become = await get_user_class(session, user_id=call.from_user.id)
     if user_class != "Ребёнок" and not user_become:
         await call.message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
@@ -255,7 +256,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         return
     await update_user_progress(session, user_id=call.from_user.id)
     await spam_task_user(call.message.bot, session, call.from_user.id)
-    await call.answer("Идем дальше")
+
 
 
 @user_callback_router.callback_query(lambda call: call.data == "go_to_quest")
