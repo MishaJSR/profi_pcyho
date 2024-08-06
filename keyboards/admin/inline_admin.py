@@ -113,22 +113,27 @@ def get_inline_pay_end():
     builder = InlineKeyboardBuilder()
     builder.button(text='Оплата курса', callback_data='effeefwwefefe',
                    url=course_link)
-    builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
-                   url=happy_link)
+    # builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',
+    #                url=happy_link)
     builder.adjust(1, 1)
     return builder.as_markup()
 
 
-def get_inline_is_like_end():
+def get_inline_is_like_end1():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Мне нравится 👍')
+    builder.button(text='Мне нравится 👍', callback_data="inline_is_like_end1")
     builder.adjust(1, 1)
     return builder.as_markup()
 
+def get_inline_is_like_end2():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Мне нравится 👍', callback_data="inline_is_like_end2")
+    builder.adjust(1, 1)
+    return builder.as_markup()
 
 def get_inline_mind():
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 👍')
+    builder.button(text='Да 👍', callback_data="inline_mind")
     builder.adjust(1, 1)
     return builder.as_markup()
 
