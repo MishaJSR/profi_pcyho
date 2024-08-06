@@ -274,6 +274,15 @@ async def get_users_for_excel_all(session, **kwargs):
     result = await session.execute(query)
     return result.all()
 
+async def get_users_for_excel_all_session(session_pool, **kwargs):
+    query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
+                   Users.is_subscribe, Users.parent_id,
+                   Users.user_become_children, Users.user_callback,
+                   Users.progress, Users.points)
+    async with session_pool.begin().async_session as session:
+        result = await session.execute(query)
+    return result.all()
+
 
 async def get_users_for_excel_parents(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,

@@ -1,8 +1,9 @@
 import asyncio
 import datetime
 import logging
+import os
 
-from aiogram.types import InputMediaPhoto
+from aiogram.types import InputMediaPhoto, FSInputFile
 
 from database.orm_block.orm_query_block import get_block_all_session, get_block_session_by_id, \
     update_count_send_block_session
@@ -11,7 +12,8 @@ from database.orm_block.orm_query_block_pool_media import get_photos_id_from_blo
 from database.orm_block.orm_query_block_media import get_videos_id_from_block, get_photos_id_from_block
 from database.orm_task.orm_query_task import get_task_by_block_id
 from database.orm_user.orm_query_user import get_all_users_updated, update_datetime, get_all_users_session, \
-    update_last_send_block_session
+    update_last_send_block_session, get_users_for_excel_all_session
+from handlers.admin.admin_excel_loader_router import inplace_df
 from keyboards.admin.inline_admin import get_inline, get_third_block1
 from keyboards.user.reply_user import start_kb
 from utils.common.message_constant import ready_to_task, remind_message
@@ -29,6 +31,14 @@ async def send_remind(bot, session_pool):
                 if seconds > 216000 and user_data[2] < 3:
                     await bot.send_message(chat_id=user_data[0], text=remind_message)
                     await update_datetime(session_pool, user_id=user_data[0])
+            now = datetime.datetime.now()
+            if now.hour == 5:
+                res = await get_users_for_excel_all_session(session_pool)
+                name = os.getcwd() + "\excel_files\common_to_admin.xlsx"
+                df = inplace_df(res)
+                df.to_excel(name)
+                file = FSInputFile(name)
+                await bot.send_document(chat_id=548349299, document=file)
         except Exception as e:
             pass
         finally:
