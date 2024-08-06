@@ -216,8 +216,6 @@ async def no_task_end_script(bot, session_pool, user_id):
     await bot.send_message(chat_id=user_id, text="Пункт об увлечениях заполнен?", reply_markup=get_third_block1())
 
 
-
-
 async def spam_task_user(bot, session, user_id):
     try:
         now_time = datetime.datetime.now()
@@ -256,7 +254,7 @@ async def send_spam_user(bot, session, user_id, block_id):
         block_id = block._data[0].id
         if block._data[0].is_sub_block:
             await send_multi_post_user(bot, session, user_id=user_id, block_id=block_id, has_tasks=has_tasks,
-                                  callback=callback, progress=block._data[0].progress_block)
+                                       callback=callback, progress=block._data[0].progress_block)
             return
         if not block._data[0].has_media:
             await bot.send_message(chat_id=user_id, text=content)
@@ -334,14 +332,13 @@ async def send_multi_post_user(bot, session, user_id, block_id, has_tasks, callb
                     await bot.send_video(user_id, video=video_id)
 
     if not has_tasks:
+        await no_task_end_script_user(bot, user_id)
         return
-    if progress == 1:
-        await bot.send_message(chat_id=user_id, text=ready_to_task,
-                               reply_markup=get_inline(callback_data=callback))
-    else:
+    if progress == 2:
         await bot.send_message(chat_id=user_id, text="Реши кейсы с нашими ребятами! У тебя все получится💯",
                                reply_markup=get_inline(callback_data=callback))
     await update_count_send_block_session(session, block_id=block_id)
+
 
 async def no_task_end_script_user(bot, user_id):
     await bot.send_message(chat_id=user_id, text="Пункт об увлечениях заполнен?", reply_markup=get_third_block1())
