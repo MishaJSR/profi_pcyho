@@ -63,6 +63,13 @@ async def get_all_users(session_pool, **kwargs):
         result = await session.execute(query)
     return result.fetchall()
 
+async def get_all_users_session(session, **kwargs):
+    query = select(Users.user_id, Users.progress,
+                   Users.id_last_block_send, Users.user_class,
+                   Users.user_become_children).where((Users.is_subscribe == True) and (Users.user_id == kwargs.get("user_id")) and (Users.user_block_bot == False))
+    result = await session.execute(query)
+    return result.fetchall()
+
 
 async def get_all_users_updated(session_pool, **kwargs):
     query = select(Users.user_id, Users.updated, Users.progress).where((Users.user_block_bot == False))
@@ -243,6 +250,12 @@ async def update_last_send_block_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
+
+async def update_last_send_block_session(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        id_last_block_send=kwargs.get("block_id"))
+    await session.execute(query)
+    await session.commit()
 
 
 async def update_stop_spam(session_pool, **kwargs):

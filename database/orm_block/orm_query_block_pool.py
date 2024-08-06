@@ -25,6 +25,6 @@ async def get_block_pool_all_session_pool(session_pool, **kwargs):
 
 
 async def get_block_pool_all(session, **kwargs):
-    query = select(BlockPool).where(BlockPool.block_main_id == kwargs.get("block_main_id"))
+    query = select(BlockPool).where(BlockPool.block_main_id == kwargs.get("block_main_id")).order_by(BlockPool.updated)
     result = await session.execute(query)
     return result.fetchall()

@@ -58,11 +58,22 @@ async def get_block_session_pool_by_id(session_pool, **kwargs):
         result = await session.execute(query)
     return result.fetchone()
 
+async def get_block_session_by_id(session, **kwargs):
+    query = select(Block).where(
+        (Block.is_visible == True) & (Block.is_vebinar == False) & (Block.id == kwargs.get("block_id")))
+    result = await session.execute(query)
+    return result.fetchone()
+
 
 async def get_block_all_session_pool(session_pool, **kwargs):
     query = select(Block).where(Block.is_visible == True)
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
+    return result.fetchall()
+
+async def get_block_all_session(session, **kwargs):
+    query = select(Block).where(Block.is_visible == True)
+    result = await session.execute(query)
     return result.fetchall()
 
 
@@ -93,6 +104,14 @@ async def update_count_send_block_session_pool(session_pool, **kwargs):
     async with session_pool.begin().async_session as session:
         await session.execute(query)
         await session.commit()
+
+
+async def update_count_send_block_session(session, **kwargs):
+    query = update(Block).where((Block.is_visible == True) & (Block.id == kwargs.get("block_id"))).values(
+        count_send=Block.count_send + 1
+    )
+    await session.execute(query)
+    await session.commit()
 
 
 async def get_time_next_block(session: AsyncSession, **kwargs):

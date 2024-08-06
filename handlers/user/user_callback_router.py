@@ -1,3 +1,5 @@
+import asyncio
+
 from aiogram import types, Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
@@ -25,6 +27,7 @@ from keyboards.user.reply_user import start_kb, send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
     get_phone, achive1, achive2, message_first_block, message_second_block, list_number_smile, file_id, text_for_media, \
     question_answer, message_third_block, achive3
+from utils.spam_def.spam_send import spam_task_user
 
 user_callback_router = Router()
 
@@ -100,6 +103,8 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await update_user_progress(session, user_id=call.from_user.id)
     await call.answer("Хорошо, идем дальше")
     await call.message.answer("Хорошо👍 \nИдем дальше 💪")
+    await asyncio.sleep(3)
+    await spam_task_user(call.message.bot, session, call.from_user.id)
 
 
 @user_callback_router.callback_query(lambda call: call.data == "pay")
@@ -202,6 +207,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
         await call.answer("Вам понравилось?")
         return
     await update_user_progress(session, user_id=call.from_user.id)
+    await spam_task_user(call.message.bot, session, call.from_user.id)
     await call.answer("Идем дальше")
 
 
@@ -210,6 +216,7 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
     await call.message.delete()
     if not UserCallbackState.is_return:
         await update_user_progress(session, user_id=call.from_user.id)
+        await spam_task_user(call.message.bot, session, call.from_user.id)
     else:
         UserCallbackState.is_return = False
     await call.answer("Идем дальше")
