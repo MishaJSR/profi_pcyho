@@ -113,6 +113,13 @@ async def update_users_progress_session_pool(session_pool, **kwargs):
         await session.commit()
 
 
+async def update_users_progress_session(session, **kwargs):
+    query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
+        progress=Users.progress + 1)
+    await session.execute(query)
+    await session.commit()
+
+
 async def update_datetime(session_pool, **kwargs):
     query = update(Users).where(Users.user_id == kwargs.get("user_id")).values(
         updated=datetime.datetime.now())
@@ -210,10 +217,23 @@ async def get_parent_by_session(session_pool, user_id):
     return result.fetchall()
 
 
+async def get_parent_by_ses(session, user_id):
+    query = select(Users.parent_id, Users.progress, Users.points).where(
+        (Users.user_id == user_id) and (Users.is_subscribe == True))
+    result = await session.execute(query)
+    return result.fetchall()
+
+
 async def get_user_class_session_pool(session_pool, **kwargs):
     query = select(Users.user_class).where(Users.user_id == kwargs.get("user_id"))
     async with session_pool.begin().async_session as session:
         result = await session.execute(query)
+    return result.fetchone()
+
+
+async def get_user_class_session(session, **kwargs):
+    query = select(Users.user_class).where(Users.user_id == kwargs.get("user_id"))
+    result = await session.execute(query)
     return result.fetchone()
 
 

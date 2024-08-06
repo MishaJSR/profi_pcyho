@@ -12,7 +12,10 @@ course_referal = referal_link
 
 def get_inline(is_second=False, callback_data=None):
     builder = InlineKeyboardBuilder()
-    builder.button(text='Да 👍', callback_data=callback_data)
+    if is_second:
+        builder.button(text='Вперед! 👍', callback_data=callback_data)
+    else:
+        builder.button(text='Да 👍', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()
 
@@ -22,6 +25,7 @@ def get_inline_to_tasks():
     builder.button(text='Перейти к заданиям 💪', callback_data="start_task")
     builder.adjust(1, 1)
     return builder.as_markup()
+
 
 def get_inline_vebinar(url):
     builder = InlineKeyboardBuilder()
@@ -152,6 +156,7 @@ def skip_task_kb(return_callback, callback_data):
     builder.adjust(1, 1)
     return builder.as_markup()
 
+
 def get_inline_next_test_good():
     builder = InlineKeyboardBuilder()
     builder.button(text='Да 🤘', callback_data='next_test_good')
@@ -161,4 +166,22 @@ def get_inline_next_test_good():
 def get_inline_next_test_bad():
     builder = InlineKeyboardBuilder()
     builder.button(text='Да 👍', callback_data='next_test_bad')
+    return builder.as_markup()
+
+
+def get_third_block1():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍', callback_data='get_third_block1')
+    return builder.as_markup()
+
+
+def get_third_block2():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍', callback_data='get_third_block2')
+    return builder.as_markup()
+
+
+def get_third_block3():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍', callback_data='get_third_block3')
     return builder.as_markup()
