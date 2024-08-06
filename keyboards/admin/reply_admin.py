@@ -1,7 +1,7 @@
 from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
-command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
-#command_admin_list = ['Рассылка']
+#command_admin_list = ['Управление блоками', "Управление заданиями", 'Рассылка']
+command_admin_list = ['Рассылка']
 type_task_actions = ['Добавить задание', 'Удалить задание']
 type_task = ['Описание изображения', 'Тест']
 spam_actions = ['Отобразить статус блоков', 'Предпросмотр', "Отправить спам",
