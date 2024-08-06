@@ -270,7 +270,7 @@ async def get_users_for_excel_all(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
-                   Users.points)
+                   Users.progress, Users.points)
     result = await session.execute(query)
     return result.all()
 
@@ -279,7 +279,7 @@ async def get_users_for_excel_parents(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
-                   Users.points).where(Users.user_class == "Родитель")
+                   Users.progress, Users.points).where(Users.user_class == "Родитель")
     result = await session.execute(query)
     return result.all()
 
@@ -288,7 +288,7 @@ async def get_users_for_excel_teacher(session, **kwargs):
     query = select(Users.user_id, Users.username, Users.user_tag, Users.user_class, Users.phone_number,
                    Users.is_subscribe, Users.parent_id,
                    Users.user_become_children, Users.user_callback,
-                   Users.points).where(Users.user_class == "Педагог")
+                   Users.progress, Users.points).where(Users.user_class == "Педагог")
     result = await session.execute(query)
     return result.all()
 

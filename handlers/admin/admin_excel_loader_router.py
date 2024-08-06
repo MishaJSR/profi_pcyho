@@ -94,7 +94,7 @@ def inplace_df(res) -> pd.DataFrame:
         'phone_number': 'Телефон', 'user_class': 'Принадлежность',
         'is_subscribe': 'Пройдена ли авторизация', 'parent_id': 'ID родителя',
         'user_become_children': 'Прошел полный курс',
-        'user_callback': 'Отзыв', 'points': 'E-коины',
+        'user_callback': 'Отзыв', 'progress': 'Прогресс', 'points': 'Е-коины',
         'user_tag': "Тег пользователя"}, inplace=True)
     df.replace(True, 'Да', inplace=True)
     df.replace(False, 'Нет', inplace=True)
