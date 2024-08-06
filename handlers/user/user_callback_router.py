@@ -1,7 +1,6 @@
 import asyncio
 
 from aiogram import types, Router, F
-from aiogram.enums import ParseMode
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
@@ -22,11 +21,12 @@ from handlers.user.user_states import UserRegistrationState
 from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline_is_like, \
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block, \
     questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support, get_inline_to_tasks, get_inline_next_test_good, \
-    get_inline_next_test_bad, get_third_block2, get_third_block3
+    get_inline_next_test_bad, get_third_block2, get_third_block3, get_inline_is_like_end, get_inline_mind
 from keyboards.user.reply_user import send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
     get_phone, message_first_block, message_second_block, list_number_smile, file_id, text_for_media, \
-    question_answer, message_third_block, achive3
+    question_answer, message_third_block, achive3, photo_media11, photo_media12, photo_media13, photo_media14, \
+    photo_media21, photo_media22, photo_media23, photo_media24, photo_media25, photo3, photo4
 from utils.spam_def.spam_send import spam_task_user
 
 user_callback_router = Router()
@@ -77,6 +77,30 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
                 await call.message.bot.send_message(chat_id=mom_id,
                                                     text=message_third_block,
                                                     reply_markup=get_inline_pay_end())
+                await asyncio.sleep(3)
+                media1 = [InputMediaPhoto(type='photo', media=photo_media11),
+                         InputMediaPhoto(type='photo', media=photo_media12),
+                         InputMediaPhoto(type='photo', media=photo_media13),
+                         InputMediaPhoto(type='photo', media=photo_media14)]
+                media2 = [InputMediaPhoto(type='photo', media=photo_media21),
+                         InputMediaPhoto(type='photo', media=photo_media22),
+                         InputMediaPhoto(type='photo', media=photo_media23),
+                         InputMediaPhoto(type='photo', media=photo_media24),
+                         InputMediaPhoto(type='photo', media=photo_media25)]
+                await call.message.bot.send_media_group(chat_id=mom_id, media=media1)
+                await call.message.bot.send_message(chat_id=mom_id, text="Представили?",
+                                                    reply_markup=get_inline_mind())
+                await asyncio.sleep(4)
+                await call.message.bot.send_media_group(chat_id=mom_id, media=media2)
+                await call.message.bot.send_message(chat_id=mom_id, text="Как Вам?",
+                                                    reply_markup=get_inline_is_like_end())
+                await asyncio.sleep(4)
+                await call.message.bot.send_photo(chat_id=mom_id, photo=photo3,)
+                await call.message.bot.send_message(chat_id=mom_id, text="Как Вам?",
+                                                    reply_markup=get_inline_is_like_end())
+                await asyncio.sleep(5)
+                await call.message.bot.send_photo(chat_id=mom_id, photo=photo4,
+                                                  reply_markup=get_inline_parent_all_block_pay())
             except Exception as e:
                 pass
     elif user_class[0] == "Родитель":

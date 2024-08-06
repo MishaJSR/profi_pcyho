@@ -119,6 +119,19 @@ def get_inline_pay_end():
     return builder.as_markup()
 
 
+def get_inline_is_like_end():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Мне нравится 👍')
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
+
+def get_inline_mind():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍')
+    builder.adjust(1, 1)
+    return builder.as_markup()
+
 def get_inline_support():
     builder = InlineKeyboardBuilder()
     builder.button(text='Задать вопрос Хэппи', callback_data='effeefww54efefe',

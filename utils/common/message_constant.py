@@ -56,3 +56,25 @@ message_third_block = f"Спешу поделиться прогрессом😊
                       f"Я также хочу сообщить, что бесплатная часть нашего квеста подходит к концу 🥲\n\n" \
                       f"Чтобы продолжить обучаться и развивать эмоциональные навыки Вашего ребёнка, " \
                       f"необходимо забронировать дальнейший курс⬇️"
+
+online_quest_1 = f"Просто представьте, что ваш ребенок:\n\n" \
+               f"✅ Стал уверенным в себе\n" \
+               f"✅ Комфортно себя чувствует в группе сверстников\n" \
+               f"✅ С радостью пробует себя в новых ролях\n" \
+               f"✅ Готов к вызовам реальной жизни"
+
+online_quest_2 = f"Как устроен наш онлайн-квест «Герой эмоций»"
+
+online_quest_3 = f"«Герой эмоций» – это большая полугодовая программа обучения в формате" \
+                 f" квеста-симулятора, которую разработали опытные педагоги и  практикующие психологи."
+photo_media11 = "AgACAgIAAxkBAAICZGayMhCCcKccD0xJFmc2mIk_NDf5AAIW4jEbvJCQSbSlLBujegayAQADAgADeQADNQQ"
+photo_media12 = "AgACAgIAAxkBAAICZWayMhAaEkYecZ7P0plYzUSIZ5KXAAIX4jEbvJCQSXPih9alAYTqAQADAgADeQADNQQ"
+photo_media13 = "AgACAgIAAxkBAAICZmayMhA_J91XLouI1rKuigQQQQcOAAIY4jEbvJCQSSRSmz44SveEAQADAgADeQADNQQ"
+photo_media14 = "AgACAgIAAxkBAAICZ2ayMhCFNAABJV-z-sAzl7Qi0-7CAgACGeIxG7yQkElS2IKEbecHrwEAAwIAA3kAAzUE"
+photo_media21 = "AgACAgIAAxkBAAICPWayMTVzjFRfbBB4Bsd2CriquFrmAAIQ4jEbvJCQScvf_g6iEtzLAQADAgADeQADNQQ"
+photo_media22 = "AgACAgIAAxkBAAICPmayMTVUZvi1QNbhrhr8UGsZCxdZAAIR4jEbvJCQSR_PsQAB8nbtKAEAAwIAA3gAAzUE"
+photo_media23 = "AgACAgIAAxkBAAICP2ayMTXOiMs0L3VMMEqAs37qSvXrAAIS4jEbvJCQSbKAmWMnpLCqAQADAgADeAADNQQ"
+photo_media24 = "AgACAgIAAxkBAAICQGayMTV9GXtNdczafQe0P_ev-iHZAAIT4jEbvJCQSf_SBrzmMhdMAQADAgADeAADNQQ"
+photo_media25 = "AgACAgIAAxkBAAICQWayMTXiYVP5qq26sPLo6vF3UakmAAIU4jEbvJCQSdvxnhGTNJaAAQADAgADeQADNQQ"
+photo3 = "AgACAgIAAxkBAAICgmayMnIQvhmki6sbyHtDGGhPQQ7pAAIi4jEbvJCQSQAB_bM5IC-zswEAAwIAA3kAAzUE"
+photo4 = "AgACAgIAAxkBAAICg2ayMnL7pd42jozD1um_gkcNNEN-AAIj4jEbvJCQSWaRbnUXrt7OAQADAgADeAADNQQ"
