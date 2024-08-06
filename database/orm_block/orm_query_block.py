@@ -3,7 +3,6 @@ import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 from database.models import Block
 from sqlalchemy import select, update
-import pandas as pd
 
 
 async def add_block(session: AsyncSession, **kwargs):

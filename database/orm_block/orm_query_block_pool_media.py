@@ -1,8 +1,8 @@
 import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import Block, BlockPool, MediaBlockPool
-from sqlalchemy import select, update
+from database.models import MediaBlockPool
+from sqlalchemy import select
 
 
 async def add_block_pool_media(session: AsyncSession, **kwargs):

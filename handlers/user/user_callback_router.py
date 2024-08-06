@@ -6,15 +6,14 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InputMediaPhoto, ReplyKeyboardRemove
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.orm_block.orm_query_block import get_block_id_by_callback, get_block_id_by_progress, \
-    get_order_block_progress, get_order_block_progress_session
+from database.orm_block.orm_query_block import get_block_id_by_callback, get_block_id_by_progress
 from database.orm_task.orm_query_task_media import get_media_task_by_task_id
 from database.orm_task.orm_query_task import get_task_by_block_id
 from database.orm_user.orm_query_user import update_user_progress, update_user_points, get_user_class, \
     get_progress_by_user_id, \
     update_user_become, add_user, check_user_subscribe_new_user, \
-    check_user_become_children, get_user_progress, get_user_points, check_new_user_session, get_parent_by_id, \
-    get_user_class_session_pool, get_user_class_session, get_parent_by_ses, update_users_progress_session
+    check_user_become_children, get_user_progress, get_user_points, get_parent_by_id, \
+    get_user_class_session, get_parent_by_ses, update_users_progress_session
 from database.orm_user.orm_query_user_task_progress import set_user_task_progress, get_task_progress_by_user_id, \
     get_is_pass_by_id, delete_all_user_progress
 from handlers.user.state import UserState
@@ -23,9 +22,9 @@ from keyboards.admin.inline_admin import get_inline_parent_all_block, get_inline
     get_inline_pay, get_inline_parent_all_block_pay, get_inline_teacher_all_block_referal, get_inline_next_block, \
     questions_kb, get_inline_pay_end, skip_task_kb, get_inline_support, get_inline_to_tasks, get_inline_next_test_good, \
     get_inline_next_test_bad, get_third_block2, get_third_block3
-from keyboards.user.reply_user import start_kb, send_contact_kb
+from keyboards.user.reply_user import send_contact_kb
 from utils.common.message_constant import pay_to_link, you_should_be_partner, congratulations, \
-    get_phone, achive1, achive2, message_first_block, message_second_block, list_number_smile, file_id, text_for_media, \
+    get_phone, message_first_block, message_second_block, list_number_smile, file_id, text_for_media, \
     question_answer, message_third_block, achive3
 from utils.spam_def.spam_send import spam_task_user
 

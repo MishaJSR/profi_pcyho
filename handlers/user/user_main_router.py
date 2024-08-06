@@ -16,7 +16,7 @@ from database.orm_block.orm_query_block import get_time_next_block
 from database.orm_user.orm_query_user import get_progress_by_user_id, get_user_points
 from handlers.user.user_callback_router import user_callback_router
 from handlers.user.user_states import UserRegistrationState
-from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, get_inline_is_like, \
+from keyboards.admin.inline_admin import get_inline_parent, get_inline_parent_all_block, \
     get_inline_parent_all_block_pay, get_inline_teacher_all_block, get_inline_teacher_all_block_referal, questions_kb, \
     get_inline_first_video
 from keyboards.user.reply_user import send_contact_kb, users_pool_kb, users_pool, parent_permission

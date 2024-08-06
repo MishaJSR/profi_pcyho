@@ -1,8 +1,8 @@
 import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from database.models import Block, BlockPool
-from sqlalchemy import select, update
+from database.models import BlockPool
+from sqlalchemy import select
 
 
 async def add_block_pool(session: AsyncSession, **kwargs):
