@@ -12,10 +12,7 @@ course_referal = referal_link
 
 def get_inline(is_second=False, callback_data=None):
     builder = InlineKeyboardBuilder()
-    if is_second:
-        builder.button(text='Перейти к заданиям 💪', callback_data=callback_data)
-    else:
-        builder.button(text='Да 💪', callback_data=callback_data)
+    builder.button(text='Да 👍', callback_data=callback_data)
     builder.adjust(1, 1)
     return builder.as_markup()
 
@@ -153,4 +150,15 @@ def skip_task_kb(return_callback, callback_data):
     builder.button(text='Да', callback_data=return_callback)
     builder.button(text='Нет', callback_data=callback_data)
     builder.adjust(1, 1)
+    return builder.as_markup()
+
+def get_inline_next_test_good():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 🤘', callback_data='next_test_good')
+    return builder.as_markup()
+
+
+def get_inline_next_test_bad():
+    builder = InlineKeyboardBuilder()
+    builder.button(text='Да 👍', callback_data='next_test_bad')
     return builder.as_markup()

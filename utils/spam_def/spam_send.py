@@ -132,7 +132,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
                     await bot.send_message(chat_id=user_id, text=ready_to_task,
                                            reply_markup=get_inline(callback_data=callback))
                 if block._data[0].progress_block == 2:
-                    await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                    await bot.send_message(chat_id=user_id, text='Готов к практическому заданию?',
                                            reply_markup=get_inline(is_second=True, callback_data=callback))
 
             else:
@@ -159,7 +159,7 @@ async def send_spam(bot, session_pool, user_id, block_id):
                 await bot.send_message(chat_id=user_id, text=ready_to_task,
                                        reply_markup=get_inline(callback_data=callback))
             if block._data[0].progress_block == 2:
-                await bot.send_message(chat_id=user_id, text='Реши кейсы с нашими ребятами! У тебя все получится💯',
+                await bot.send_message(chat_id=user_id, text='Готов к практическому заданию?',
                                        reply_markup=get_inline(is_second=True, callback_data=callback))
         else:
             await no_task_end_script(bot, session_pool, user_id)
