@@ -232,7 +232,7 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
                            username=message.from_user.full_name,
                            user_tag=message.from_user.username,
                            user_class=message.text)
-            link = f"https://t.me/train_chiildren_psychology_bot?start={message.from_user.id}"
+            link = f"https://t.me/hero_of_emotions_bot?start={message.from_user.id}"
             await message.answer(f"Для прохождения квеста мне необходимо получить разрешение от твоего родителя ✨\n"
                                  f"Когда он согласится, я пришлю тебе первое задание 🤓",
                                  reply_markup=ReplyKeyboardRemove())
