@@ -35,6 +35,16 @@ async def fill_admin_state(message: types.Message, session: AsyncSession,  state
     await message.answer(text="Удалено", reply_markup=start_kb())
 
 
+@admin_private_router.message(F.text == "Удалить пользователя")
+async def fill_admin_state(message: types.Message, session: AsyncSession,  state: FSMContext):
+    await delete_me_user(session, user_id=1069156167)
+    await delete_all_user_progress(session, user_id=1069156167)
+    await message.bot.send_message(chat_id=1069156167, text=f"Извините за непредвиденную ошибку\n"
+                                                            f"Ваш пользователь удален\n"
+                                                            f"Вы можете перезапустить бота нажав кнопку /start в меню")
+    await message.answer(text="Удалено", reply_markup=start_kb())
+
+
 
 
 
