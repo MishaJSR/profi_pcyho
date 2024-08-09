@@ -260,13 +260,14 @@ async def check_button(call: types.CallbackQuery, session: AsyncSession, state: 
 
 @user_callback_router.callback_query(lambda call: call.data == "go_to_quest")
 async def check_button(call: types.CallbackQuery, session: AsyncSession, state: FSMContext):
-    await call.message.delete()
-    if not UserCallbackState.is_return:
+    try:
+        await call.message.delete()
         await update_user_progress(session, user_id=call.from_user.id)
         await spam_task_user(call.message.bot, session, call.from_user.id)
-    else:
         UserCallbackState.is_return = False
-    await call.answer("Идем дальше")
+        await call.answer("Идем дальше")
+    except Exception as e:
+        await call.message.answer("Ошибка на стороне сервиса")
 
 
 @user_callback_router.message(UserCallbackState.test_callback, F.text)

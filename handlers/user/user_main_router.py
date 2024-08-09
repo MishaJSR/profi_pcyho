@@ -112,9 +112,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer(get_phone, reply_markup=send_contact_kb())
         await state.set_state(UserRegistrationState.parent)
         return
-    # if not user_callback and not user_become:
-    #     await message.answer('Вам понравилось?', reply_markup=get_inline_is_like())
-    #     return
     if progress < 3 and user_class == "Педагог":
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
@@ -123,12 +120,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.answer('Урок уже выслан\n'
                              'Пожалуйста ознакомьтесь с ним и пройдите задания')
         return
-    # if user_class == "Родитель" and not user_become:
-    #     await message.answer("Хочу пройти все блоки", reply_markup=get_inline_parent_all_block())
-    #     return
-    # if user_class == "Педагог" and not user_become:
-    #     await message.answer("Вы также можете стать нашим партнером", reply_markup=get_inline_teacher_all_block())
-    #     return
     if user_class == "Педагог" and user_become:
         await message.answer(you_should_be_partner, reply_markup=get_inline_teacher_all_block_referal())
         return
