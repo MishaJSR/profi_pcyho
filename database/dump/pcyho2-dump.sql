@@ -427,8 +427,8 @@ COPY public.alembic_version (version_num) FROM stdin;
 
 COPY public.block (id, block_name, content, has_media, date_to_post, progress_block, is_vebinar, is_visible, updated, callback_button_id, count_send, is_sub_block) FROM stdin;
 89	Hhh	Subblock	f	2024-07-17 09:00:00	3	f	t	2024-08-06 12:58:39.816827	64bb1816-f836-4b94-983a-cd24e12968e7	1	t
-85	Блок 2	Subblock	f	2024-07-16 09:00:00	2	f	t	2024-08-06 14:32:08.03169	d0e12083-d614-4f86-b940-6b1814269ada	27	t
-70	Блок 1	Мы идем в зону знаний. В первом видео ты узнаешь, что такое эмоциональный интеллект, и как он помогает превратить эмоции в силу и уверенность. 💪\n\nКогда ты пройдешь весь квест, ты прокачаешь свои эмоциональные скилы и сможешь:\n\n➖ находить новых друзей и поддерживать дружбу 🤝  \n➖ справляться со страхом, волнением и злостью 😌  \n➖ проявлять заботу и эмпатию к окружающим ❤️  \n➖ чувствовать себя уверенно в новых ситуациях 😊  \n➖ мирно решать конфликты 🕊️  \n\nМир эмоций открывается, давай начнем путешествие вместе! ✨\n	t	2024-07-15 09:00:00	1	f	t	2024-08-06 16:57:50.357925	40a3ee93-aaa1-4e73-8406-37d30529badf	289	f
+85	Блок 2	Subblock	f	2024-07-16 09:00:00	2	f	t	2024-08-14 09:37:23.948265	d0e12083-d614-4f86-b940-6b1814269ada	32	t
+70	Блок 1	Мы идем в зону знаний. В первом видео ты узнаешь, что такое эмоциональный интеллект, и как он помогает превратить эмоции в силу и уверенность. 💪\n\nКогда ты пройдешь весь квест, ты прокачаешь свои эмоциональные скилы и сможешь:\n\n➖ находить новых друзей и поддерживать дружбу 🤝  \n➖ справляться со страхом, волнением и злостью 😌  \n➖ проявлять заботу и эмпатию к окружающим ❤️  \n➖ чувствовать себя уверенно в новых ситуациях 😊  \n➖ мирно решать конфликты 🕊️  \n\nМир эмоций открывается, давай начнем путешествие вместе! ✨\n	t	2024-07-15 09:00:00	1	f	t	2024-08-14 09:37:06.383955	40a3ee93-aaa1-4e73-8406-37d30529badf	296	f
 \.
 
 
@@ -453,6 +453,16 @@ COPY public.block_pool (id, block_main_id, content, has_media, updated) FROM std
 --
 
 COPY public.media_block (id, block_id, photo_id, video_id, updated) FROM stdin;
+138	93	AgACAgIAAxkBAAIC4WazEiFpBYdcIIUEFab9G7g33kL6AAIX2jEbvJCYSW-kdrs81BX_AQADAgADeQADNQQ	\N	2024-08-07 09:20:36.454607
+139	93	AgACAgIAAxkBAAIC4mazEiHC5xKyfmJ-erhcTgl9MA2KAAIY2jEbvJCYSZMZKpIfmuYvAQADAgADeQADNQQ	\N	2024-08-07 09:20:36.461563
+140	93	AgACAgIAAxkBAAIC42azEiHJScX8bHZbnSnTFzYIPeVOAAIZ2jEbvJCYSRz_7gl0JwGgAQADAgADeQADNQQ	\N	2024-08-07 09:20:36.463111
+141	93	AgACAgIAAxkBAAIC5GazEiEqb7Ru72cOT8wEI4TgjTHRAAIb2jEbvJCYScHTIbfLuRTjAQADAgADeQADNQQ	\N	2024-08-07 09:20:36.464561
+142	93	AgACAgIAAxkBAAIC5WazEiH2TnNK3psZNibmMU-PkfvnAAId2jEbvJCYScChBUqhOdd_AQADAgADeQADNQQ	\N	2024-08-07 09:20:36.466024
+143	94	AgACAgIAAxkBAAIHNWa8T9BCiY_E8uDGhEvBjCdecn7MAAKl3jEbgELgSeLtlAuGRDjpAQADAgADeQADNQQ	\N	2024-08-14 09:34:06.038537
+144	94	AgACAgIAAxkBAAIHNma8T9DaEOE1MkSgRyI26j1zDRm_AAJr5zEbPDrgSYiED5JjfEMIAQADAgADeQADNQQ	\N	2024-08-14 09:34:06.055707
+145	94	AgACAgIAAxkBAAIHN2a8T9BIwIwN_ZFZ2mdkuw9_pMK1AAJs5zEbPDrgSVUQMuXFYlB3AQADAgADeQADNQQ	\N	2024-08-14 09:34:06.059503
+146	94	AgACAgIAAxkBAAIHOGa8T9APuxxCKfyGjWrV20ITxadrAAJt5zEbPDrgSU8SLNqUUgRgAQADAgADeQADNQQ	\N	2024-08-14 09:34:06.063279
+147	94	AgACAgIAAxkBAAIHOWa8T9BfqrvBorvnoWPGqqtUa4rpAAJu5zEbPDrgSXk38gdOCUFhAQADAgADeQADNQQ	\N	2024-08-14 09:34:06.066863
 85	70	\N	BAACAgIAAxkBAAJ56GawASodx4HPsVR1XhHF8VfYwBeQAAI3XAACmsiBSRKn6_C8ql8TNQQ	2024-07-25 09:35:53.171222
 124	70	AgACAgIAAxkBAAKHi2ax2MYp0Y1RHEh4cpFxnpUGOAGzAAKq4jEbTCqISSPTlZzrk0T7AQADAgADeQADNQQ	\N	2024-08-06 11:03:29.984429
 126	74	AgACAgIAAxkBAAKIkWax29f2pFuAY79xsnOP51LbrCtuAAK64jEbTCqISe4OklCvH0amAQADAgADeQADNQQ	\N	2024-08-06 11:16:33.227457
@@ -484,11 +494,11 @@ COPY public.media_block_pool (id, block_pool_id, photo_id, video_id, updated) FR
 --
 
 COPY public.media_task (id, task_id, photo_id, updated) FROM stdin;
-68	83	AgACAgIAAxkBAAJ_nmawxGtSAywaKh2U2XtYfIRIrxOmAAI04DEbmsiJSVRKTE1HvzwCAQADAgADeQADNQQ	2024-07-25 09:39:22.550923
-69	84	AgACAgIAAxkBAAJ_n2awxGsCujcdo4ExUlXy9ebz1j-5AAI14DEbmsiJSV0Ps6QrWEquAQADAgADeQADNQQ	2024-07-25 09:39:46.001186
-70	85	AgACAgIAAxkBAAJ_oGawxGvYoM1YmmtkbzGgoZl0IyWtAAI24DEbmsiJSZSGM2ktvKcMAQADAgADeQADNQQ	2024-07-25 09:40:12.502785
-71	86	AgACAgIAAxkBAAJ_oWawxGv-KuCWYwRMYgIrbvx7AAG8RwACN-AxG5rIiUlNYCyLzPR97wEAAwIAA3kAAzUE	2024-07-25 09:40:36.944173
-72	87	AgACAgIAAxkBAAJ_omawxGtw3QU88g4nXtbcu_oZMrxgAAI44DEbmsiJSR_kllekBZ6DAQADAgADeQADNQQ	2024-07-25 09:41:01.931167
+68	83	AgACAgIAAxkBAAIHNWa8T9BCiY_E8uDGhEvBjCdecn7MAAKl3jEbgELgSeLtlAuGRDjpAQADAgADeQADNQQ	2024-07-25 09:39:22.550923
+69	84	AgACAgIAAxkBAAIHNma8T9DaEOE1MkSgRyI26j1zDRm_AAJr5zEbPDrgSYiED5JjfEMIAQADAgADeQADNQQ	2024-07-25 09:39:46.001186
+70	85	AgACAgIAAxkBAAIHN2a8T9BIwIwN_ZFZ2mdkuw9_pMK1AAJs5zEbPDrgSVUQMuXFYlB3AQADAgADeQADNQQ	2024-07-25 09:40:12.502785
+71	86	AgACAgIAAxkBAAIHOGa8T9APuxxCKfyGjWrV20ITxadrAAJt5zEbPDrgSU8SLNqUUgRgAQADAgADeQADNQQ	2024-07-25 09:40:36.944173
+72	87	AgACAgIAAxkBAAIHOWa8T9BfqrvBorvnoWPGqqtUa4rpAAJu5zEbPDrgSXk38gdOCUFhAQADAgADeQADNQQ	2024-07-25 09:41:01.931167
 \.
 
 
@@ -512,6 +522,7 @@ COPY public.task (id, block_id, description, answer_mode, answers, answer, about
 --
 
 COPY public.users (id, user_id, username, progress, is_subscribe, day_start_subscribe, day_end_subscribe, points, updated, id_last_block_send, user_class, parent_id, phone_number, user_callback, user_become_children, name_of_user, stop_spam, user_block_bot, user_tag) FROM stdin;
+562	548349299	Михаил	4	t	\N	\N	0	2024-08-14 09:38:24.544236	89	Педагог	\N	\N	skip	t	\N	f	f	@mshsor
 \.
 
 
@@ -520,6 +531,13 @@ COPY public.users (id, user_id, username, progress, is_subscribe, day_start_subs
 --
 
 COPY public.users_task_progress (id, user_id, username, task_id, answer_mode, result, is_pass, updated, block_id) FROM stdin;
+1233	548349299	Михаил	81	Тест	12	f	2024-08-14 09:37:12.596464	70
+1234	548349299	Михаил	82	Тест	12	f	2024-08-14 09:37:14.809233	70
+1235	548349299	Михаил	83	Тест	12	f	2024-08-14 09:38:03.558841	85
+1236	548349299	Михаил	84	Тест	12	f	2024-08-14 09:38:05.676088	85
+1237	548349299	Михаил	85	Тест	12	f	2024-08-14 09:38:07.994975	85
+1238	548349299	Михаил	86	Тест	12	f	2024-08-14 09:38:10.482356	85
+1239	548349299	Михаил	87	Тест	12	f	2024-08-14 09:38:13.09678	85
 \.
 
 
@@ -527,7 +545,7 @@ COPY public.users_task_progress (id, user_id, username, task_id, answer_mode, re
 -- Name: block_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.block_id_seq', 92, true);
+SELECT pg_catalog.setval('public.block_id_seq', 94, true);
 
 
 --
@@ -541,7 +559,7 @@ SELECT pg_catalog.setval('public.block_pool_id_seq', 24, true);
 -- Name: media_block_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.media_block_id_seq', 137, true);
+SELECT pg_catalog.setval('public.media_block_id_seq', 147, true);
 
 
 --
@@ -569,14 +587,14 @@ SELECT pg_catalog.setval('public.task_id_seq', 88, true);
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_id_seq', 555, true);
+SELECT pg_catalog.setval('public.users_id_seq', 562, true);
 
 
 --
 -- Name: users_task_progress_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.users_task_progress_id_seq', 1220, true);
+SELECT pg_catalog.setval('public.users_task_progress_id_seq', 1239, true);
 
 
 --
