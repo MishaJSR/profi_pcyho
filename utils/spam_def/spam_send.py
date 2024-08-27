@@ -19,33 +19,21 @@ from keyboards.user.reply_user import start_kb
 from utils.common.message_constant import ready_to_task, remind_message
 
 
-
 async def send_remind(bot, session_pool):
     logging.info("I start")
     await asyncio.sleep(5)
+    a = [6, 24, 25, 26, 27, 28, 39, 40, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+         71, 72, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153]
     while True:
         logging.info("I circle")
-        try:
-            users = await get_all_users_updated(session_pool)
-            for user in users:
-                user_data = user._data
-                seconds = (datetime.datetime.now() - user_data[1]).total_seconds()
-                if seconds > 216000 and user_data[2] < 3:
-                    await bot.send_message(chat_id=user_data[0], text=remind_message)
-                    await update_datetime(session_pool, user_id=user_data[0])
-            now = datetime.datetime.now()
-            if now.hour == 5:
-                res = await get_users_for_excel_all_session(session_pool)
-                name = os.getcwd() + "\excel_files\common_to_admin.xlsx"
-                df = inplace_df(res)
-                df.to_excel(name)
-                file = FSInputFile(name)
-                await bot.send_document(chat_id=548349299, document=file)
-        except Exception as e:
-            pass
-        finally:
-            logging.info("I wait")
-            await asyncio.sleep(3600)
+        for el in a:
+            try:
+                await bot.forward_message(chat_id=-1002164443199, from_chat_id=-1002164443199, message_id=el)
+                await asyncio.sleep(3)
+            except Exception as e:
+                logging.info(f"Image Exception {e}")
+        logging.info("I wait")
+        await asyncio.sleep(20000)
 
 
 async def spam_task_user(bot, session, user_id):
