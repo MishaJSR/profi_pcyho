@@ -73,13 +73,17 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
             if UserRegistrationState.children_id == message.from_user.id:
                 await message.answer("Эта ссылка для родителя")
                 return
-            await message.answer(f"Привет!\n\nВаш ребенок хочет улучшить навыки "
+            await message.answer(f"Привет! ✋ На связи Хэппи! 💖\n\n"
+                                 f"Ваш ребенок хочет улучшить навыки "
                                  f"живого общения и научиться управлять своими эмоциями в “Студии эмоций”\n\n"
-                                 f"{message.from_user.full_name}, Вы разрешаете "
+                                 f"{message.from_user.full_name}, для нас важна прозрачность и открытость в общении "
+                                 f"с детьми и их родителями, поэтому нам важно получить ваше одобрение.\n\n"
+                                 f"Вы разрешаете "
                                  f"ребенку пройти бесплатный уровень "
-                                 f"онлайн-квеста “Герой эмоций”?\n\n"
-                                 f"Если Вы пройдете регистрацию, "
-                                 f"я пришлю Вам результаты прохождения по каждому уроку."
+                                 f"онлайн-квеста “Герой эмоций”?"
+                                 f"Это совершенно бесплатно.\n\n"
+                                 f"Я буду информировать Вас и присылать результаты "
+                                 f"прохождения по каждому уроку."
                                  f"", reply_markup=parent_permission())
             return
     except Exception as e:
@@ -162,8 +166,6 @@ async def start_cmd(message: types.Message, session: AsyncSession, state: FSMCon
         await message.bot.send_message(chat_id=UserRegistrationState.children_id, text="Ты готов отправиться со мной ?",
                                        reply_markup=get_inline_first_video())
         res = await check_new_user(session, user_id=message.from_user.id)
-        if not res:
-            await message.answer("Хочу тоже попробовать курс!", reply_markup=get_inline_parent())
     except Exception as e:
         logging.info(e)
         await message.answer("Ошибка подключения")
